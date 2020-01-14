@@ -9,11 +9,28 @@ module.exports = {
                 autoIncrement: true,
                 allowNull: false
             },
+            client_id: {
+                type: Sequelize.STRING,
+                allowNull: false
+            },
             name: {
                 type: Sequelize.STRING,
                 allowNull: false
             },
             email: {
+                type: Sequelize.STRING,
+                unique: true,
+                allowNull: false
+            },
+            password_hash: {
+                type: Sequelize.STRING,
+                allowNull: false
+            },
+            auth: {
+                type: Sequelize.STRING,
+                allowNull: false
+            },
+            credentials: {
                 type: Sequelize.STRING,
                 allowNull: false
             },
