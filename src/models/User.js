@@ -1,6 +1,7 @@
 const { DataTypes, Model } = require("sequelize");
 
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 class User extends Model {
     static init(sequelize) {
@@ -37,5 +38,13 @@ class User extends Model {
         });
     }
 }
+
+User.prototype.checkPassword = function(password) {
+    return bcrypt.compare(password, this.password_hash);
+};
+
+User.prototype.generateToken = function() {
+    return jwt.sign({ id: this.id }, process.env.APP_SECRET);
+};
 
 module.exports = User;

@@ -7,6 +7,20 @@ const SessionController = require("./controllers/SessionController");
 
 const routes = express.Router();
 
+const authMiddleware = require("./middlewares/auth");
+
+/**
+ * Session
+ */
+
+routes.post("/sessions", SessionController.store);
+
+/**
+ * Authentication
+ */
+
+routes.use(authMiddleware);
+
 routes.get("/users", UserController.index);
 routes.post("/users", UserController.store);
 
@@ -24,9 +38,11 @@ routes.post("/authenticate", async (req, res) => {
 });
 
 /**
- * Session
+ * Dashboard
  */
 
-routes.post("/sessions", SessionController.store);
+routes.get("/dashboard", (req, res) => {
+    return res.status(200).send();
+});
 
 module.exports = routes;

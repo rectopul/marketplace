@@ -12,7 +12,7 @@ module.exports = {
             client_id,
             name,
             email,
-            password_hash,
+            password,
             auth,
             credentials
         } = req.body;
@@ -21,7 +21,7 @@ module.exports = {
             client_id,
             name,
             email,
-            password_hash,
+            password,
             auth,
             credentials
         });
