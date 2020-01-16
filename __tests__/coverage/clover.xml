@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1579109865585" clover="3.2.0">
-  <project timestamp="1579109865585" name="All files">
-    <metrics statements="113" coveredstatements="78" conditionals="18" coveredconditionals="9" methods="23" coveredmethods="13" elements="154" coveredelements="100" complexity="0" loc="113" ncloc="113" packages="7" files="13" classes="13"/>
+<coverage generated="1579139509860" clover="3.2.0">
+  <project timestamp="1579139509861" name="All files">
+    <metrics statements="110" coveredstatements="80" conditionals="22" coveredconditionals="10" methods="19" coveredmethods="13" elements="151" coveredelements="103" complexity="0" loc="110" ncloc="110" packages="6" files="11" classes="11"/>
     <package name="src">
       <metrics statements="36" coveredstatements="24" conditionals="4" coveredconditionals="1" methods="6" coveredmethods="4"/>
-      <file name="app.js" path="D:\Jobs\node\instacheckout\src\app.js">
+      <file name="app.js" path="/home/rogerio/wecheckoutBack/src/app.js">
         <metrics statements="8" coveredstatements="8" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
@@ -15,7 +15,7 @@
         <line num="20" count="1" type="stmt"/>
         <line num="24" count="1" type="stmt"/>
       </file>
-      <file name="routes.js" path="D:\Jobs\node\instacheckout\src\routes.js">
+      <file name="routes.js" path="/home/rogerio/wecheckoutBack/src/routes.js">
         <metrics statements="18" coveredstatements="16" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -36,7 +36,7 @@
         <line num="45" count="1" type="stmt"/>
         <line num="48" count="1" type="stmt"/>
       </file>
-      <file name="server.js" path="D:\Jobs\node\instacheckout\src\server.js">
+      <file name="server.js" path="/home/rogerio/wecheckoutBack/src/server.js">
         <metrics statements="10" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -51,16 +51,19 @@
       </file>
     </package>
     <package name="src.config">
-      <metrics statements="2" coveredstatements="2" conditionals="4" coveredconditionals="2" methods="0" coveredmethods="0"/>
-      <file name="database.js" path="D:\Jobs\node\instacheckout\src\config\database.js">
-        <metrics statements="2" coveredstatements="2" conditionals="4" coveredconditionals="2" methods="0" coveredmethods="0"/>
+      <metrics statements="5" coveredstatements="4" conditionals="8" coveredconditionals="3" methods="0" coveredmethods="0"/>
+      <file name="database.js" path="/home/rogerio/wecheckoutBack/src/config/database.js">
+        <metrics statements="5" coveredstatements="4" conditionals="8" coveredconditionals="3" methods="0" coveredmethods="0"/>
         <line num="1" count="2" type="stmt"/>
-        <line num="5" count="2" type="stmt"/>
+        <line num="5" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
       </file>
     </package>
     <package name="src.controllers">
       <metrics statements="29" coveredstatements="13" conditionals="6" coveredconditionals="3" methods="5" coveredmethods="1"/>
-      <file name="AddressController.js" path="D:\Jobs\node\instacheckout\src\controllers\AddressController.js">
+      <file name="AddressController.js" path="/home/rogerio/wecheckoutBack/src/controllers/AddressController.js">
         <metrics statements="13" coveredstatements="3" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -76,7 +79,7 @@
         <line num="25" count="0" type="stmt"/>
         <line num="34" count="0" type="stmt"/>
       </file>
-      <file name="SessionController.js" path="D:\Jobs\node\instacheckout\src\controllers\SessionController.js">
+      <file name="SessionController.js" path="/home/rogerio/wecheckoutBack/src/controllers/SessionController.js">
         <metrics statements="9" coveredstatements="8" conditionals="4" coveredconditionals="3" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="5" count="3" type="stmt"/>
@@ -88,7 +91,7 @@
         <line num="17" count="2" type="stmt"/>
         <line num="24" count="1" type="stmt"/>
       </file>
-      <file name="UserController.js" path="D:\Jobs\node\instacheckout\src\controllers\UserController.js">
+      <file name="UserController.js" path="/home/rogerio/wecheckoutBack/src/controllers/UserController.js">
         <metrics statements="7" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -101,7 +104,7 @@
     </package>
     <package name="src.database">
       <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="index.js" path="D:\Jobs\node\instacheckout\src\database\index.js">
+      <file name="index.js" path="/home/rogerio/wecheckoutBack/src/database/index.js">
         <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
@@ -115,24 +118,9 @@
         <line num="15" count="2" type="stmt"/>
       </file>
     </package>
-    <package name="src.database.migrations">
-      <metrics statements="6" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="0"/>
-      <file name="20200113151019-create-users.js" path="D:\Jobs\node\instacheckout\src\database\migrations\20200113151019-create-users.js">
-        <metrics statements="3" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-      </file>
-      <file name="20200113183249-create-addresses.js" path="D:\Jobs\node\instacheckout\src\database\migrations\20200113183249-create-addresses.js">
-        <metrics statements="3" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
-      </file>
-    </package>
     <package name="src.middlewares">
       <metrics statements="14" coveredstatements="13" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
-      <file name="auth.js" path="D:\Jobs\node\instacheckout\src\middlewares\auth.js">
+      <file name="auth.js" path="/home/rogerio/wecheckoutBack/src/middlewares/auth.js">
         <metrics statements="14" coveredstatements="13" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -152,14 +140,14 @@
     </package>
     <package name="src.models">
       <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="1" methods="7" coveredmethods="7"/>
-      <file name="Address.js" path="D:\Jobs\node\instacheckout\src\models\Address.js">
+      <file name="Address.js" path="/home/rogerio/wecheckoutBack/src/models/Address.js">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="1" count="2" type="stmt"/>
         <line num="5" count="2" type="stmt"/>
         <line num="20" count="2" type="stmt"/>
         <line num="24" count="2" type="stmt"/>
       </file>
-      <file name="User.js" path="D:\Jobs\node\instacheckout\src\models\User.js">
+      <file name="User.js" path="/home/rogerio/wecheckoutBack/src/models/User.js">
         <metrics statements="12" coveredstatements="12" conditionals="2" coveredconditionals="1" methods="5" coveredmethods="5"/>
         <line num="1" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
