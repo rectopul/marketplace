@@ -1,31 +1,22 @@
-const User = require("../models/User");
+const User = require('../models/User');
 
 module.exports = {
-    async index(req, res) {
-        const users = await User.findAll();
+	async index(req, res) {
+		const users = await User.findAll();
 
-        return res.json(users);
-    },
+		return res.json(users);
+	},
 
-    async store(req, res) {
-        const {
-            client_id,
-            name,
-            email,
-            password,
-            auth,
-            credentials
-        } = req.body;
+	async store(req, res) {
+		const { name, email, password, type } = req.body;
 
-        const user = await User.create({
-            client_id,
-            name,
-            email,
-            password,
-            auth,
-            credentials
-        });
+		const user = await User.create({
+			name,
+			email,
+			password,
+			type,
+		});
 
-        return res.json(user);
-    }
+		return res.json(user);
+	},
 };
