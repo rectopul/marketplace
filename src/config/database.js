@@ -6,10 +6,10 @@ if (process.env.DATABASE_URL) {
 	// the application is executed on Heroku ... use the postgres database
 	database = {
 		dialect: process.env.DB_DIALECT || 'postgres',
-		host: 'ec2-174-129-253-175.compute-1.amazonaws.com',
-		username: 'rvrxmvewbbncnc',
-		password: 'cb8750ed6e48b289d51972764d4939cf7f248b52684560a13d49feace9b9ba7c',
-		database: 'dagec71e23cc8b',
+		host: 'ec2-23-21-13-88.compute-1.amazonaws.com',
+		username: 'jtrvnyrvmjrdwp',
+		password: '3705400f1f83b6da784400b7f03f314146e259da0a1efb8d2aecf6f97b5ee9bd',
+		database: 'd3kocn1ecciobs',
 		storage: './__tests__/database.sqlite',
 		logging: true, //false
 		options: {
