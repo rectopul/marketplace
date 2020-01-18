@@ -2,7 +2,7 @@ Arguments:
   /usr/bin/node /usr/share/yarn/bin/yarn.js install
 
 PATH: 
-  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/ProgramData/DockerDesktop/version-bin:/mnt/c/Program Files/Docker/Docker/Resources/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files (x86)/Yarn/bin/:/mnt/c/Ruby23-x64/bin:/mnt/c/Ruby26-x64/bin:/mnt/d/Users/Rogério/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/heroku/bin:/mnt/d/Users/Rogério/AppData/Roaming/npm:/mnt/c/Microsoft VS Code/bin:/mnt/d/Users/Rogério/AppData/Local/GitHubDesktop/bin:/mnt/d/Users/Rogério/AppData/Local/Yarn/bin:/snap/bin
+  /home/rogerio/.vscode-server/bin/26076a4de974ead31f97692a0d32f90d735645c0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/ProgramData/DockerDesktop/version-bin:/mnt/c/Program Files/Docker/Docker/Resources/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/mnt/c/Program Files/NVIDIA Corporation/NVIDIA NvDLISR:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/nodejs/:/mnt/c/Program Files (x86)/Yarn/bin/:/mnt/c/Ruby23-x64/bin:/mnt/c/Ruby26-x64/bin:/mnt/d/Users/Rogério/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files/heroku/bin:/mnt/d/Users/Rogério/AppData/Roaming/npm:/mnt/c/Microsoft VS Code/bin:/mnt/d/Users/Rogério/AppData/Local/GitHubDesktop/bin:/mnt/d/Users/Rogério/AppData/Local/Yarn/bin:/snap/bin
 
 Yarn version: 
   1.21.1
@@ -14,9 +14,16 @@ Platform:
   linux x64
 
 Trace: 
-  Error: ENOENT: no such file or directory, lstat '/mnt/d/Jobs/node/instacheckout/node_modules/component-emitter/History.md'
+  SyntaxError: /mnt/d/jobs/node/instacheckout/package.json: Unexpected token < in JSON at position 0
+      at JSON.parse (<anonymous>)
+      at /usr/share/yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/usr/share/yarn/lib/cli.js:310:30)
+      at /usr/share/yarn/lib/cli.js:321:13
+      at <anonymous>
 
 npm manifest: 
+  <<<<<<< HEAD
   {
     "name": "instacheckout",
     "version": "1.0.0",
@@ -48,6 +55,41 @@ npm manifest:
       "supertest": "^4.0.2"
     }
   }
+  =======
+  {
+    "name": "instacheckout",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+      "start": "node src/server.js",
+      "dev": "nodemon src/server.js --ignore __tests__",
+      "pretest": "NODE_ENV=test sequelize db:migrate",
+      "test": "NODE_ENV=test jest",
+      "posttest": "NODE_ENV=test sequelize db:migrate:undo:all",
+      "heroku-prebuild": "npm i -f",
+      "heroku-postbuild": "npm run build"
+    },
+    "dependencies": {
+      "bcryptjs": "^2.4.3",
+      "dotenv": "^8.2.0",
+      "express": "^4.17.1",
+      "factory-girl": "^5.0.4",
+      "faker": "^4.1.0",
+      "nodemon": "^2.0.2",
+      "pg": "^7.17.1",
+      "pg-hstore": "^2.3.3",
+      "sequelize": "^5.21.3",
+      "jsonwebtoken": "^8.5.1"
+    },
+    "devDependencies": {
+      "jest": "^24.9.0",
+      "sequelize-cli": "^5.5.1",
+      "sqlite3": "^4.1.1",
+      "supertest": "^4.0.2"
+    }
+  }
+  >>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
 
 yarn manifest: 
   No manifest
