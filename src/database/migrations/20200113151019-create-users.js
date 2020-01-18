@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use strict";
 
 module.exports = {
@@ -49,3 +50,48 @@ module.exports = {
         return queryInterface.dropTable("users");
     }
 };
+=======
+'use strict';
+
+module.exports = {
+	up: (queryInterface, Sequelize) => {
+		return queryInterface.createTable('users', {
+			id: {
+				type: Sequelize.INTEGER,
+				primaryKey: true,
+				autoIncrement: true,
+				allowNull: false,
+			},
+			name: {
+				type: Sequelize.STRING,
+				allowNull: false,
+			},
+			email: {
+				type: Sequelize.STRING,
+				unique: true,
+				allowNull: false,
+			},
+			password_hash: {
+				type: Sequelize.STRING,
+				allowNull: false,
+			},
+			type: {
+				type: Sequelize.STRING,
+				allowNull: false,
+			},
+			created_at: {
+				type: Sequelize.DATE,
+				allowNull: false,
+			},
+			updated_at: {
+				type: Sequelize.DATE,
+				allowNull: false,
+			},
+		});
+	},
+
+	down: (queryInterface, Sequelize) => {
+		return queryInterface.dropTable('users');
+	},
+};
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b

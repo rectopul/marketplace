@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <coverage generated="1579141373120" clover="3.2.0">
   <project timestamp="1579141373120" name="All files">
     <metrics statements="110" coveredstatements="80" conditionals="22" coveredconditionals="10" methods="19" coveredmethods="13" elements="151" coveredelements="103" complexity="0" loc="110" ncloc="110" packages="6" files="11" classes="11"/>
     <package name="src">
       <metrics statements="36" coveredstatements="24" conditionals="4" coveredconditionals="1" methods="6" coveredmethods="4"/>
       <file name="app.js" path="/mnt/d/Jobs/node/instacheckout/src/app.js">
+=======
+<coverage generated="1579178733126" clover="3.2.0">
+  <project timestamp="1579178733127" name="All files">
+    <metrics statements="110" coveredstatements="80" conditionals="22" coveredconditionals="10" methods="19" coveredmethods="13" elements="151" coveredelements="103" complexity="0" loc="110" ncloc="110" packages="6" files="11" classes="11"/>
+    <package name="src">
+      <metrics statements="36" coveredstatements="24" conditionals="4" coveredconditionals="1" methods="6" coveredmethods="4"/>
+      <file name="app.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/app.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="8" coveredstatements="8" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
@@ -15,7 +24,11 @@
         <line num="20" count="1" type="stmt"/>
         <line num="24" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="routes.js" path="/mnt/d/Jobs/node/instacheckout/src/routes.js">
+=======
+      <file name="routes.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/routes.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="18" coveredstatements="16" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -36,7 +49,11 @@
         <line num="45" count="1" type="stmt"/>
         <line num="48" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="server.js" path="/mnt/d/Jobs/node/instacheckout/src/server.js">
+=======
+      <file name="server.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/server.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="10" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -52,7 +69,11 @@
     </package>
     <package name="src.config">
       <metrics statements="5" coveredstatements="4" conditionals="8" coveredconditionals="3" methods="0" coveredmethods="0"/>
+<<<<<<< HEAD
       <file name="database.js" path="/mnt/d/Jobs/node/instacheckout/src/config/database.js">
+=======
+      <file name="database.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/config/database.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="5" coveredstatements="4" conditionals="8" coveredconditionals="3" methods="0" coveredmethods="0"/>
         <line num="1" count="2" type="stmt"/>
         <line num="5" count="2" type="cond" truecount="1" falsecount="1"/>
@@ -63,7 +84,11 @@
     </package>
     <package name="src.controllers">
       <metrics statements="29" coveredstatements="13" conditionals="6" coveredconditionals="3" methods="5" coveredmethods="1"/>
+<<<<<<< HEAD
       <file name="AddressController.js" path="/mnt/d/Jobs/node/instacheckout/src/controllers/AddressController.js">
+=======
+      <file name="AddressController.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/controllers/AddressController.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="13" coveredstatements="3" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -79,7 +104,11 @@
         <line num="25" count="0" type="stmt"/>
         <line num="34" count="0" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="SessionController.js" path="/mnt/d/Jobs/node/instacheckout/src/controllers/SessionController.js">
+=======
+      <file name="SessionController.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/controllers/SessionController.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="9" coveredstatements="8" conditionals="4" coveredconditionals="3" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="5" count="3" type="stmt"/>
@@ -91,7 +120,11 @@
         <line num="17" count="2" type="stmt"/>
         <line num="24" count="1" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="UserController.js" path="/mnt/d/Jobs/node/instacheckout/src/controllers/UserController.js">
+=======
+      <file name="UserController.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/controllers/UserController.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="7" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -104,7 +137,11 @@
     </package>
     <package name="src.database">
       <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+<<<<<<< HEAD
       <file name="index.js" path="/mnt/d/Jobs/node/instacheckout/src/database/index.js">
+=======
+      <file name="index.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/database/index.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="10" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
@@ -120,7 +157,11 @@
     </package>
     <package name="src.middlewares">
       <metrics statements="14" coveredstatements="13" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+<<<<<<< HEAD
       <file name="auth.js" path="/mnt/d/Jobs/node/instacheckout/src/middlewares/auth.js">
+=======
+      <file name="auth.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/middlewares/auth.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="14" coveredstatements="13" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -140,14 +181,22 @@
     </package>
     <package name="src.models">
       <metrics statements="16" coveredstatements="16" conditionals="2" coveredconditionals="1" methods="7" coveredmethods="7"/>
+<<<<<<< HEAD
       <file name="Address.js" path="/mnt/d/Jobs/node/instacheckout/src/models/Address.js">
+=======
+      <file name="Address.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/models/Address.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
         <line num="1" count="2" type="stmt"/>
         <line num="5" count="2" type="stmt"/>
         <line num="20" count="2" type="stmt"/>
         <line num="24" count="2" type="stmt"/>
       </file>
+<<<<<<< HEAD
       <file name="User.js" path="/mnt/d/Jobs/node/instacheckout/src/models/User.js">
+=======
+      <file name="User.js" path="/Users/rogeriobonfim/Documents/jobs/node/wecheckoutBack/src/models/User.js">
+>>>>>>> cca3b28560c3e2d78053e2667f0c9560bfd5a64b
         <metrics statements="12" coveredstatements="12" conditionals="2" coveredconditionals="1" methods="5" coveredmethods="5"/>
         <line num="1" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
