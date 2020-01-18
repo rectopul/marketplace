@@ -9,6 +9,8 @@ const routes = express.Router();
 
 const authMiddleware = require("./middlewares/auth");
 
+const credentials = require('./middlewares/UserCredentials');
+
 /**
  * Session
  */
@@ -21,7 +23,9 @@ routes.post("/sessions", SessionController.store);
 
 routes.use(authMiddleware);
 
+routes.use(credentials)
 routes.get("/users", UserController.index);
+routes.use(credentials)
 routes.post("/users", UserController.store);
 
 routes.get("/users/:user_id/addresses", AddressController.index);
