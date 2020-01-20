@@ -34,11 +34,6 @@ module.exports = async (req, res, next) => {
         return res.status(401).json({ message: 'current user does not have credentials to create new users' })
     }
 
-    const userMail = await User.findOne({ where: { email } })
-
-    if(userMail){
-        return res.status(401).json({ message: 'the email you entered is already registered' })
-    }
 
     next()
 }

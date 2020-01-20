@@ -11,6 +11,12 @@ module.exports = {
 
 	async store(req, res) {
         const { name, email, password, type } = req.body
+
+        const userMail = await User.findOne({ where: { email } })
+
+        if(userMail){
+            return res.status(401).json({ message: 'the email you entered is already registered' })
+        }
         
         const user = await User.create({
             name,
