@@ -2,6 +2,7 @@ const express = require("express");
 
 const UserController = require("./controllers/UserController");
 const AddressController = require("./controllers/AddressController");
+const StoresController = require('./controllers/StoresController')
 
 const SessionController = require("./controllers/SessionController");
 
@@ -30,6 +31,11 @@ routes.post("/users", UserController.store);
 
 routes.get("/users/:user_id/addresses", AddressController.index);
 routes.post("/users/:user_id/addresses", AddressController.store);
+
+/* Stores */
+routes.get("/users/:user_id/store", StoresController.index);
+routes.post("/users/:user_id/store", StoresController.store);
+
 
 /**
  * Autencicação
