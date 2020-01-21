@@ -27,12 +27,12 @@ module.exports = {
             allowNull: false
         },
         phone: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.STRING,
             unique: true,
             allowNull: false
         },
         cell: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.STRING,
             unique: true,
             allowNull: false
         },
@@ -54,11 +54,11 @@ module.exports = {
             allowNull: false
         },
         street: {
-            type: Sequelize.STRING,
+            type: Sequelize.TEXT,
             allowNull: false
         },
         number: {
-            type: Sequelize.BIGINT,
+            type: Sequelize.INTEGER,
             allowNull: false
         },
         created_at: {

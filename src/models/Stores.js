@@ -6,14 +6,14 @@ class Stores extends Model {
             {
                 name: DataTypes.STRING,
                 email: DataTypes.STRING,
-                phone: DataTypes.BIGINT,
-                cell: DataTypes.BIGINT,
+                phone: DataTypes.STRING,
+                cell: DataTypes.STRING,
                 url: DataTypes.STRING,
                 zipcode: DataTypes.STRING,
                 state: DataTypes.STRING,
                 city: DataTypes.STRING,
-                street: DataTypes.STRING,
-                number: DataTypes.BIGINT
+                street: DataTypes.TEXT,
+                number: DataTypes.INTEGER
             },
             {
                 sequelize
