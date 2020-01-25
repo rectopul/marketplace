@@ -12,8 +12,7 @@ Address.init(connection);
 Stores.init(connection);
 
 User.associate(connection.models);
-User.assocstores(connection.models);
 Address.associate(connection.models);
-Stores.assocstores(connection.models);
+Stores.associate(connection.models);
 
 module.exports = connection;

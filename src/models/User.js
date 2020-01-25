@@ -31,9 +31,7 @@ class User extends Model {
 			foreignKey: 'user_id',
 			as: 'addresses',
 		});
-	}
 
-	static assocstores(models) {
 		this.hasMany(models.Stores, {
 			foreignKey: 'user_id',
 			as: 'stores',

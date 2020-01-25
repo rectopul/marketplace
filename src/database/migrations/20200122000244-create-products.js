@@ -6,10 +6,11 @@ module.exports = {
       Add altering commands here.
       Return a promise to correctly handle asynchronicity.
       campos do produto{
+        id
         store_id
         sku
-        titulo
-        descriçao
+        title
+        description
         except
         stock
         weight
@@ -18,6 +19,9 @@ module.exports = {
         length
         price
         promotional_price
+        cust_price
+        brand
+        model
         frete_class
       }*/
       return queryInterface.createTable("products", {
@@ -39,12 +43,12 @@ module.exports = {
             unique: true,
             allowNull: false
         },
-        titulo: {
+        title: {
             type: Sequelize.STRING,
             unique: true,
             allowNull: false
         },
-        descriçao: {
+        description: {
             type: Sequelize.STRING,
             unique: true,
             allowNull: false
@@ -79,6 +83,18 @@ module.exports = {
             allowNull: false
         },
         promotional_price: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        cust_price: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        brand: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        model: {
             type: Sequelize.STRING,
             allowNull: false
         },
