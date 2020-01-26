@@ -40,63 +40,50 @@ module.exports = {
         },
         sku: {
             type: Sequelize.STRING,
-            unique: true,
-            allowNull: false
+            unique: true
         },
         title: {
             type: Sequelize.STRING,
-            unique: true,
             allowNull: false
         },
         description: {
             type: Sequelize.STRING,
-            unique: true,
             allowNull: false
         },
         except: {
             type: Sequelize.STRING,
-            unique: true,
-            allowNull: false
         },
         stock: {
             type: Sequelize.INTEGER,
             allowNull: false
         },
         weight: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         width: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         height: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         length: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         price: {
             type: Sequelize.STRING,
             allowNull: false
         },
         promotional_price: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         cust_price: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         brand: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         model: {
-            type: Sequelize.STRING,
-            allowNull: false
+            type: Sequelize.STRING
         },
         frete_class: {
             type: Sequelize.STRING,
@@ -122,5 +109,6 @@ module.exports = {
       Example:
       return queryInterface.dropTable('users');
     */
+    return queryInterface.dropTable('products');
   }
 };

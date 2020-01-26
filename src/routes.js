@@ -1,8 +1,16 @@
 const express = require("express");
+const multer = require('multer')
+const multerConfig = require('./config/multer')
 
 const UserController = require("./controllers/UserController");
 const AddressController = require("./controllers/AddressController");
 const StoresController = require('./controllers/StoresController')
+const ImageProductController = require('./controllers/ImageProductController')
+
+/**
+ * Product
+ */
+const ProductController = require('./controllers/ProductController')
 
 const SessionController = require("./controllers/SessionController");
 
@@ -36,6 +44,16 @@ routes.post("/users/:user_id/addresses", AddressController.store);
 /* Stores */
 routes.get("/users/:user_id/store", StoresController.index);
 routes.post("/users/:user_id/store", StoresController.store);
+
+/* Products */
+routes.post("/product/:store_id/create", ProductController.create);
+routes.get("/store/:store_id/product", ProductController.index);
+routes.get("/product/:store_id/:product_id", ProductController.store);
+
+/* Images Products */
+routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)
+routes.get('/image/:id_product/product', ImageProductController.index)
+routes.delete('/image/:id', ImageProductController.delete)
 
 
 /**

@@ -23,6 +23,7 @@ class Stores extends Model {
 
     static associate(models) {
         this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+        this.hasMany(models.Product, { foreignKey: 'store_id', as: 'products', });
     }
 }
 

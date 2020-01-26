@@ -4,11 +4,22 @@ class Product extends Model {
     static init(sequelize) {
         super.init(
             {
-                zipcode: DataTypes.STRING,
-                state: DataTypes.STRING,
-                city: DataTypes.STRING,
-                street: DataTypes.STRING,
-                number: DataTypes.INTEGER
+                sku: DataTypes.STRING,
+                title: DataTypes.STRING,
+                description: DataTypes.STRING,
+                except: DataTypes.STRING,
+                stock: DataTypes.INTEGER,
+                weight: DataTypes.STRING,
+                width: DataTypes.STRING,
+                height: DataTypes.STRING,
+                length: DataTypes.STRING,
+                price: DataTypes.STRING,
+                promotional_price: DataTypes.STRING,
+                cust_price: DataTypes.STRING,
+                brand: DataTypes.STRING,
+                model: DataTypes.STRING,
+                frete_class: DataTypes.STRING,
+
             },
             {
                 sequelize
@@ -16,8 +27,9 @@ class Product extends Model {
         );
     }
 
-    static prodassociate(models) {
-        this.belongsTo(models.User, { foreignKey: "store_id", as: "stores" });
+    static associate(models) {
+        this.belongsTo(models.Stores, { foreignKey: "store_id", as: "stores" });
+        this.hasMany(models.ImagesProducts, { foreignKey: 'product_id', as: 'images_products' });
     }
 }
 

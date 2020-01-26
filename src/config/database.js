@@ -2,7 +2,7 @@ require("dotenv").config({
     path: process.env.NODE_ENV === "test" ? ".env.test" : ".env"
 });
 
-//if (!process.env.DATABASE_URL) {
+if (process.env.DATABASE_URL) {
     // the application is executed on Heroku ... use the postgres database
     database = {
         "use_env_variable":"postgres://jtrvnyrvmjrdwp:3705400f1f83b6da784400b7f03f314146e259da0a1efb8d2aecf6f97b5ee9bd@ec2-23-21-13-88.compute-1.amazonaws.com:5432/d3kocn1ecciobs",
@@ -29,7 +29,7 @@ require("dotenv").config({
             underscoredAll: true
         }
     };
-/* } else {
+} else {
     // the application is executed on the local machine ... use mysql
     database = {
         dialect: process.env.DB_DIALECT || "postgres",
@@ -48,6 +48,6 @@ require("dotenv").config({
             underscoredAll: true
         }
     };
-} */
+}
 
 module.exports = database;
