@@ -12,6 +12,8 @@ const ImageProductController = require('./controllers/ImageProductController')
  */
 const ProductController = require('./controllers/ProductController')
 
+const VariationController = require('./controllers/VariationController')
+
 const SessionController = require("./controllers/SessionController");
 
 const routes = express.Router();
@@ -54,6 +56,13 @@ routes.get("/product/:store_id/:product_id", ProductController.store);
 routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)
 routes.get('/image/:id_product/product', ImageProductController.index)
 routes.delete('/image/:id', ImageProductController.delete)
+
+/* Variations */
+routes.post("/product/:store_id/:product_id/variation", VariationController.store);
+routes.get("/product/:store_id/:product_id/variation", VariationController.mult);
+routes.get("/variation/:id", VariationController.index);
+/* UPDATE */
+routes.post("/variation/:store_id/:variation_id", VariationController.update);
 
 
 /**

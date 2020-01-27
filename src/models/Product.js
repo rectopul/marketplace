@@ -30,6 +30,7 @@ class Product extends Model {
     static associate(models) {
         this.belongsTo(models.Stores, { foreignKey: "store_id", as: "stores" });
         this.hasMany(models.ImagesProducts, { foreignKey: 'product_id', as: 'images_products' });
+        this.hasMany(models.Variation, { foreignKey: 'product_id', as: 'product_variations' });
     }
 }
 
