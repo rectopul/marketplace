@@ -6,6 +6,7 @@ const UserController = require("./controllers/UserController");
 const AddressController = require("./controllers/AddressController");
 const StoresController = require('./controllers/StoresController')
 const ImageProductController = require('./controllers/ImageProductController')
+const CategoriesController = require('./controllers/CategoriesController')
 
 /**
  * Product
@@ -64,7 +65,9 @@ routes.get("/variation/:id", VariationController.index);
 /* UPDATE */
 routes.post("/variation/:store_id/:variation_id", VariationController.update);
 
-
+/* Categories */
+routes.post('/insert/:store_id/category', CategoriesController.store)
+routes.get('/store/:store_id/category', CategoriesController.index)
 /**
  * Autencicação
  */

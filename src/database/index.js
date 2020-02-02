@@ -7,6 +7,8 @@ const Stores = require('../models/Stores')
 const Product = require('../models/Product')
 const ImagesProducts = require('../models/ImageProduct')
 const Variation = require('../models/Variation')
+const Categories = require('../models/Categories')
+const CategoryMap = require('../models/CategoryMap')
 
 const connection = new Sequelize(dbConfig);
 
@@ -16,6 +18,8 @@ Stores.init(connection);
 Product.init(connection);
 ImagesProducts.init(connection);
 Variation.init(connection);
+Categories.init(connection)
+CategoryMap.init(connection)
 
 User.associate(connection.models);
 Address.associate(connection.models);
@@ -23,5 +27,7 @@ Stores.associate(connection.models);
 Product.associate(connection.models);
 ImagesProducts.associate(connection.models);
 Variation.associate(connection.models);
+Categories.associate(connection.models)
+CategoryMap.associate(connection.models)
 
 module.exports = connection;
