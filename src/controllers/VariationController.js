@@ -6,18 +6,18 @@ module.exports = {
     async index(req, res) {
         const { id } = req.params;
 
-        const variation = await Variation.findByPk( id ).then( result => {
+        const variation = await Variation.findByPk(id).then(result => {
             return res.json(result);
         })
 
     },
 
-    async mult(req, res){
+    async mult(req, res) {
         const { store_id, product_id } = req.params;
 
         const store = await Store.findByPk(store_id);
 
-        if(!store){
+        if (!store) {
             return res.status(400).json({ error: "Store informed not exists" });
         }
 
@@ -32,31 +32,31 @@ module.exports = {
         return res.json(product);
     },
 
-    async update(req, res){
+    async update(req, res) {
         const { store_id, variation_id } = req.params;
         const { name, options } = req.body;
 
         const store = await Store.findByPk(store_id);
 
-        if(!store){
+        if (!store) {
             return res.status(400).json({ error: "Store informed not exists" });
         }
 
         const variation = await Variation.update({
             name,
             options
-        },{
+        }, {
             where: { id: variation_id }
-        }).then( result => {
-            Variation.findByPk(variation_id).then( response => {
+        }).then(result => {
+            Variation.findByPk(variation_id).then(response => {
                 return res.json(response);
             })
-        }).catch( err => {
+        }).catch(err => {
             res.status(400).json({ error: err })
             console.log(err)
         })
 
-        
+
     },
 
     async store(req, res) {
@@ -65,7 +65,7 @@ module.exports = {
 
         const store = await Store.findByPk(store_id);
 
-        if(!store){
+        if (!store) {
             return res.status(400).json({ error: "Store informed not exists" });
         }
 

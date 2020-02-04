@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const Stores = require("../models/Stores");
 const jwt = require('jsonwebtoken')
+const ProductVariationController = require('./ProductVariationController')
 
 module.exports = {
     async index(req, res) {
@@ -30,23 +31,23 @@ module.exports = {
     async create(req, res) {
         const { store_id } = req.params;
         const authHeader = req.headers.authorization;
-        const { 
-                sku,
-                title,
-                description,
-                except,
-                stock,
-                weight,
-                width,
-                height,
-                length,
-                price,
-                promotional_price,
-                cust_price,
-                brand,
-                model,
-                frete_class,
-            } = req.body;
+        const {
+            sku,
+            title,
+            description,
+            except,
+            stock,
+            weight,
+            width,
+            height,
+            length,
+            price,
+            promotional_price,
+            cust_price,
+            brand,
+            model,
+            frete_class,
+        } = req.body;
 
         var decoded
 
@@ -57,7 +58,7 @@ module.exports = {
         }
 
         const [, token] = authHeader.split(" ");
-        
+
         try {
             decoded = jwt.verify(token, process.env.APP_SECRET)
         } catch (e) {
@@ -69,8 +70,14 @@ module.exports = {
         // Fetch the user by id 
         const StoreFromUser = await Stores.findOne({ where: { "user_id": id } })
 
-        if(!StoreFromUser){
+        if (!StoreFromUser) {
             return res.status(400).json({ error: "This store does not belong to the informed user" });
+        }
+
+        const productSku = await Product.findOne({ where: { sku } })
+
+        if (productSku) {
+            return res.status(400).json({ error: "Product SKU informed already exists" });
         }
 
         const product = await Product.create({
@@ -90,12 +97,48 @@ module.exports = {
             model,
             frete_class,
             store_id
-        }).then((product) => {
-            return res.json(product);
-        }).catch((err) => {
-            console.log(err, req.body.title)
         })
-        
+            .then(async (product) => {
+                const { id } = product
+                let newreq = req
+                newreq.params['product_id'] = parseInt(id)
+
+                await ProductVariationController.uninformed(newreq)
+                    .then(async result => {
+                        try {
+                            return res.json(product);
+                        } catch (e) {
+                            const productdel = await Product.destroy({
+                                where: { id },
+                                individualHooks: true
+                            })
+                                .then((ev) => {
+                                    return res.send()
+                                })
+                                .catch((er) => {
+                                    console.log(er)
+                                })
+                        }
+
+                    })
+                    .catch(async err => {
+                        const productdel = await Product.destroy({
+                            where: { id },
+                            individualHooks: true
+                        })
+                            .then((ev) => {
+                                return res.send()
+                            })
+                            .catch((e) => {
+                                console.log(e)
+                            })
+                    })
+
+            })
+            .catch((proderr) => {
+                console.log(proderr)
+            })
+
     }
-    
+
 };

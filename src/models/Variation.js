@@ -14,8 +14,8 @@ class Variation extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.Product, { foreignKey: "product_id", as: "product_variations" });
-        this.belongsTo(models.Product, { foreignKey: "store_id", as: "store_variations" });
+        this.belongsTo(models.Product, { foreignKey: "product_id", as: "product" });
+        this.belongsTo(models.Stores, { foreignKey: "store_id", as: "store" });
     }
 }
 

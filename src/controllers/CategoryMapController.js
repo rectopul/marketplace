@@ -18,7 +18,6 @@ module.exports = {
 
     async store(req, res) {
         return new Promise(async resolve => {
-            console.log('Response my controler: ', req)
             const { store_id, category_id, user_id, product_id } = req;
 
             /* Check User */
