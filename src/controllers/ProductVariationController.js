@@ -59,6 +59,70 @@ module.exports = {
 
     },
 
+    async store(req, res) {
+        const { store_id } = req.params
+        const {
+            attribute_name,
+            attribute_value,
+            variation_menu_order,
+            upload_image_id,
+            variable_sku,
+            variable_enabled,
+            variable_regular_price,
+            variable_sale_price,
+            variable_sale_price_dates_from,
+            variable_sale_price_dates_to,
+            variable_stock,
+            variable_original_stock,
+            variable_stock_status,
+            variable_weight,
+            variable_length,
+            variable_width,
+            variable_height,
+            variable_shipping_class,
+            variable_description
+        } = req.body
+
+        const store = await Store.findByPk(store_id)
+
+        if (!store) {
+            return res.status(400).json({ error: "Store informed not exists" })
+        }
+
+        const variationSku = await ProductsVariation.findOne({ where: { 'variable_sku': variable_sku } })
+            .catch(err => {
+                return res.status(400).json({ error: "problems consulting sku" })
+            })
+
+        if (variationSku) {
+            return res.status(400).json({ error: "Variation SKU informed already exists" })
+        }
+
+        const variation = await ProductsVariation.create({
+            attribute_name,
+            attribute_value,
+            variation_menu_order,
+            upload_image_id,
+            variable_sku,
+            variable_enabled,
+            variable_regular_price,
+            variable_sale_price,
+            variable_sale_price_dates_from,
+            variable_sale_price_dates_to,
+            variable_stock,
+            variable_original_stock,
+            variable_stock_status,
+            variable_weight,
+            variable_length,
+            variable_width,
+            variable_height,
+            variable_shipping_class,
+            variable_description,
+            variable_store_id: store_id,
+            variable_product_id
+        })
+    },
+
     async uninformed(req, res) {
         return new Promise(async (resolve, reject) => {
             let { store_id: variable_store_id, product_id: variable_product_id } = req.params;
