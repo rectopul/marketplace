@@ -1,7 +1,8 @@
 const Product = require("../models/Product");
 const Stores = require("../models/Stores");
 const jwt = require('jsonwebtoken')
-const ProductVariationController = require('./ProductVariationController')
+const VariationController = require('./VariationController')
+const VariableMapConstroller = require('./VariableMapController')
 
 module.exports = {
     async index(req, res) {
@@ -99,40 +100,60 @@ module.exports = {
             store_id
         })
             .then(async (product) => {
-                const { id } = product
-                let newreq = req
-                newreq.params['product_id'] = parseInt(id)
+                const { variations } = req.body
+                if (variations) {
+                    const { id } = product
+                    let newreq = req
+                    newreq.params['product_id'] = parseInt(id)
 
-                await ProductVariationController.uninformed(newreq)
-                    .then(async result => {
-                        try {
-                            return res.json(product);
-                        } catch (e) {
+                    await VariationController.uninformed(newreq)
+                        .then(async result => {
+                            try {
+                                const prodvariate = await Product.findByPk(id, {
+                                    include: { association: "variations" }
+                                });
+
+                                await VariableMapConstroller.indexLocal(newreq)
+                                    .then(nmaps => {
+                                        return res.json(nmaps);
+                                    })
+                                    .catch(mapserr => {
+                                        console.log(mapserr)
+                                        return res.status(400).json({ error: "Error in select variations" });
+                                    })
+
+
+                            } catch (e) {
+                                const productdel = await Product.destroy({
+                                    where: { id },
+                                    individualHooks: true
+                                })
+                                    .then((ev) => {
+                                        return res.status(400).json({ error: "Error in insert variation" });
+                                    })
+                                    .catch((er) => {
+                                        console.log(er)
+                                    })
+                            }
+
+                        })
+                        .catch(async err => {
+                            console.log(err);
+
                             const productdel = await Product.destroy({
                                 where: { id },
                                 individualHooks: true
                             })
                                 .then((ev) => {
-                                    return res.send()
+                                    return res.status(400).json({ Error: err });
                                 })
-                                .catch((er) => {
-                                    console.log(er)
+                                .catch((e) => {
+                                    console.log(e)
                                 })
-                        }
-
-                    })
-                    .catch(async err => {
-                        const productdel = await Product.destroy({
-                            where: { id },
-                            individualHooks: true
                         })
-                            .then((ev) => {
-                                return res.send()
-                            })
-                            .catch((e) => {
-                                console.log(e)
-                            })
-                    })
+                } else {
+                    return res.json(product);
+                }
 
             })
             .catch((proderr) => {

@@ -14,6 +14,7 @@ const CategoriesController = require('./controllers/CategoriesController')
 const ProductController = require('./controllers/ProductController')
 
 const VariationController = require('./controllers/VariationController')
+const VariableMapController = require('./controllers/VariableMapController')
 
 const SessionController = require("./controllers/SessionController");
 
@@ -59,9 +60,9 @@ routes.get('/image/:id_product/product', ImageProductController.index)
 routes.delete('/image/:id', ImageProductController.delete)
 
 /* Variations */
-routes.post("/product/:store_id/:product_id/variation", VariationController.store);
-routes.get("/product/:store_id/:product_id/variation", VariationController.mult);
-routes.get("/variation/:id", VariationController.index);
+routes.post("/product/maping/variation", VariableMapController.store);
+routes.post("/:store_id/product/create/variation", VariationController.store);
+routes.get("/product/:store_id/:product_id/variation", VariationController.index);
 /* UPDATE */
 routes.post("/variation/:store_id/:variation_id", VariationController.update);
 

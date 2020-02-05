@@ -30,6 +30,7 @@ class User extends Model {
 		this.hasMany(models.Address, { foreignKey: 'user_id', as: 'addresses' });
 		this.hasMany(models.Stores, { foreignKey: 'user_id', as: 'stores' });
 		this.hasMany(models.CategoryMap, { foreignKey: 'user_id', as: 'user_categories_map', });
+		this.hasMany(models.VariablesMap, { foreignKey: 'product_id', as: 'variablemap', });
 	}
 }
 
