@@ -56,8 +56,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       variable_sku: {
-        type: Sequelize.STRING,
-        unique: true
+        type: Sequelize.STRING
       },
       variable_enabled: {
         type: Sequelize.STRING

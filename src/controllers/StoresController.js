@@ -34,7 +34,14 @@ module.exports = {
             street,
             number,
             user_id
-        });
-        return res.json(stores);
+        })
+            .then(result => {
+                return res.json(result);
+            })
+            .catch(err => {
+                console.log(err);
+
+            })
+
     }
 };

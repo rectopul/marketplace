@@ -11,6 +11,7 @@ module.exports = async (req, res, next) => {
 
     const [, token] = authHeader.split(" ");
 
+
     try {
         const decoded = await promisify(jwt.verify)(
             token,
@@ -21,7 +22,9 @@ module.exports = async (req, res, next) => {
 
         return next();
     } catch (err) {
-        return res.status(401).send({ error: "Token invalid" });
+        console.log(err);
+
+        return res.status(401).send({ error: `${err} Token invalid` });
     }
 
     return next();

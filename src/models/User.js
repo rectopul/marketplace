@@ -39,7 +39,7 @@ User.prototype.checkPassword = function(password) {
 };
 
 User.prototype.generateToken = function() {
-	return jwt.sign({ id: this.id }, process.env.APP_SECRET);
+	return jwt.sign({ id: this.id, name: this.name }, process.env.APP_SECRET, { expiresIn: '1h' });
 };
 
 module.exports = User;
