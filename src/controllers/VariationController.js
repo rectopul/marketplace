@@ -111,6 +111,16 @@ module.exports = {
         }
 
         /**
+         * Check product Exists
+         */
+
+        var product = await Product.findByPk(product_id)
+
+        if (!product) {
+            return res.status(400).json({ error: "Product ID informed not exists" })
+        }
+
+        /**
          * Relationship
          */
 
@@ -167,8 +177,10 @@ module.exports = {
                         newreq.params['variation_id'] = parseInt(id)
                         newreq.params['product_id'] = parseInt(product_id)
                         await VariableMapConstroller.local(newreq)
-                            .then(r => {
-                                return res.json(result)
+                            .then(reslt => {
+                                product = product.toJSON()
+                                product['variation'] = result
+                                return res.json(product)
                             })
                             .catch(async me => {
 
@@ -204,7 +216,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             let { store_id: variable_store_id, product_id: variable_product_id } = req.params;
             /* if(typeof(req.body.variations) == 'array'){
-
+    
             } */
 
             const store = await Store.findByPk(variable_store_id);

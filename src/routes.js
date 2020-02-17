@@ -23,27 +23,45 @@ const routes = express.Router();
 const authMiddleware = require("./middlewares/auth");
 
 const credentials = require('./middlewares/UserCredentials');
+const ClientCredentials = require('./middlewares/ClientCredentials')
 
+const ClientController = require('./controllers/ClientController')
+const OrderController = require('./controllers/OrderController')
+const DeliveryAddressController = require('./controllers/DeliveryAddressController')
+const SessionClientController = require('./controllers/SessionClientController')
 
-/**
- * Session
- */
+/* Clientes */
+routes.post('/:store_id/client/register', ClientController.store)
+routes.get('/:store_id/client/resume', ClientController.index)
 
+/* Session */
 routes.post("/sessions", SessionController.store);
+/* session client */
+routes.post("/sessions/client", SessionClientController.store)
+routes.use(authMiddleware)
+routes.use(ClientCredentials)
+
+/* Endereços de entrega */
+routes.post('/:store_id/delivery/register', DeliveryAddressController.store)
+routes.get('/:store_id/delivery', DeliveryAddressController.index)
+
+/* Pedidos */
+routes.post('/:store_id/order/register', OrderController.store)
+routes.get('/:order_id/order/resume', OrderController.index)
 
 /**
  * Authentication
  */
 
-routes.use(authMiddleware);
-
+//routes.use(credentials)
 routes.use(credentials)
 routes.get("/users", UserController.index);
-routes.use(credentials)
 routes.post("/users", UserController.store);
+routes.get("/user", UserController.single)
 
+/* Informações de usuários */
 routes.get("/users/:user_id/addresses", AddressController.index);
-routes.post("/users/:user_id/addresses", AddressController.store);
+routes.post("/users/addresses", AddressController.store);
 
 /* Stores */
 routes.get("/users/:user_id/store", StoresController.index);
@@ -69,6 +87,7 @@ routes.post("/variation/:store_id/:variation_id", VariationController.update);
 /* Categories */
 routes.post('/insert/:store_id/category', CategoriesController.store)
 routes.get('/store/:store_id/category', CategoriesController.index)
+
 /**
  * Autencicação
  */

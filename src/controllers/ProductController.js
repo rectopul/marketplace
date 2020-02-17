@@ -115,7 +115,9 @@ module.exports = {
 
                                 await VariableMapConstroller.indexLocal(newreq)
                                     .then(nmaps => {
-                                        return res.json(nmaps);
+                                        let ProdVariation = product.toJSON()
+                                        ProdVariation['variations'] = result
+                                        return res.json(ProdVariation);
                                     })
                                     .catch(mapserr => {
                                         console.log(mapserr)

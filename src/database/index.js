@@ -11,6 +11,12 @@ const VariationMap = require('../models/VariationMap')
 const Categories = require('../models/Categories')
 const CategoryMap = require('../models/CategoryMap')
 
+const Order = require('../models/Order')
+const DeliveryAddress = require('../models/DeliveryAddress')
+const ProductOrder = require('../models/ProductOrder')
+
+const Client = require('../models/Client')
+
 const connection = new Sequelize(dbConfig);
 
 User.init(connection);
@@ -23,6 +29,12 @@ VariationMap.init(connection)
 Categories.init(connection)
 CategoryMap.init(connection)
 
+Order.init(connection)
+DeliveryAddress.init(connection)
+ProductOrder.init(connection)
+
+Client.init(connection)
+
 User.associate(connection.models);
 Address.associate(connection.models);
 Stores.associate(connection.models);
@@ -33,5 +45,9 @@ VariationMap.associate(connection.models)
 Categories.associate(connection.models)
 CategoryMap.associate(connection.models)
 
+Order.associate(connection.models)
+Client.associate(connection.models)
+DeliveryAddress.associate(connection.models)
+ProductOrder.associate(connection.models)
 
 module.exports = connection;
