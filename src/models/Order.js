@@ -2,7 +2,7 @@ const { DataTypes, Model } = require('sequelize');
 
 class Order extends Model {
     static init(sequelize) {
-        super.init({}, { sequelize, });
+        super.init({ status: DataTypes.STRING }, { sequelize, });
     }
 
     static associate(models) {

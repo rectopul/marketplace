@@ -64,8 +64,8 @@ routes.get("/users/:user_id/addresses", AddressController.index);
 routes.post("/users/addresses", AddressController.store);
 
 /* Stores */
-routes.get("/users/:user_id/store", StoresController.index);
-routes.post("/users/:user_id/store", StoresController.store);
+routes.get("/users/store", StoresController.index);
+routes.post("/users/store", StoresController.store);
 
 /* Products */
 routes.post("/product/:store_id/create", ProductController.create);

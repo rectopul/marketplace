@@ -300,8 +300,11 @@ module.exports = {
                             let newreq = req
                             newreq.params['variation_id'] = parseInt(id)
                             await VariableMapConstroller.local(newreq)
-                                .then(r => {
+                                .then(async r => {
                                     resolve(result)
+                                    console.log('Resultado do mapeamento: ', r);
+
+                                    //const allvars = await Variation.findAll({ where: { id: }})
                                 })
                                 .catch(async me => {
                                     console.log('Error Mapping Variable', ve);

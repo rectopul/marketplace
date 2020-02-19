@@ -16,9 +16,23 @@ module.exports = {
     async store(req, res) {
         const { store_id } = req.params;
 
-        var { products } = req.body;
+        const { products } = req.body;
 
         const authHeader = req.headers.authorization;
+
+        const status = 'pendente'
+
+        /* Check product in shop */
+
+        const Productsinorder = products.map(function (e) { return e.id; })
+
+        const checkproduct = Productsinorder.map(async (pid) => {
+            const consultProd = await Product.findAll({ where: { id: pid, store_id } })
+
+            if (!consultProd) {
+                return res.status(401).send({ error: "Product not present in store!" });
+            }
+        })
 
         if (!authHeader)
             return res.status(401).send({ error: "No token provided" });
@@ -34,28 +48,24 @@ module.exports = {
         const client_id = await ClientMiddleware(token, store_id)
             .then(async c_id => {
                 const order = await Order.create({
-                    store_id: store_id,
-                    client_id: c_id
+                    store_id,
+                    client_id: c_id,
+                    status
                 })
                     .then(async re => {
 
                         var products_object = []
-                        for (const i in products) {
-                            if (products.hasOwnProperty(i)) {
-                                const product = products[i];
-                                const productorder = {
-                                    product_id: product.id,
-                                    store_id,
-                                    client_id: c_id,
-                                    order_id: re.id,
-                                    quantity: product.quantity,
-                                    variation_id: product.variation_id
-                                }
-
-                                products_object.push(productorder)
-
+                        const listObjectProducts = products.map((mapProd) => {
+                            const productorder = {
+                                product_id: mapProd.id,
+                                store_id,
+                                client_id: c_id,
+                                order_id: re.id,
+                                quantity: mapProd.quantity,
+                                variation_id: mapProd.variation_id,
                             }
-                        }
+                            products_object.push(productorder)
+                        })
 
                         var orderproducts = await ProdutctOrder.bulkCreate(products_object)
                             .then(async pr => {
@@ -74,22 +84,10 @@ module.exports = {
 
                                 let ObjectOrder = InfosClient.toJSON()
 
-                                const productQuantity = product.map(function (prod) {
+                                const productQuantity = product.map((prod) => {
                                     prod = prod.toJSON()
-                                    for (const i in GetProducts) {
-                                        if (GetProducts.hasOwnProperty(i)) {
-                                            const productId = GetProducts[i];
-                                            if (prod.id === productId.product_id) {
-                                                if (!productId.quantity) {
-                                                    prod['quantidade'] = 1
-                                                } else {
-                                                    prod['quantidade'] = productId.quantity
-                                                }
-                                                return prod
-                                            }
-                                        }
-                                    }
-
+                                    const nprod = GetProducts.map((itm) => { prod.id === itm.product_id ? !itm.quantity ? prod['quantidade'] = 1 : prod['quantidade'] = itm.quantity : '' })
+                                    return prod
                                 })
 
                                 if (delivery) {

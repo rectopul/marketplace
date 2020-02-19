@@ -3,6 +3,9 @@ const Stores = require("../models/Stores");
 const jwt = require('jsonwebtoken')
 const VariationController = require('./VariationController')
 const VariableMapConstroller = require('./VariableMapController')
+const VariationMap = require('../models/VariationMap')
+const VariationMapVariation = require('../models/Variation')
+const Variation = require('../models/Variation')
 
 module.exports = {
     async index(req, res) {
@@ -102,57 +105,93 @@ module.exports = {
             .then(async (product) => {
                 const { variations } = req.body
                 if (variations) {
-                    const { id } = product
-                    let newreq = req
-                    newreq.params['product_id'] = parseInt(id)
+                    const { id: product_id } = product
 
-                    await VariationController.uninformed(newreq)
-                        .then(async result => {
-                            try {
-                                const prodvariate = await Product.findByPk(id, {
-                                    include: { association: "variations" }
-                                });
+                    let variationresponse = []
 
-                                await VariableMapConstroller.indexLocal(newreq)
-                                    .then(nmaps => {
-                                        let ProdVariation = product.toJSON()
-                                        ProdVariation['variations'] = result
-                                        return res.json(ProdVariation);
-                                    })
-                                    .catch(mapserr => {
-                                        console.log(mapserr)
-                                        return res.status(400).json({ error: "Error in select variations" });
-                                    })
+                    for (const i in variations) {
+                        if (variations.hasOwnProperty(i)) {
+                            const variat = variations[i];
 
+                            let objectvariation = {
+                                msg: '',
+                                variation: ''
+                            }
 
-                            } catch (e) {
-                                const productdel = await Product.destroy({
-                                    where: { id },
+                            const { attribute_name, attribute_value, variable_sku } = variat
+
+                            const variationsku = await Variation.findOne({ where: { variable_sku } })
+                            const conultvariation = await Variation.findOne({ where: { attribute_name, attribute_value } })
+
+                            if (variationsku) {
+
+                                const delprod = await Product.destroy({
+                                    where: { id: product_id },
                                     individualHooks: true
+                                }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
+
+                                return res.status(400).json({ error: `The ${attribute_name} variation with ${attribute_value} value has a sku already registered in the variations` });
+
+                            } else if (conultvariation) {
+                                objectvariation.msg = `The variation ${attribute_name} with ${attribute_value} already exists`
+
+                                let { id: variation_id } = conultvariation.id
+
+                                const mapeament = await VariationMap.create({
+                                    store_id,
+                                    product_id,
+                                    user_id: id,
+                                    variation_id
                                 })
-                                    .then((ev) => {
-                                        return res.status(400).json({ error: "Error in insert variation" });
+                                    .then(mp1 => {
+                                        console.log('Consegui mapear', mp1);
+
+                                        objectvariation.variation = conultvariation
                                     })
-                                    .catch((er) => {
-                                        console.log(er)
+                                    .catch(async mp1err => {
+                                        const delprod = await Product.destroy({
+                                            where: { id: product_id },
+                                            individualHooks: true
+                                        }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
+
+                                        return res.status(400).json({ error: `The variation ${attribute_name} with ${attribute_value} not mepead` });
+                                    })
+
+
+                            } else {
+                                const insertvar = await Variation.create(variat)
+                                    .then(async resvar2 => {
+                                        let { id: variation_id } = resvar2.id
+
+                                        const mapeament = await VariationMap.create({
+                                            store_id,
+                                            product_id,
+                                            user_id: id,
+                                            variation_id
+                                        })
+
+                                        objectvariation.variation = resvar2
+                                    })
+                                    .catch(async mp2err => {
+                                        const delprod = await Product.destroy({
+                                            where: { id: product_id },
+                                            individualHooks: true
+                                        }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
+
+                                        return res.status(400).json({ error: `The variation ${attribute_name} with ${attribute_value} not mepead` });
                                     })
                             }
 
-                        })
-                        .catch(async err => {
-                            console.log(err);
+                            variationresponse.push(objectvariation)
+                        }
+                    }
 
-                            const productdel = await Product.destroy({
-                                where: { id },
-                                individualHooks: true
-                            })
-                                .then((ev) => {
-                                    return res.status(400).json({ Error: err });
-                                })
-                                .catch((e) => {
-                                    console.log(e)
-                                })
-                        })
+                    productandvar = product.toJSON()
+
+                    productandvar.variations = variationresponse
+
+                    return res.json(productandvar);
+
                 } else {
                     return res.json(product);
                 }
