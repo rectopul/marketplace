@@ -109,9 +109,25 @@ module.exports = {
 
                     let variationresponse = []
 
+                    const skus = variations.map(item => { return item.variable_sku })
+
+                    variationsku = await Variation.findAll({ where: { variable_sku: skus } })
+
+                    if (variationsku.length) {
+                        console.log('Var skus: ', variationsku);
+
+                        const delprod = await Product.destroy({
+                            where: { id: product_id },
+                            individualHooks: true
+                        }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
+
+                        return res.status(400).json({ error: `This skus already exists`, skus: variationsku });
+                    }
+
                     for (const i in variations) {
                         if (variations.hasOwnProperty(i)) {
-                            const variat = variations[i];
+                            var variat = variations[i];
+
 
                             let objectvariation = {
                                 msg: '',
@@ -120,22 +136,12 @@ module.exports = {
 
                             const { attribute_name, attribute_value, variable_sku } = variat
 
-                            const variationsku = await Variation.findOne({ where: { variable_sku } })
                             const conultvariation = await Variation.findOne({ where: { attribute_name, attribute_value } })
 
-                            if (variationsku) {
-
-                                const delprod = await Product.destroy({
-                                    where: { id: product_id },
-                                    individualHooks: true
-                                }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
-
-                                return res.status(400).json({ error: `The ${attribute_name} variation with ${attribute_value} value has a sku already registered in the variations` });
-
-                            } else if (conultvariation) {
+                            if (conultvariation) {
                                 objectvariation.msg = `The variation ${attribute_name} with ${attribute_value} already exists`
 
-                                let { id: variation_id } = conultvariation.id
+                                let { id: variation_id } = conultvariation
 
                                 const mapeament = await VariationMap.create({
                                     store_id,
@@ -144,11 +150,11 @@ module.exports = {
                                     variation_id
                                 })
                                     .then(mp1 => {
-                                        console.log('Consegui mapear', mp1);
-
                                         objectvariation.variation = conultvariation
                                     })
                                     .catch(async mp1err => {
+                                        console.log('Error map1: ', mp1err);
+
                                         const delprod = await Product.destroy({
                                             where: { id: product_id },
                                             individualHooks: true
@@ -159,9 +165,11 @@ module.exports = {
 
 
                             } else {
+                                variat.variable_store_id = parseInt(store_id)
+
                                 const insertvar = await Variation.create(variat)
                                     .then(async resvar2 => {
-                                        let { id: variation_id } = resvar2.id
+                                        let { id: variation_id } = resvar2
 
                                         const mapeament = await VariationMap.create({
                                             store_id,
@@ -173,6 +181,8 @@ module.exports = {
                                         objectvariation.variation = resvar2
                                     })
                                     .catch(async mp2err => {
+                                        console.log('Error Map2: ', mp2err);
+
                                         const delprod = await Product.destroy({
                                             where: { id: product_id },
                                             individualHooks: true
