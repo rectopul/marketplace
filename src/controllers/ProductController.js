@@ -32,6 +32,12 @@ module.exports = {
         return res.json(products);
     },
 
+    async allstore(req, res) {
+        const products = await Product.findAll();
+
+        return res.json(products);
+    },
+
     async create(req, res) {
         const { store_id } = req.params;
         const authHeader = req.headers.authorization;

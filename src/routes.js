@@ -71,6 +71,7 @@ routes.post("/users/store", StoresController.store);
 routes.post("/product/:store_id/create", ProductController.create);
 routes.get("/store/:store_id/product", ProductController.index);
 routes.get("/product/:store_id/:product_id", ProductController.store);
+routes.get("/products", ProductController.allstore);
 
 /* Images Products */
 routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)
