@@ -12,6 +12,8 @@ class User extends Model {
 				password: DataTypes.VIRTUAL,
 				password_hash: DataTypes.STRING,
 				type: DataTypes.STRING,
+				passwordResetToken: DataTypes.STRING,
+				passwordResetExpires: DataTypes.DATE
 			},
 			{
 				hooks: {

@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken')
 const { promisify } = require("util");
+const crypto = require('crypto')
+const mailer = require('../modules/mailer')
 
 module.exports = {
     async index(req, res) {
@@ -55,4 +57,74 @@ module.exports = {
 
         return res.json(user);
     },
+
+    async forgot(req, res) {
+        const { email } = req.body
+
+        try {
+            const user = await User.findOne({ where: { email } })
+
+            if (!user) {
+                return res.status(401).json({ message: 'the email you entered not exists' })
+            }
+
+            const token = crypto.randomBytes(20).toString('hex')
+
+            const now = new Date()
+
+
+            now.setHours(now.getHours() + 1)
+
+            await user.update({
+                passwordResetToken: token,
+                passwordResetExpires: now
+            }, { where: { email } })
+
+            mailer.sendMail({
+                to: email,
+                from: 'mateusrectopul@gmail.com',
+                template: 'auth/forgot_password',
+                context: { token }
+            }, (err) => {
+
+                if (err)
+                    return res.status(400).send({ error: 'Cannot send forgot password email' })
+
+                return res.send()
+            })
+
+        } catch (error) {
+            console.log(error);
+            res.status(400).send({ error: 'Erro on forgot password, try again' })
+        }
+    },
+
+    async reset(req, res) {
+        const { email, password, token } = req.body
+
+        try {
+            const user = await User.findOne({ where: { email } })
+
+            if (!user)
+                return res.status(400).json({ Error: 'the email you entered not exists' })
+
+            if (token !== user.passwordResetToken)
+                return res.status(400).json({ Error: 'Token invalid' })
+
+            const now = new Date()
+
+            if (now > user.passwordResetExpires)
+                return res.status(400).json({ Error: 'Token Expired, generate a new one' })
+
+            user.password = password
+
+            await user.update({ user })
+
+            return res.json({ message: 'success!' })
+
+        } catch (error) {
+            console.log(error);
+            res.status(400).send({ error: 'Erro on reset password, try again' })
+        }
+    }
 };

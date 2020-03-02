@@ -30,6 +30,10 @@ const OrderController = require('./controllers/OrderController')
 const DeliveryAddressController = require('./controllers/DeliveryAddressController')
 const SessionClientController = require('./controllers/SessionClientController')
 
+/* Forgot e Recuperação de senha */
+routes.post('/forgot', UserController.forgot)
+routes.post('/reset_password', UserController.reset)
+
 /* Clientes */
 routes.post('/:store_id/client/register', ClientController.store)
 routes.get('/:store_id/client/resume', ClientController.index)
@@ -53,7 +57,6 @@ routes.get('/:order_id/order/resume', OrderController.index)
  * Authentication
  */
 
-//routes.use(credentials)
 routes.use(credentials)
 routes.get("/users", UserController.index);
 routes.post("/users", UserController.store);
