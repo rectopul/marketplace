@@ -5,17 +5,101 @@ class Product extends Model {
         super.init(
             {
                 sku: DataTypes.STRING,
-                title: DataTypes.STRING,
+                title: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
                 description: DataTypes.TEXT,
                 except: DataTypes.STRING,
-                stock: DataTypes.INTEGER,
-                weight: DataTypes.STRING,
-                width: DataTypes.STRING,
-                height: DataTypes.STRING,
-                length: DataTypes.STRING,
-                price: DataTypes.STRING,
-                promotional_price: DataTypes.STRING,
-                cust_price: DataTypes.STRING,
+                stock: {
+                    type: DataTypes.INTEGER,
+                    validate: {
+                        isInt: {
+                            msg: `This field must be an integer`
+                        },
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
+                weight: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isFloat: {
+                            msg: `This field must be a decimal number`
+                        },
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
+                width: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isFloat: {
+                            msg: `This field must be a decimal number`
+                        },
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
+                height: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isFloat: {
+                            msg: `This field must be a decimal number`
+                        },
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
+                length: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isFloat: {
+                            msg: `This field must be a decimal number`
+                        },
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
+                price: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isFloat: {
+                            msg: `This field must be a decimal number`
+                        },
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
+                promotional_price: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isFloat: {
+                            msg: `This field must be a decimal number`
+                        }
+                    }
+                },
+                cust_price: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isFloat: {
+                            msg: `This field must be a decimal number`
+                        },
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
                 brand: DataTypes.STRING,
                 model: DataTypes.STRING,
                 frete_class: DataTypes.STRING,

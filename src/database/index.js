@@ -10,6 +10,8 @@ const Variation = require('../models/Variation')
 const VariationMap = require('../models/VariationMap')
 const Categories = require('../models/Categories')
 const CategoryMap = require('../models/CategoryMap')
+const Banners = require('../models/Banners')
+const ImagesBanners = require('../models/ImagesBanners')
 
 const Order = require('../models/Order')
 const DeliveryAddress = require('../models/DeliveryAddress')
@@ -24,10 +26,12 @@ Address.init(connection);
 Stores.init(connection);
 Product.init(connection);
 ImagesProducts.init(connection);
+ImagesBanners.init(connection)
 Variation.init(connection);
 VariationMap.init(connection)
 Categories.init(connection)
 CategoryMap.init(connection)
+Banners.init(connection)
 
 Order.init(connection)
 DeliveryAddress.init(connection)
@@ -44,6 +48,7 @@ Variation.associate(connection.models);
 VariationMap.associate(connection.models)
 Categories.associate(connection.models)
 CategoryMap.associate(connection.models)
+Banners.associate(connection.models)
 
 Order.associate(connection.models)
 Client.associate(connection.models)

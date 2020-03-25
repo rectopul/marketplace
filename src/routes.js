@@ -6,6 +6,8 @@ const UserController = require("./controllers/UserController");
 const AddressController = require("./controllers/AddressController");
 const StoresController = require('./controllers/StoresController')
 const ImageProductController = require('./controllers/ImageProductController')
+const ImagesBannersController = require('./controllers/ImagesBannersController')
+const BannersController = require('./controllers/BannersController')
 const CategoriesController = require('./controllers/CategoriesController')
 
 /**
@@ -69,17 +71,32 @@ routes.post("/users/addresses", AddressController.store);
 /* Stores */
 routes.get("/users/store", StoresController.index);
 routes.post("/users/store", StoresController.store);
+routes.delete("/users/store/:store_id", StoresController.storedelete);
+
+/* Banners da Loja */
+routes.get("/banners/:store_id", BannersController.index);
+routes.post("/banners/:store_id", BannersController.store);
+routes.delete("/banners/:banner_id", BannersController.delete);
+routes.put("/banners/:banner_id", BannersController.update);
+/* Pegar imagens Banner por localização */
+routes.get("/banners/:store_id/:location", BannersController.location);
 
 /* Products */
 routes.post("/product/:store_id/create", ProductController.create);
 routes.get("/store/:store_id/product", ProductController.index);
 routes.get("/product/:store_id/:product_id", ProductController.store);
 routes.get("/products", ProductController.allstore);
+routes.delete(`/product/delete/:product_id`, ProductController.productDelete)
 
 /* Images Products */
 routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)
 routes.get('/image/:id_product/product', ImageProductController.index)
 routes.delete('/image/:id', ImageProductController.delete)
+
+/* Images Banners */
+routes.post('/image/banner', multer(multerConfig).single('file'), ImagesBannersController.store)
+routes.get('/image/banner/:image_id', ImagesBannersController.index)
+routes.delete('/image/banner/:image_id', ImagesBannersController.delete)
 
 /* Variations */
 routes.post("/product/maping/variation", VariableMapController.store);

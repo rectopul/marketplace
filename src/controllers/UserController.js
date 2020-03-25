@@ -40,22 +40,28 @@ module.exports = {
     },
 
     async store(req, res) {
-        const { name, email, password, type } = req.body
+        try {
 
-        const userMail = await User.findOne({ where: { email } })
+            const { name, email, password, type } = req.body
 
-        if (userMail) {
-            return res.status(401).json({ message: 'the email you entered is already registered' })
+            const userMail = await User.findOne({ where: { email } })
+
+            if (userMail)
+                return res.status(401).json({ message: 'the email you entered is already registered' })
+
+
+            const user = await User.create({
+                name,
+                email,
+                password,
+                type,
+            });
+
+            return res.json(user);
+
+        } catch (error) {
+            return res.status(400).send({ error: error })
         }
-
-        const user = await User.create({
-            name,
-            email,
-            password,
-            type,
-        });
-
-        return res.json(user);
     },
 
     async forgot(req, res) {
@@ -82,7 +88,7 @@ module.exports = {
 
             mailer.sendMail({
                 to: email,
-                from: 'mateusrectopul@gmail.com',
+                from: process.env.MAIL_FROM,
                 template: 'auth/forgot_password',
                 context: { token }
             }, (err) => {
@@ -123,7 +129,6 @@ module.exports = {
             return res.json({ message: 'success!' })
 
         } catch (error) {
-            console.log(error);
             res.status(400).send({ error: 'Erro on reset password, try again' })
         }
     }

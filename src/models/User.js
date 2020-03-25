@@ -7,11 +7,43 @@ class User extends Model {
 	static init(sequelize) {
 		super.init(
 			{
-				name: DataTypes.STRING,
-				email: DataTypes.STRING,
-				password: DataTypes.VIRTUAL,
+				name: {
+					type: DataTypes.STRING,
+					allowNull: false,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
+				email: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						},
+						isEmail: {
+							msg: `This field must be an email`
+						}
+					}
+				},
+				password: {
+					type: DataTypes.VIRTUAL,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
+				type: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
 				password_hash: DataTypes.STRING,
-				type: DataTypes.STRING,
 				passwordResetToken: DataTypes.STRING,
 				passwordResetExpires: DataTypes.DATE
 			},
@@ -36,11 +68,11 @@ class User extends Model {
 	}
 }
 
-User.prototype.checkPassword = function(password) {
+User.prototype.checkPassword = function (password) {
 	return bcrypt.compare(password, this.password_hash);
 };
 
-User.prototype.generateToken = function() {
+User.prototype.generateToken = function () {
 	return jwt.sign({ id: this.id, name: this.name }, process.env.APP_SECRET, { expiresIn: '24h' });
 };
 

@@ -6,6 +6,7 @@ const VariableMapConstroller = require('./VariableMapController')
 const VariationMap = require('../models/VariationMap')
 const VariationMapVariation = require('../models/Variation')
 const Variation = require('../models/Variation')
+const User = require('../models/User')
 
 module.exports = {
     async index(req, res) {
@@ -86,9 +87,9 @@ module.exports = {
 
         const productSku = await Product.findOne({ where: { sku } })
 
-        if (productSku) {
+        if (productSku)
             return res.status(400).json({ error: "Product SKU informed already exists" });
-        }
+
 
         const product = await Product.create({
             sku,
@@ -214,9 +215,48 @@ module.exports = {
 
             })
             .catch((proderr) => {
-                console.log(proderr)
+                return res.status(400).send({ error: proderr })
             })
 
+    },
+
+    async productDelete(req, res) {
+        try {
+            //Id do produto
+            const { product_id } = req.params
+
+            //Pegar id do usuário a partir do token
+            const authHeader = req.headers.authorization
+            const [, token] = authHeader.split(" ");
+
+            decoded = jwt.verify(token, process.env.APP_SECRET)
+
+            var user_id = decoded.id
+            //Verifica se o usuário é um administrador geral
+            const isadmin = await User.findByPk(user_id, { include: { association: "stores" } })
+
+            const listStores = isadmin.stores.map(store => {
+                return store.id
+            })
+
+            //Pegar id da loja ao qual o produto pertence
+            const storeid = await Product.findByPk(product_id)
+
+            if (isadmin == `super` || isadmin == `storeAdministrator`) {
+                const delproduct = await Product.destroy({ where: { id: product_id } })
+            } else {
+                //Verifica a loja do produto e se ela pertence a este usuário
+                if (!listStores.includes(storeid.store_id))
+                    return res.status(400).send({ error: `This product does not belong to this user` })
+
+                const delproduct = await Product.destroy({ where: { id: product_id } })
+            }
+
+            return res.status(200).send()
+
+        } catch (error) {
+            return res.status(400).send({ error: error })
+        }
     }
 
 };
