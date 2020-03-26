@@ -32,13 +32,15 @@ const OrderController = require('./controllers/OrderController')
 const DeliveryAddressController = require('./controllers/DeliveryAddressController')
 const SessionClientController = require('./controllers/SessionClientController')
 const CartController = require('./controllers/CartController')
+const CartProduct = require('./controllers/CartProductController')
 
 /* Forgot e Recuperação de senha */
 routes.post('/forgot', UserController.forgot)
 routes.post('/reset_password', UserController.reset)
 
 //Carrinho de compras
-routes.post(`/cart/:store_id?`, CartController.create)
+routes.post(`/cart/create/:store_id?`, CartController.create)
+routes.post(`/cart/add/:cart_id`, CartProduct.create)
 
 /* Clientes */
 routes.post('/:store_id/client/register', ClientController.store)

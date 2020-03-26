@@ -115,6 +115,7 @@ class Variation extends Model {
     static associate(models) {
         this.belongsTo(models.Stores, { foreignKey: "variable_store_id", as: "store" });
         this.hasMany(models.VariablesMap, { foreignKey: 'variation_id', as: 'variablemap', });
+        this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
     }
 }
 

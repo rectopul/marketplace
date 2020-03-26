@@ -29,6 +29,24 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      product_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: "products", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
+      variation_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: "variations", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false

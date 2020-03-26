@@ -1,12 +1,28 @@
 const { DataTypes, Model } = require('sequelize');
 
 class CartProduct extends Model {
-    static init(sequelize) { super.init({}, { sequelize, }); }
+    static init(sequelize) {
+        super.init({
+            quantity: {
+                type: DataTypes.INTEGER,
+                validate: {
+                    notEmpty: {
+                        msg: `This field cannot be empty`
+                    },
+                    isInt: {
+                        msg: `This field must be an integer`
+                    }
+                }
+            }
+        }, { sequelize, });
+    }
 
     static associate(models) {
         this.belongsTo(models.Client, { foreignKey: 'client_id', as: 'client' });
         this.belongsTo(models.Stores, { foreignKey: 'store_id', as: 'stores' });
         this.belongsTo(models.Cart, { foreignKey: 'cart_id', as: 'cart' });
+        this.belongsTo(models.Variation, { foreignKey: 'variation_id', as: 'variation' });
+        this.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });
     }
 }
 
