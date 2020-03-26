@@ -4,7 +4,14 @@ class Categories extends Model {
     static init(sequelize) {
         super.init(
             {
-                name: DataTypes.STRING,
+                name: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
                 description: DataTypes.TEXT,
                 parent: DataTypes.STRING,
                 slug: DataTypes.STRING,

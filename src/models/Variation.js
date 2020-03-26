@@ -4,23 +4,105 @@ class Variation extends Model {
     static init(sequelize) {
         super.init(
             {
-                attribute_name: DataTypes.STRING,
+                attribute_name: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
                 attribute_value: DataTypes.STRING,
-                variation_menu_order: DataTypes.INTEGER,
-                upload_image_id: DataTypes.INTEGER,
+                variation_menu_order: {
+                    type: DataTypes.INTEGER,
+                    validate: {
+                        isInt: {
+                            msg: `This field must be a integer value`
+                        }
+                    }
+                },
+                upload_image_id: {
+                    type: DataTypes.INTEGER,
+                    validate: {
+                        isInt: {
+                            msg: `This field must be a integer value`
+                        }
+                    }
+                },
                 variable_sku: DataTypes.STRING,
                 variable_enabled: DataTypes.STRING,
-                variable_regular_price: DataTypes.STRING,
-                variable_sale_price: DataTypes.STRING,
+                variable_regular_price: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        },
+                        isDecimal: {
+                            msg: `This field must be a decimal value`
+                        }
+                    }
+                },
+                variable_sale_price: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isDecimal: {
+                            msg: `This field must be a decimal value`
+                        }
+                    }
+                },
                 variable_sale_price_dates_from: DataTypes.STRING,
                 variable_sale_price_dates_to: DataTypes.STRING,
-                variable_stock: DataTypes.INTEGER,
-                variable_original_stock: DataTypes.INTEGER,
+                variable_stock: {
+                    type: DataTypes.INTEGER,
+                    validate: {
+                        isInt: {
+                            msg: `This field must be a integer value`
+                        }
+                    }
+                },
+                variable_original_stock: {
+                    type: DataTypes.INTEGER,
+                    validate: {
+                        isInt: {
+                            msg: `This field must be a integer value`
+                        }
+                    }
+                },
                 variable_stock_status: DataTypes.STRING,
-                variable_weight: DataTypes.STRING,
-                variable_length: DataTypes.STRING,
-                variable_width: DataTypes.STRING,
-                variable_height: DataTypes.STRING,
+                variable_weight: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isDecimal: {
+                            msg: `This field must be a decimal value`
+                        }
+                    }
+                },
+                variable_length: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isDecimal: {
+                            msg: `This field must be a decimal value`
+                        }
+                    }
+                },
+                variable_width: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isDecimal: {
+                            msg: `This field must be a decimal value`
+                        }
+                    }
+                },
+                variable_height: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        isDecimal: {
+                            msg: `This field must be a decimal value`
+                        }
+                    }
+                },
                 variable_shipping_class: DataTypes.STRING,
                 variable_description: DataTypes.STRING
             },

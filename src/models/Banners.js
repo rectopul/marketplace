@@ -4,10 +4,24 @@ class Banners extends Model {
     static init(sequelize) {
         super.init(
             {
-                title: DataTypes.TEXT,
+                title: {
+                    type: DataTypes.TEXT,
+                    validate: {
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
+                },
                 description: DataTypes.TEXT,
                 position: DataTypes.TEXT,
-                image_id: DataTypes.INTEGER
+                image_id: {
+                    type: DataTypes.INTEGER,
+                    validate: {
+                        isInt: {
+                            msg: `This field must be a integer value`
+                        }
+                    }
+                }
             },
             {
                 sequelize

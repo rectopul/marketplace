@@ -31,10 +31,14 @@ const ClientController = require('./controllers/ClientController')
 const OrderController = require('./controllers/OrderController')
 const DeliveryAddressController = require('./controllers/DeliveryAddressController')
 const SessionClientController = require('./controllers/SessionClientController')
+const CartController = require('./controllers/CartController')
 
 /* Forgot e Recuperação de senha */
 routes.post('/forgot', UserController.forgot)
 routes.post('/reset_password', UserController.reset)
+
+//Carrinho de compras
+routes.post(`/cart/:store_id?`, CartController.create)
 
 /* Clientes */
 routes.post('/:store_id/client/register', ClientController.store)
@@ -68,10 +72,15 @@ routes.get("/user", UserController.single)
 routes.get("/users/:user_id/addresses", AddressController.index);
 routes.post("/users/addresses", AddressController.store);
 
+//Client Manager
+routes.put(`/client/enable/:client_id`, ClientController.clientActive)
+routes.put(`/client/disable/:client_id`, ClientController.clientDisable)
+
 /* Stores */
 routes.get("/users/store", StoresController.index);
 routes.post("/users/store", StoresController.store);
 routes.delete("/users/store/:store_id", StoresController.storedelete);
+routes.put(`/store/update/:store_id`, StoresController.storeUpdate);
 
 /* Banners da Loja */
 routes.get("/banners/:store_id", BannersController.index);
@@ -87,6 +96,7 @@ routes.get("/store/:store_id/product", ProductController.index);
 routes.get("/product/:store_id/:product_id", ProductController.store);
 routes.get("/products", ProductController.allstore);
 routes.delete(`/product/delete/:product_id`, ProductController.productDelete)
+routes.put(`/product/update/:product_id`, ProductController.productUpdate)
 
 /* Images Products */
 routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)

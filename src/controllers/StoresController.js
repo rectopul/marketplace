@@ -146,5 +146,42 @@ module.exports = {
             console.log('Erro ao Excluir loja: ', error)
             return res.status(401).send()
         }
+    },
+
+    async storeUpdate(req, res) {
+        try {
+
+            const { store_id } = req.params
+
+            //delete fields not updated
+            if (req.body.user_id)
+                return res.status(400).send({ error: `Cannot change store owner` })
+
+            //Pegar id do usuário a partir do token
+            const authHeader = req.headers.authorization
+            const [, token] = authHeader.split(" ");
+
+            decoded = jwt.verify(token, process.env.APP_SECRET)
+
+            const user_id = decoded.id
+
+            const store = await Store.findOne({ where: { id: store_id, user_id } })
+
+            if (!store)
+                return res.status(400).send({ error: `This store does not belong to this user` })
+
+            let updateValues = {}
+            const values = Object.keys(req.body).map(item => {
+                if (req.body[item] != undefined && item != `id`)
+                    return updateValues[item] = req.body[item]
+            })
+
+            const storeupdate = await Store.update(updateValues, { where: { id: store_id }, returning: true, plain: true })
+
+            return res.status(200).send(storeupdate[1])
+        } catch (error) {
+            console.log(`Erro ao Atualizar Produto`, error);
+            return res.status(400).send({ error })
+        }
     }
 };

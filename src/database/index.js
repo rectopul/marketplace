@@ -18,6 +18,8 @@ const DeliveryAddress = require('../models/DeliveryAddress')
 const ProductOrder = require('../models/ProductOrder')
 
 const Client = require('../models/Client')
+const Cart = require('../models/Cart')
+const CartProduct = require('../models/CartProduct')
 
 const connection = new Sequelize(dbConfig);
 
@@ -38,6 +40,8 @@ DeliveryAddress.init(connection)
 ProductOrder.init(connection)
 
 Client.init(connection)
+Cart.init(connection)
+CartProduct.init(connection)
 
 User.associate(connection.models);
 Address.associate(connection.models);
@@ -54,5 +58,7 @@ Order.associate(connection.models)
 Client.associate(connection.models)
 DeliveryAddress.associate(connection.models)
 ProductOrder.associate(connection.models)
+Cart.associate(connection.models)
+CartProduct.associate(connection.models)
 
 module.exports = connection;

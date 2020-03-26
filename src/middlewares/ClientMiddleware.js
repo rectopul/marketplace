@@ -3,9 +3,11 @@ const { promisify } = require("util");
 const Client = require('../models/Client')
 
 
-module.exports = async (token, store_id) => {
+module.exports = async (authHeader, store_id) => {
     return new Promise(async (resolve, reject) => {
         let decoded
+
+        const [, token] = authHeader.split(" ");
 
         if (!token)
             reject(Error("No token provided"))
@@ -24,6 +26,10 @@ module.exports = async (token, store_id) => {
         if (!UserExist) {
             reject(Error("User informed by token not exists"))
         } else {
+
+            if (UserExist.active != true)
+                return reject(Error("Client is disabled"))
+
             resolve(id)
         }
 

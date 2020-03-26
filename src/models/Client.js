@@ -8,17 +8,113 @@ class Client extends Model {
 		super.init(
 			{
 				store_id: DataTypes.INTEGER,
-				email: DataTypes.STRING,
-				name: DataTypes.STRING,
-				phone: DataTypes.STRING,
-				cell: DataTypes.STRING,
-				password: DataTypes.VIRTUAL,
+				email: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						},
+						isEmail: {
+							msg: `This field must be an email`
+						}
+					}
+				},
+				name: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
+				phone: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						},
+						is: {
+							args: /(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})/g,
+							msg: `This field must be a phone`
+						}
+					}
+				},
+				cell: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						},
+						is: {
+							args: /(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})/g,
+							msg: `This field must be a cell`
+						}
+					}
+				},
+				password: {
+					type: DataTypes.VIRTUAL,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
 				password_hash: DataTypes.STRING,
-				cpf: DataTypes.STRING,
-				address: DataTypes.STRING,
-				zipcode: DataTypes.STRING,
-				city: DataTypes.STRING,
-				state: DataTypes.STRING,
+				cpf: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						},
+						is: {
+							args: /([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})/g,
+							msg: `This field must be a phone`
+						}
+					}
+				},
+				address: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
+				zipcode: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						},
+						isInt: {
+							msg: `This field must be a number`
+						}
+					}
+				},
+				city: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
+				state: {
+					type: DataTypes.STRING,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				},
+				active: {
+					type: DataTypes.BOOLEAN,
+					validate: {
+						notEmpty: {
+							msg: `This field cannot be empty`
+						}
+					}
+				}
 			},
 			{
 				hooks: {
