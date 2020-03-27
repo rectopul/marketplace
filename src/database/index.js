@@ -12,6 +12,7 @@ const Categories = require('../models/Categories')
 const CategoryMap = require('../models/CategoryMap')
 const Banners = require('../models/Banners')
 const ImagesBanners = require('../models/ImagesBanners')
+const Image = require('../models/Image')
 
 const Order = require('../models/Order')
 const DeliveryAddress = require('../models/DeliveryAddress')
@@ -25,6 +26,7 @@ const connection = new Sequelize(dbConfig);
 
 User.init(connection);
 Address.init(connection);
+Image.init(connection)
 Stores.init(connection);
 Product.init(connection);
 ImagesProducts.init(connection);

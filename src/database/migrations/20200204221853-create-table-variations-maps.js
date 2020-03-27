@@ -43,6 +43,54 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      variable_sku: {
+        type: Sequelize.STRING
+      },
+      upload_image_id: {
+        type: Sequelize.INTEGER,
+      },
+      variable_regular_price: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      variable_sale_price: {
+        type: Sequelize.STRING,
+      },
+      variable_sale_price_dates_from: {
+        type: Sequelize.DATE
+      },
+      variable_sale_price_dates_to: {
+        type: Sequelize.DATE
+      },
+      variable_original_stock: {
+        type: Sequelize.INTEGER,
+      },
+      variable_stock_status: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      variable_weight: {
+        type: Sequelize.STRING,
+      },
+      variable_length: {
+        type: Sequelize.STRING,
+      },
+      variable_width: {
+        type: Sequelize.STRING,
+      },
+      variable_height: {
+        type: Sequelize.STRING,
+      },
+      variable_stock: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      variable_shipping_class: {
+        type: Sequelize.STRING,
+      },
+      variable_description: {
+        type: Sequelize.TEXT,
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false

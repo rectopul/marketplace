@@ -122,10 +122,11 @@ class Stores extends Model {
         this.hasMany(models.Product, { foreignKey: 'store_id', as: 'products', });
         this.hasMany(models.Categories, { foreignKey: 'store_id', as: 'categories', });
         this.hasMany(models.CategoryMap, { foreignKey: 'store_id', as: 'store_categories_map', })
-        this.hasMany(models.Variation, { foreignKey: 'variable_store_id', as: 'variable', });
+        this.hasMany(models.Variation, { foreignKey: 'store_id', as: 'variable', });
         this.hasMany(models.VariablesMap, { foreignKey: 'product_id', as: 'variablemap', });
         this.hasMany(models.Client, { foreignKey: 'store_id', as: 'clients', });
         this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
+        this.hasMany(models.User, { foreignKey: 'store_id', as: 'managers', })
     }
 }
 

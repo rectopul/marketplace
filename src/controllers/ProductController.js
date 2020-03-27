@@ -1,12 +1,10 @@
 const Product = require("../models/Product");
 const Stores = require("../models/Stores");
 const jwt = require('jsonwebtoken')
-const VariationController = require('./VariationController')
-const VariableMapConstroller = require('./VariableMapController')
 const VariationMap = require('../models/VariationMap')
-const VariationMapVariation = require('../models/Variation')
 const Variation = require('../models/Variation')
 const User = require('../models/User')
+const Image = require('../models/Image')
 
 module.exports = {
     async index(req, res) {
@@ -41,6 +39,7 @@ module.exports = {
 
     async create(req, res) {
         const { store_id } = req.params;
+
         const authHeader = req.headers.authorization;
         const {
             sku,
@@ -76,147 +75,202 @@ module.exports = {
             return res.status(401).send({ error: 'unauthorized' });
         }
 
-        var id = decoded.id;
+        var user_id = decoded.id;
 
-        // Fetch the user by id 
-        const StoreFromUser = await Stores.findOne({ where: { "user_id": id } })
+        try {
 
-        if (!StoreFromUser) {
-            return res.status(400).json({ error: "This store does not belong to the informed user" });
+            // Fetch the user by id 
+            const StoreFromUser = await Stores.findOne({ where: { user_id } })
+
+            if (!StoreFromUser) {
+                return res.status(400).json({ error: "This store does not belong to the informed user" });
+            }
+
+            const productSku = await Product.findOne({ where: { sku } })
+
+            if (productSku)
+                return res.status(400).json({ error: "Product SKU informed already exists" });
+
+        } catch (error) {
+            return res.status(400).send({ error: `Error in validation informations of product` })
         }
 
-        const productSku = await Product.findOne({ where: { sku } })
+        try {
 
-        if (productSku)
-            return res.status(400).json({ error: "Product SKU informed already exists" });
+            let product = await Product.create({
+                sku,
+                title,
+                description,
+                except,
+                stock,
+                weight,
+                width,
+                height,
+                length,
+                price,
+                promotional_price,
+                cust_price,
+                brand,
+                model,
+                frete_class,
+                store_id
+            })
 
+            if (req.body.variations) {
 
-        const product = await Product.create({
-            sku,
-            title,
-            description,
-            except,
-            stock,
-            weight,
-            width,
-            height,
-            length,
-            price,
-            promotional_price,
-            cust_price,
-            brand,
-            model,
-            frete_class,
-            store_id
-        })
-            .then(async (product) => {
                 const { variations } = req.body
-                if (variations) {
-                    const { id: product_id } = product
 
-                    let variationresponse = []
+                const mapVariations = variations.map(async variation => {
+                    const {
+                        attribute_name,
+                        attribute_value,
+                        variation_menu_order,
+                        upload_image_id,
+                        variable_sku,
+                        variable_enabled,
+                        variable_regular_price,
+                        variable_sale_price,
+                        variable_sale_price_dates_from,
+                        variable_sale_price_dates_to,
+                        variable_stock,
+                        variable_original_stock,
+                        variable_stock_status,
+                        variable_weight,
+                        variable_length,
+                        variable_width,
+                        variable_height,
+                        variable_shipping_class,
+                        variable_description
+                    } = variation
 
-                    const skus = variations.map(item => { return item.variable_sku })
+                    //Check Name and Value Variation
+                    try {
 
-                    variationsku = await Variation.findAll({ where: { variable_sku: skus } })
+                        //Name
+                        const variablename = await Variation.findOne({ where: { attribute_name, attribute_value, store_id } })
 
-                    if (variationsku.length) {
-                        console.log('Var skus: ', variationsku);
+                        //SKU
+                        if (variable_sku) {
+                            const variationSku = await VariationMap.findOne({ where: { variable_sku, store_id } })
 
-                        const delprod = await Product.destroy({
-                            where: { id: product_id },
-                            individualHooks: true
-                        }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
-
-                        return res.status(400).json({ error: `This skus already exists`, skus: variationsku });
-                    }
-
-                    for (const i in variations) {
-                        if (variations.hasOwnProperty(i)) {
-                            var variat = variations[i];
-
-
-                            let objectvariation = {
-                                msg: '',
-                                variation: ''
-                            }
-
-                            const { attribute_name, attribute_value, variable_sku } = variat
-
-                            const conultvariation = await Variation.findOne({ where: { attribute_name, attribute_value } })
-
-                            if (conultvariation) {
-                                objectvariation.msg = `The variation ${attribute_name} with ${attribute_value} already exists`
-
-                                let { id: variation_id } = conultvariation
-
-                                const mapeament = await VariationMap.create({
-                                    store_id,
-                                    product_id,
-                                    user_id: id,
-                                    variation_id
-                                })
-                                    .then(mp1 => {
-                                        objectvariation.variation = conultvariation
-                                    })
-                                    .catch(async mp1err => {
-                                        console.log('Error map1: ', mp1err);
-
-                                        const delprod = await Product.destroy({
-                                            where: { id: product_id },
-                                            individualHooks: true
-                                        }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
-
-                                        return res.status(400).json({ error: `The variation ${attribute_name} with ${attribute_value} not mepead` });
-                                    })
-
-
-                            } else {
-                                variat.variable_store_id = parseInt(store_id)
-
-                                const insertvar = await Variation.create(variat)
-                                    .then(async resvar2 => {
-                                        let { id: variation_id } = resvar2
-
-                                        const mapeament = await VariationMap.create({
-                                            store_id,
-                                            product_id,
-                                            user_id: id,
-                                            variation_id
-                                        })
-
-                                        objectvariation.variation = resvar2
-                                    })
-                                    .catch(async mp2err => {
-                                        console.log('Error Map2: ', mp2err);
-
-                                        const delprod = await Product.destroy({
-                                            where: { id: product_id },
-                                            individualHooks: true
-                                        }).then(prodel => { console.log('Produto com id Deletado: ', product_id); })
-
-                                        return res.status(400).json({ error: `The variation ${attribute_name} with ${attribute_value} not mepead` });
-                                    })
-                            }
-
-                            variationresponse.push(objectvariation)
+                            if (variationSku)
+                                return res.status(400).json({ error: `Green ${attribute_name} ${attribute_value} not created because ${variable_sku} already exists` })
                         }
+
+                        if (variablename) {
+                            const variationExisting = await VariationMap.create({
+                                user_id,
+                                store_id,
+                                product_id: product.id,
+                                variation_id: variablename.id,
+                                variable_sku,
+                                upload_image_id,
+                                variable_regular_price,
+                                variable_sale_price,
+                                variable_sale_price_dates_from,
+                                variable_sale_price_dates_to,
+                                variable_stock,
+                                variable_stock_status,
+                                variable_original_stock,
+                                variable_weight,
+                                variable_length,
+                                variable_width,
+                                variable_height,
+                                variable_shipping_class,
+                                variable_description
+                            }, { raw: true })
+
+                            let jsonVariationExisting = variationExisting.toJSON()
+
+                            let mountResponse = jsonVariationExisting
+
+                            mountResponse.attribute_name = attribute_name
+                            mountResponse.attribute_value = attribute_value
+                            mountResponse.variable_description = variable_description
+
+                            //Busca pela imagem
+                            if (upload_image_id) {
+                                const productVariationImage = await Image.findByPk(upload_image_id)
+                                mountResponse.upload_image = productVariationImage.url
+                                delete mountResponse.upload_image_id
+                            }
+
+                            mountResponse.variation_menu_order = variation_menu_order
+                            mountResponse.variable_enabled = variable_enabled
+
+                            return mountResponse
+                        } else {
+                            const createVariation = await Variation.create({
+                                attribute_name,
+                                attribute_value,
+                                variable_description,
+                                variation_menu_order,
+                                variable_enabled,
+                                store_id
+                            })
+
+                            let variationmap = await VariationMap.create({
+                                user_id,
+                                store_id,
+                                product_id: product.id,
+                                variation_id: createVariation.id,
+                                variable_sku,
+                                upload_image_id,
+                                variable_regular_price,
+                                variable_sale_price,
+                                variable_sale_price_dates_from,
+                                variable_sale_price_dates_to,
+                                variable_stock,
+                                variable_stock_status,
+                                variable_original_stock,
+                                variable_weight,
+                                variable_length,
+                                variable_width,
+                                variable_height,
+                                variable_shipping_class,
+                                variable_description
+                            }, { raw: true })
+
+                            let jsonVariationExisting = variationmap.toJSON()
+                            //Montar Retorno
+                            let mountResponse = jsonVariationExisting
+
+                            mountResponse.attribute_name = attribute_name
+                            mountResponse.attribute_value = attribute_value
+                            mountResponse.variable_description = variable_description
+
+                            //Busca pela imagem
+                            if (upload_image_id) {
+                                const productVariationImage = await Image.findByPk(upload_image_id)
+                                mountResponse.upload_image = productVariationImage.url
+                                delete mountResponse.upload_image_id
+                            }
+
+                            mountResponse.variation_menu_order = variation_menu_order
+                            mountResponse.variable_enabled = variable_enabled
+
+                            return mountResponse
+                        }
+
+                    } catch (error) {
+                        console.log(`Error in consult sku and name: `, error);
+                        return res.status(400).json({ error: "problems consulting sku or name" })
                     }
+                })
 
-                    productandvar = product.toJSON()
+                const resulveVariations = await Promise.all(mapVariations)
 
-                    productandvar.variations = variationresponse
-
-                    return res.json(productandvar);
-
-                } else {
-                    return res.json(product);
-                }
-
-            })
-            .catch((proderr) => {
-                return res.status(400).send({ error: proderr })
-            })
+                let jsonProduct = product.toJSON()
+                jsonProduct.variations = resulveVariations
+                //Validar se a variação já existe
+                return res.json(jsonProduct)
+            } else {
+                return res.json(product)
+            }
+        } catch (error) {
+            console.log(`Erro ao criar produto: `, error);
+            return res.status(400).send({ error: `Error in create product` })
+        }
 
     },
 
@@ -251,6 +305,9 @@ module.exports = {
 
                 const delproduct = await Product.destroy({ where: { id: product_id } })
             }
+
+            //Delete variations map
+            const variationsMap = await VariationMap.destroy({ where: { product_id } })
 
             return res.status(200).send()
 

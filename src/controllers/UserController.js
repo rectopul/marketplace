@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken')
 const { promisify } = require("util");
 const crypto = require('crypto')
 const mailer = require('../modules/mailer')
+const UserByToken = require('../middlewares/userByToken')
+const Store = require('../models/Stores')
 
 module.exports = {
     async index(req, res) {
@@ -42,19 +44,40 @@ module.exports = {
     async store(req, res) {
         try {
 
-            const { name, email, password, type } = req.body
+            //Get user id by token
+            const authHeader = req.headers.authorization;
+
+            const { name, email, password, type, store_id } = req.body
+
+            const user_id = await UserByToken(authHeader)
+
+            const superUser = await User.findByPk(user_id)
 
             const userMail = await User.findOne({ where: { email } })
 
             if (userMail)
                 return res.status(401).json({ message: 'the email you entered is already registered' })
 
+            if (superUser.type != `super` && type == `super`)
+                return res.status(401).json({ message: 'You are not allowed to register this type of user' })
+
+            //Caso não for um super consulta a loja se pertence ao usuário
+            if (store_id) {
+                const store = await Store.findByPk(store_id)
+
+                if (!store)
+                    return res.status(401).json({ message: 'This store not exist' })
+
+                if (store.user_id != user_id)
+                    return res.status(401).json({ message: 'This store does not belong to this user' })
+            }
 
             const user = await User.create({
                 name,
                 email,
                 password,
                 type,
+                store_id
             });
 
             return res.json(user);

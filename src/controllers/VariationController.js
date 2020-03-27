@@ -114,28 +114,29 @@ module.exports = {
         /**
          * Check product Exists
          */
+        if (product_id) {
+            var product = await Product.findByPk(product_id)
 
-        var product = await Product.findByPk(product_id)
-
-        if (!product) {
-            return res.status(400).json({ error: "Product ID informed not exists" })
+            if (!product) {
+                return res.status(400).json({ error: "Product ID informed not exists" })
+            }
         }
 
         //Check Name and Value Variation
         try {
 
             //Name
-            const variablename = await Variation.findOne({ where: { attribute_name, attribute_value, variable_store_id: store_id } })
+            const variablename = await Variation.findOne({ where: { attribute_name, attribute_value, store_id } })
 
             if (variablename)
                 return res.status(400).json({ error: `The ${attribute_value} variation option already exists in the ${attribute_name} variation` })
 
             //SKU
             if (variable_sku) {
-                const variationSku = await Variation.findOne({
+                const variationSku = await VariationMap.findOne({
                     where: {
                         variable_sku,
-                        variable_store_id: store_id
+                        store_id
                     }
                 })
 
@@ -159,34 +160,42 @@ module.exports = {
             const variation = await Variation.create({
                 attribute_name,
                 attribute_value,
-                variation_menu_order,
-                upload_image_id,
-                variable_sku,
-                variable_enabled,
-                variable_regular_price,
-                variable_sale_price,
-                variable_sale_price_dates_from,
-                variable_sale_price_dates_to,
-                variable_stock,
-                variable_original_stock,
-                variable_stock_status,
-                variable_weight,
-                variable_length,
-                variable_width,
-                variable_height,
-                variable_shipping_class,
                 variable_description,
-                variable_store_id: store_id,
+                upload_image_id,
+                variation_menu_order,
+                variable_enabled,
+                store_id
             })
 
-            const variationmap = await VariationMap.create({
-                user_id,
-                store_id,
-                product_id,
-                variation_id: variation.id
-            })
 
-            return res.json(variation)
+            if (product_id) {
+                const variationmap = await VariationMap.create({
+                    user_id,
+                    store_id,
+                    product_id,
+                    variation_id: variation.id,
+                    variable_sku,
+                    upload_image_id,
+                    variable_regular_price,
+                    variable_sale_price,
+                    variable_sale_price_dates_from,
+                    variable_sale_price_dates_to,
+                    variable_stock,
+                    variable_stock_status,
+                    variable_original_stock,
+                    variable_weight,
+                    variable_length,
+                    variable_width,
+                    variable_height,
+                    variable_shipping_class,
+                    variable_description
+                })
+            }
+
+
+            const infoVariation = await Variation.findByPk(variation.id, { include: { association: "productVariation" } })
+
+            return res.json(infoVariation)
         } catch (error) {
             console.log(`Erro ao criar variação`, error);
             return res.status(400).send({ error })

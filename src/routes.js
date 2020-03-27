@@ -9,6 +9,7 @@ const ImageProductController = require('./controllers/ImageProductController')
 const ImagesBannersController = require('./controllers/ImagesBannersController')
 const BannersController = require('./controllers/BannersController')
 const CategoriesController = require('./controllers/CategoriesController')
+const ImageController = require('./controllers/ImageController')
 
 /**
  * Product
@@ -40,7 +41,9 @@ routes.post('/reset_password', UserController.reset)
 
 //Carrinho de compras
 routes.post(`/cart/create/:store_id?`, CartController.create)
+routes.get(`/cart/consult/:cart_id`, CartController.index)
 routes.post(`/cart/add/:cart_id`, CartProduct.create)
+routes.delete(`/cart/remove/:cart_id`, CartProduct.remove)
 
 /* Clientes */
 routes.post('/:store_id/client/register', ClientController.store)
@@ -52,6 +55,9 @@ routes.post("/sessions", SessionController.store);
 routes.post("/sessions/client", SessionClientController.store)
 routes.use(authMiddleware)
 routes.use(ClientCredentials)
+
+//Visualizar carrinhos
+routes.get(`/cart/list/:store_id`, CartController.list)
 
 /* Endereços de entrega */
 routes.post('/:store_id/delivery/register', DeliveryAddressController.store)
@@ -69,6 +75,10 @@ routes.use(credentials)
 routes.get("/users", UserController.index);
 routes.post("/users", UserController.store);
 routes.get("/user", UserController.single)
+
+//Visualizar carrinhos
+routes.get(`/cart/list/:store_id`, CartController.list)
+routes.get(`/cart/listall`, CartController.listAll)
 
 /* Informações de usuários */
 routes.get("/users/:user_id/addresses", AddressController.index);
@@ -91,6 +101,9 @@ routes.delete("/banners/:banner_id", BannersController.delete);
 routes.put("/banners/:banner_id", BannersController.update);
 /* Pegar imagens Banner por localização */
 routes.get("/banners/:store_id/:location", BannersController.location);
+
+//Images
+routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
 
 /* Products */
 routes.post("/product/:store_id/create", ProductController.create);
