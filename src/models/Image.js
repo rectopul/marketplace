@@ -44,6 +44,9 @@ class Image extends Model {
             }
         );
     }
+    static associate(models) {
+        this.hasMany(models.VariablesMap, { foreignKey: 'user_id', as: 'product_variation' })
+    }
 }
 
 module.exports = Image;

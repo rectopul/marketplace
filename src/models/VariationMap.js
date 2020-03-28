@@ -4,14 +4,6 @@ class VariablesMap extends Model {
     static init(sequelize) {
         super.init({
             variable_sku: DataTypes.STRING,
-            upload_image_id: {
-                type: DataTypes.INTEGER,
-                validate: {
-                    isInt: {
-                        msg: `This field must be a integer value`
-                    }
-                }
-            },
             variable_regular_price: {
                 type: DataTypes.STRING,
                 allowNull: false,
@@ -92,7 +84,8 @@ class VariablesMap extends Model {
         this.belongsTo(models.Product, { foreignKey: "product_id", as: "product" });
         this.belongsTo(models.Stores, { foreignKey: "store_id", as: "store" });
         this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
-        this.belongsTo(models.Variation, { foreignKey: "variation_id", as: "variations" });
+        this.belongsTo(models.Variation, { foreignKey: "variation_id", as: "variation_info" });
+        this.belongsTo(models.Image, { foreignKey: `upload_image_id`, as: `image` })
     }
 }
 
