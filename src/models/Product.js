@@ -113,7 +113,7 @@ class Product extends Model {
 
     static associate(models) {
         this.belongsTo(models.Stores, { foreignKey: "store_id", as: "stores" });
-        this.hasMany(models.ImagesProducts, { foreignKey: 'product_id', as: 'images_products' });
+        this.hasMany(models.ImagesProducts, { foreignKey: 'product_id', as: 'images_product' });
         this.hasMany(models.CategoryMap, { foreignKey: 'product_id', as: 'product_categories_map', });
         this.hasMany(models.VariablesMap, { foreignKey: 'product_id', as: 'variations', });
         this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })

@@ -27,6 +27,8 @@ const authMiddleware = require("./middlewares/auth");
 
 const credentials = require('./middlewares/UserCredentials');
 const ClientCredentials = require('./middlewares/ClientCredentials')
+const StoreManager = require('./middlewares/storeManagerCredentials')
+const StoreAdministrator = require('./middlewares/storeAdministratorCredentials')
 
 const ClientController = require('./controllers/ClientController')
 const OrderController = require('./controllers/OrderController')
@@ -54,7 +56,6 @@ routes.post("/sessions", SessionController.store);
 /* session client */
 routes.post("/sessions/client", SessionClientController.store)
 routes.use(authMiddleware)
-routes.use(ClientCredentials)
 
 //Visualizar carrinhos
 routes.get(`/cart/list/:store_id`, CartController.list)
@@ -71,28 +72,21 @@ routes.get('/:order_id/order/resume', OrderController.index)
  * Authentication
  */
 
-routes.use(credentials)
-routes.get("/users", UserController.index);
-routes.post("/users", UserController.store);
-routes.get("/user", UserController.single)
+routes.use(StoreManager)
 
 //Visualizar carrinhos
-routes.get(`/cart/list/:store_id`, CartController.list)
+//routes.get(`/cart/list/:store_id`, CartController.list)
 routes.get(`/cart/listall`, CartController.listAll)
-
-/* Informações de usuários */
-routes.get("/users/:user_id/addresses", AddressController.index);
-routes.post("/users/addresses", AddressController.store);
 
 //Client Manager
 routes.put(`/client/enable/:client_id`, ClientController.clientActive)
 routes.put(`/client/disable/:client_id`, ClientController.clientDisable)
 
 /* Stores */
-routes.get("/users/store", StoresController.index);
-routes.post("/users/store", StoresController.store);
-routes.delete("/users/store/:store_id", StoresController.storedelete);
-routes.put(`/store/update/:store_id`, StoresController.storeUpdate);
+routes.get("/store", StoresController.index);
+routes.post("/store/create", StoresController.store);
+routes.delete("/store/:store_id", StoresController.storedelete);
+routes.put(`/store/:store_id`, StoresController.storeUpdate);
 
 /* Banners da Loja */
 routes.get("/banners/:store_id", BannersController.index);
@@ -133,6 +127,16 @@ routes.post("/variation/:store_id/:variation_id", VariationController.update);
 /* Categories */
 routes.post('/insert/:store_id/category', CategoriesController.store)
 routes.get('/store/:store_id/category', CategoriesController.index)
+
+//somente superuser
+routes.use(credentials)
+routes.get("/users", UserController.index);
+routes.post("/users", UserController.store);
+routes.get("/user", UserController.single)
+
+/* Informações de usuários */
+routes.get("/users/:user_id/addresses", AddressController.index);
+routes.post("/users/addresses", AddressController.store)
 
 /**
  * Autencicação
