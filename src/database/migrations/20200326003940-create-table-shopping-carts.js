@@ -11,7 +11,6 @@ module.exports = {
       },
       store_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: { model: "stores", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
@@ -21,6 +20,10 @@ module.exports = {
         references: { model: "clients", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
+      },
+      session_id: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       active: {
         type: Sequelize.BOOLEAN,

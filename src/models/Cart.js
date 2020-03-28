@@ -11,6 +11,14 @@ class Cart extends Model {
                             msg: `This field cannot be empty`
                         }
                     }
+                },
+                session_id: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `This field cannot be empty`
+                        }
+                    }
                 }
             },
             {

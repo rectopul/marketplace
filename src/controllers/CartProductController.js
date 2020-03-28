@@ -48,7 +48,6 @@ module.exports = {
             } else {
 
                 let values = {
-                    store_id: cart.store_id,
                     cart_id,
                     product_id,
                     variation_id,
@@ -103,7 +102,7 @@ module.exports = {
 
         } catch (error) {
             console.log(`Erro ao adicionar produto no carrinho: `, error);
-            return res.status(400).send({ error })
+            return res.status(500).send({ error })
         }
     },
 

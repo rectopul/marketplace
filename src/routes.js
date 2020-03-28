@@ -40,9 +40,9 @@ routes.post('/forgot', UserController.forgot)
 routes.post('/reset_password', UserController.reset)
 
 //Carrinho de compras
-routes.post(`/cart/create/:store_id?`, CartController.create)
-routes.get(`/cart/consult/:cart_id`, CartController.index)
-routes.post(`/cart/add/:cart_id`, CartProduct.create)
+routes.post(`/cart/create`, CartController.create)
+routes.get(`/cart/list/:session_id?`, CartController.list)
+routes.put(`/cart/add/:cart_id`, CartProduct.create)
 routes.delete(`/cart/remove/:cart_id`, CartProduct.remove)
 
 /* Clientes */

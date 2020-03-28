@@ -48,51 +48,94 @@ module.exports = {
 
     async list(req, res) {
 
-        try {
+        //Get user id by token
+        const authHeader = req.headers.authorization;
 
-            const { store_id } = req.params
+        let user_id = null
 
-            //Get user id by token
-            const authHeader = req.headers.authorization;
+        const client_id = await ClientMiddleware(authHeader).catch(async err => {
+            console.log(err);
+            if (err == `User informed by token not exists` || err == `unauthorized`) {
+                user_id = await UserByToken(authHeader).catch(error => {
+                    return res.status(400).send({ error })
+                })
 
-            const user_id = await UserByToken(authHeader)
-            const user = await User.findByPk(user_id)
-
-            //Busca administradores da loja
-            const shopManagers = await User.findOne({ where: { id: user_id, store_id } })
-
-            //Verify if store é do usuario
-            const store = await Store.findOne({ where: { id: store_id } })
-
-            if (!store)
-                return res.status(400).send({ error: `This shop not exists` })
-
-            if (user.type != `super`) {
-
-                if ((store.user_id != user_id) || shopManagers.type != `storeAdministrator` || shopManagers.type != `storeManager`)
-                    return res.status(400).send({ error: `You do not have access to list these carts` })
+                err = undefined
+            } else {
+                return res.status(400).send({ error: err })
             }
 
-            const carts = await Cart.findAll({ include: { association: `cartProducts` }, where: { store_id } })
+        })
 
-            return res.json(carts)
+
+        try {
+
+            const { session_id } = req.params
+
+            if (!session_id) {
+
+                //Caso seja um usuário
+                if (user_id) {
+                    const user = await User.findByPk(user_id).catch(err => {
+                        return console.log(`Erro ao selecionar usuário: `, err);
+                    })
+
+                    //Busca administradores da loja
+                    const shopManagers = await User.findOne({ where: { id: user_id } })
+
+                    //Verify if store é do usuario
+                    const store = await Store.findOne({ where: { user_id } })
+
+                    if (!store)
+                        return res.status(400).send({ error: `This shop not exists` })
+
+                    if (user && user.type != `super`) {
+
+                        const listcart = await Cart.findAll({
+                            include: { association: `cartProducts` },
+                            where: { store_id: store.id }
+                        })
+
+                        return res.json(listcart)
+                    }
+
+                    if (user && user.type == `super`) {
+
+                        const carts = await Cart.findAll({ include: { association: `cartProducts` } })
+
+                        return res.json(carts)
+
+                    }
+                }
+
+                const cartsClient = await Cart.findAll({ include: { association: `cartProducts` }, where: { client_id } })
+
+                return res.json(cartsClient)
+
+            } else {
+                const carts = await Cart.findAll({ include: { association: `cartProducts` }, where: { session_id } })
+
+                return res.json(carts)
+            }
+
 
         } catch (error) {
             console.log(`Erro ao listar carrinhos`, error);
-            return res.status(400).send({ error })
+            return res.status(500).send({ error })
         }
     },
 
     async create(req, res) {
         try {
 
-            //Caso nao passe token e nem a loja
-            if (!req.headers.authorization && !req.params.store_id)
-                return res.status(400).send({ error: `Log in or inform the cart store` })
+            const { session_id } = req.body
+
+            if (!session_id)
+                return res.status(400).send({ error: `Please sen session_id in body` })
 
             let values = {
-                store_id: null,
-                active: false
+                active: false,
+                session_id
             }
 
             if (req.headers.authorization) {
@@ -100,8 +143,6 @@ module.exports = {
                 values.client_id = await ClientMiddleware(authHeader, store_id)
                 const store = await Client.findByPk(client_id)
                 values.store_id = store.store_id
-            } else {
-                values.store_id = req.params.store_id
             }
 
             const cart = await Cart.create(values)

@@ -18,8 +18,6 @@ class CartProduct extends Model {
     }
 
     static associate(models) {
-        this.belongsTo(models.Client, { foreignKey: 'client_id', as: 'client' });
-        this.belongsTo(models.Stores, { foreignKey: 'store_id', as: 'stores' });
         this.belongsTo(models.Cart, { foreignKey: 'cart_id', as: 'cart' });
         this.belongsTo(models.Variation, { foreignKey: 'variation_id', as: 'variation' });
         this.belongsTo(models.Product, { foreignKey: 'product_id', as: 'product' });

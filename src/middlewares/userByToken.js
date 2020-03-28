@@ -9,12 +9,12 @@ module.exports = async (authHeader, store_id) => {
         const [, token] = authHeader.split(" ");
 
         if (!token)
-            reject(Error("No token provided"))
+            reject("No token provided")
 
         try {
             decoded = jwt.verify(token, process.env.APP_SECRET)
-        } catch (e) {
-            reject(Error("unauthorized"))
+        } catch (error) {
+            return reject(error)
         }
 
         const id = decoded.id;
@@ -23,7 +23,7 @@ module.exports = async (authHeader, store_id) => {
         const UserExist = await User.findByPk(id)
 
         if (!UserExist)
-            reject(Error("User informed by token not exists"))
+            reject("User informed by token not exists")
         else
             resolve(id)
     })
