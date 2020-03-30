@@ -141,7 +141,7 @@ Client.prototype.checkPassword = function (password) {
 };
 
 Client.prototype.generateToken = function () {
-	return jwt.sign({ id: this.id, name: this.name }, process.env.APP_SECRET_CLIENT, { expiresIn: '1h' });
+	return jwt.sign({ id: this.id, name: this.name }, process.env.APP_SECRET_CLIENT);
 };
 
 module.exports = Client;

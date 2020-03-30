@@ -2,6 +2,7 @@ const Sequelize = require("sequelize");
 const dbConfig = require("../config/database");
 
 const User = require("../models/User");
+const Manager = require('../models/Manager')
 const Address = require("../models/Address");
 const Stores = require('../models/Stores')
 const Product = require('../models/Product')
@@ -24,7 +25,8 @@ const CartProduct = require('../models/CartProduct')
 
 const connection = new Sequelize(dbConfig);
 
-User.init(connection);
+User.init(connection)
+Manager.init(connection)
 Address.init(connection);
 Image.init(connection)
 Stores.init(connection);
@@ -45,7 +47,8 @@ Client.init(connection)
 Cart.init(connection)
 CartProduct.init(connection)
 
-User.associate(connection.models);
+User.associate(connection.models)
+Manager.associate(connection.models)
 Address.associate(connection.models);
 Stores.associate(connection.models);
 Product.associate(connection.models);

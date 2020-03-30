@@ -1,5 +1,6 @@
 const Store = require("../models/Stores");
 const Client = require('../models/Client')
+const User = require('../models/User')
 const jwt = require("jsonwebtoken");
 const ClientMiddleware = require('../middlewares/ClientMiddleware')
 const Cart = require('../models/Cart')
@@ -108,10 +109,134 @@ module.exports = {
 
     async remove(req, res) {
         try {
-
-            const { cart_id } = req.params
+            //Usuário anonimo
+            const { cart_id, session_id } = req.params
 
             const { product_id, variation_id } = req.body
+
+            //Usuário logado
+            const authHeader = req.headers.authorization
+
+            if (authHeader) {
+                const { user_id, client_id } = await UserByToken(authHeader)
+
+                if (client_id) {
+                    const cart = await Cart.findOne({ where: { client_id } })
+
+                    if (!cart)
+                        return res.status(400).send({ error: `This cart not exists` })
+
+                    //if is variation
+                    const product = await Product.destroy({ where: { product_id, variation_id, client_id } })
+
+                    //Return cart
+                    const carts = await Cart.findOne({
+                        include: {
+                            association: `cartProducts`,
+                            attributes: [`quantity`],
+                            include: [
+                                {
+                                    association: `product`,
+                                    attributes: [
+                                        `sku`,
+                                        `title`,
+                                        `description`,
+                                        `brand`,
+                                        `model`
+                                    ],
+                                    include: { association: `images_product` }
+                                },
+                                {
+                                    association: `variation`,
+                                    attributes: [
+                                        `variable_sku`,
+                                        `variable_regular_price`,
+                                        `variable_sale_price`,
+                                        `variable_description`
+                                    ],
+                                    include: [
+                                        {
+                                            association: `variation_info`,
+                                            attributes: [
+                                                `attribute_name`,
+                                                `attribute_value`
+                                            ]
+                                        },
+                                        { association: `image` }
+                                    ]
+                                }
+                            ]
+                        },
+                        where: { id: cart_id, client_id }
+                    })
+
+                    return res.json(carts)
+                }
+
+                if (user_id) {
+
+                    //Pegar o usuario
+                    const user = await User.findByPk(user_id)
+
+                    const cart = await Cart.findByPk(cart_id)
+
+                    if (!cart)
+                        return res.status(400).send({ error: `This cart not exists` })
+
+                    //Check store
+                    const store = await Store.findByPk(cart.store_id)
+
+                    //Aguardando a configuração dos managers
+                    if (user.type != `storeAdministrator` || user.type != `storeManager` && !store)
+                        return res.status(400).send({ error: `This user is not allowed to delete this product from the cart` })
+
+                    //if is variation
+                    const product = await Product.destroy({ where: { product_id, variation_id, client_id } })
+
+                    //Return cart
+                    const carts = await Cart.findOne({
+                        include: {
+                            association: `cartProducts`,
+                            attributes: [`quantity`],
+                            include: [
+                                {
+                                    association: `product`,
+                                    attributes: [
+                                        `sku`,
+                                        `title`,
+                                        `description`,
+                                        `brand`,
+                                        `model`
+                                    ],
+                                    include: { association: `images_product` }
+                                },
+                                {
+                                    association: `variation`,
+                                    attributes: [
+                                        `variable_sku`,
+                                        `variable_regular_price`,
+                                        `variable_sale_price`,
+                                        `variable_description`
+                                    ],
+                                    include: [
+                                        {
+                                            association: `variation_info`,
+                                            attributes: [
+                                                `attribute_name`,
+                                                `attribute_value`
+                                            ]
+                                        },
+                                        { association: `image` }
+                                    ]
+                                }
+                            ]
+                        },
+                        where: { id: cart_id, client_id }
+                    })
+
+                    return res.json(carts)
+                }
+            }
 
             //Check if Cart exists
             const cart = await Cart.findByPk(cart_id)

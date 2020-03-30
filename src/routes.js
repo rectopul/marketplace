@@ -3,6 +3,7 @@ const multer = require('multer')
 const multerConfig = require('./config/multer')
 
 const UserController = require("./controllers/UserController");
+const ManagerController = require(`./controllers/ManagerController`)
 const AddressController = require("./controllers/AddressController");
 const StoresController = require('./controllers/StoresController')
 const ImageProductController = require('./controllers/ImageProductController')
@@ -45,7 +46,8 @@ routes.post('/reset_password', UserController.reset)
 routes.post(`/cart/create`, CartController.create)
 routes.get(`/cart/list/:session_id?`, CartController.list)
 routes.put(`/cart/add/:cart_id`, CartProduct.create)
-routes.delete(`/cart/remove/:cart_id`, CartProduct.remove)
+routes.delete(`/cart/:cart_id`, CartProduct.remove)
+routes.delete(`/cart/product/:cart_id/:session_id`, CartProduct.remove)
 
 /* Clientes */
 routes.post('/:store_id/client/register', ClientController.store)
@@ -127,6 +129,11 @@ routes.post("/variation/:store_id/:variation_id", VariationController.update);
 /* Categories */
 routes.post('/insert/:store_id/category', CategoriesController.store)
 routes.get('/store/:store_id/category', CategoriesController.index)
+
+/* Somente Administrador e super user */
+routes.use(StoreAdministrator)
+routes.post(`/manager/:store_id`, ManagerController.store)
+routes.get(`/manager`, ManagerController.index)
 
 //somente superuser
 routes.use(credentials)

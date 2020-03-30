@@ -154,7 +154,7 @@ module.exports = {
             //Get user id by token
             const authHeader = req.headers.authorization;
 
-            const user_id = await UserByToken(authHeader, store_id)
+            const { user_id } = await UserByToken(authHeader, store_id)
 
             //Create variation and mapping
             const variation = await Variation.create({

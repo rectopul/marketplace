@@ -30,7 +30,7 @@ module.exports = async (req, res, next) => {
         return res.status(401).json({ message: 'User from token not found' })
     }
 
-    if (`storeAdministrator` != userToken.type)
+    if (`storeAdministrator` != userToken.type && `super` != userToken.type)
         return res.status(401).json({ message: 'current user does not have credentials to create new users' })
 
     next()

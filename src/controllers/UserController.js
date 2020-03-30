@@ -49,7 +49,7 @@ module.exports = {
 
             const { name, email, password, type, store_id } = req.body
 
-            const user_id = await UserByToken(authHeader)
+            const { user_id } = await UserByToken(authHeader)
 
             const superUser = await User.findByPk(user_id)
 

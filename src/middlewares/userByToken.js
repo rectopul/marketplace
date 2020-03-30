@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require('../models/User')
+const Client = require('../models/Client')
 
 
 module.exports = async (authHeader, store_id) => {
@@ -17,14 +18,20 @@ module.exports = async (authHeader, store_id) => {
             return reject(error)
         }
 
-        const id = decoded.id;
+        const { id, name } = decoded;
+
+        //Check clients table
+        const client = await Client.findOne({ where: { id, name } })
+
+        if (client)
+            return resolve({ client_id: client.id })
 
         // Fetch the user by id 
         const UserExist = await User.findByPk(id)
 
         if (!UserExist)
-            reject("User informed by token not exists")
+            return reject("User informed by token not exists")
         else
-            resolve(id)
+            return resolve({ user_id: UserExist.id })
     })
 };
