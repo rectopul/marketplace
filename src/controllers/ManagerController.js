@@ -1,9 +1,5 @@
 const Manager = require('../models/Manager')
 const User = require('../models/User');
-const jwt = require('jsonwebtoken')
-const { promisify } = require("util");
-const crypto = require('crypto')
-const mailer = require('../modules/mailer')
 const UserByToken = require('../middlewares/userByToken')
 const Store = require('../models/Stores')
 
@@ -72,7 +68,15 @@ module.exports = {
             return res.json(manager)
 
         } catch (error) {
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
 
+            console.log(`Erro ao listar carrinhos`, error.message);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
         }
     },
 
@@ -155,6 +159,138 @@ module.exports = {
 
             return res.json(managerJson)
 
+
+        } catch (error) {
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro ao listar carrinhos`, error.message);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
+        }
+    },
+
+    async delete(req, res) {
+        try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { manager_id } = req.params
+
+            const { user_id } = await UserByToken(authHeader)
+            //get manager
+            const manager = await Manager.findByPk(manager_id)
+
+            if (!manager)
+                return res.status(400).send({ error: `This Manager not exists` })
+            //check user
+            const user = await User.findByPk(user_id)
+
+            //super
+            if (user && user.type == `super`) {
+                const delManager = await Manager.destroy({ where: { id: manager_id } })
+
+                return res.status(200).send()
+            }
+
+            //adm
+            const store = await Store.findOne({ where: { id: manager.store_id, user_id } })
+
+            if (!store)
+                return res.status(400).send({ error: `This manager does not belong to your store` })
+            //check adm store
+            const delManager = await Manager.destroy({ where: { id: manager_id } })
+
+            return res.status(200).send()
+
+        } catch (error) {
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro ao listar carrinhos`, error.message);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
+        }
+    },
+
+    async update(req, res) {
+        try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { manager_id } = req.params
+
+            //body
+            const { email, name, phone, cell, cpf, address, zipcode, city, state } = req.body
+
+            const { user_id } = await UserByToken(authHeader)
+            //get manager
+            const manager = await Manager.findByPk(manager_id)
+
+            if (!manager)
+                return res.status(400).send({ error: `This Manager not exists` })
+            //check user
+            const user = await User.findByPk(user_id)
+
+            //super
+            if (user && user.type == `super`) {
+                const putManager = await Manager.update({
+                    email,
+                    name,
+                    phone,
+                    cell,
+                    cpf,
+                    address,
+                    zipcode,
+                    city,
+                    state
+                }, {
+                    where: { id: manager_id },
+                    returning: true,
+                    plain: true,
+                    attributes: { exclude: [`password_hash`] }
+                })
+
+                const resjson = putManager[1].toJSON()
+
+                delete resjson.password_hash
+
+                return res.json(resjson)
+            }
+
+            //adm
+            const store = await Store.findOne({ where: { id: manager.store_id, user_id } })
+
+            if (!store)
+                return res.status(400).send({ error: `This manager does not belong to your store` })
+            //check adm store
+            const putManager = await Manager.update({
+                email,
+                name,
+                phone,
+                cell,
+                cpf,
+                address,
+                zipcode,
+                city,
+                state
+            }, {
+                where: { id: manager_id },
+                returning: true,
+                plain: true
+            })
+
+            const resjson = putManager[1].toJSON()
+
+            delete resjson.password_hash
+
+            return res.json(resjson)
 
         } catch (error) {
             if (error.name == `JsonWebTokenError`)

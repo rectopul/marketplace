@@ -15,13 +15,6 @@ module.exports = {
         autoIncrement: true,
         allowNull: false
       },
-      store_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: "stores", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
-      },
       client_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -54,7 +47,7 @@ module.exports = {
         allowNull: false
       },
       active: {
-        type: Sequelize.STRING
+        type: Sequelize.BOOLEAN
       },
       created_at: {
         type: Sequelize.DATE,

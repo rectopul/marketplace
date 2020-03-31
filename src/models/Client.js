@@ -131,7 +131,7 @@ class Client extends Model {
 
 	static associate(models) {
 		this.belongsTo(models.Stores, { foreignKey: "store_id", as: "store" });
-		this.hasMany(models.DeliveryAddress, { foreignKey: 'client_id', as: 'delivery' })
+		this.hasMany(models.DeliveryAddress, { foreignKey: 'client_id', as: 'delivery_addresses' })
 		this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
 	}
 }

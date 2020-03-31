@@ -63,8 +63,10 @@ routes.use(authMiddleware)
 routes.get(`/cart/list/:store_id`, CartController.list)
 
 /* Endereços de entrega */
-routes.post('/:store_id/delivery/register', DeliveryAddressController.store)
-routes.get('/:store_id/delivery', DeliveryAddressController.index)
+routes.post('/delivery', DeliveryAddressController.store)
+routes.get('/delivery/:delivery_id?', DeliveryAddressController.index)
+routes.delete('/delivery/:delivery_id', DeliveryAddressController.delete)
+routes.put('/delivery/:delivery_id', DeliveryAddressController.update)
 
 /* Pedidos */
 routes.post('/:store_id/order/register', OrderController.store)
@@ -134,6 +136,8 @@ routes.get('/store/:store_id/category', CategoriesController.index)
 routes.use(StoreAdministrator)
 routes.post(`/manager/:store_id`, ManagerController.store)
 routes.get(`/manager`, ManagerController.index)
+routes.delete(`/manager/:manager_id`, ManagerController.delete)
+routes.put(`/manager/:manager_id`, ManagerController.update)
 
 //somente superuser
 routes.use(credentials)
