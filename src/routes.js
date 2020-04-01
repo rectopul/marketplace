@@ -50,8 +50,8 @@ routes.delete(`/cart/:cart_id`, CartProduct.remove)
 routes.delete(`/cart/product/:cart_id/:session_id`, CartProduct.remove)
 
 /* Clientes */
-routes.post('/:store_id/client/register', ClientController.store)
-routes.get('/:store_id/client/resume', ClientController.index)
+routes.post('/client/:store_id', ClientController.store)
+routes.get('/client/:store_id', ClientController.index)
 
 /* Session */
 routes.post("/sessions", SessionController.store);
@@ -59,6 +59,7 @@ routes.post("/sessions", SessionController.store);
 routes.post("/sessions/client", SessionClientController.store)
 routes.use(authMiddleware)
 
+routes.use(ClientCredentials)
 //Visualizar carrinhos
 routes.get(`/cart/list/:store_id`, CartController.list)
 
@@ -69,8 +70,8 @@ routes.delete('/delivery/:delivery_id', DeliveryAddressController.delete)
 routes.put('/delivery/:delivery_id', DeliveryAddressController.update)
 
 /* Pedidos */
-routes.post('/:store_id/order/register', OrderController.store)
-routes.get('/:order_id/order/resume', OrderController.index)
+routes.post('/order', OrderController.store)
+routes.get('/order/:order_id?', OrderController.index)
 
 /**
  * Authentication

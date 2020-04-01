@@ -86,6 +86,7 @@ class VariablesMap extends Model {
         this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
         this.belongsTo(models.Variation, { foreignKey: "variation_id", as: "variation_info" });
         this.belongsTo(models.Image, { foreignKey: `upload_image_id`, as: `image` })
+        this.hasMany(models.ProductsOrder, { foreignKey: "variation_id", as: "order_map" })
     }
 }
 

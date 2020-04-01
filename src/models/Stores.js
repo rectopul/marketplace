@@ -127,6 +127,8 @@ class Stores extends Model {
         this.hasMany(models.Client, { foreignKey: 'store_id', as: 'clients', });
         this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
         this.hasMany(models.User, { foreignKey: 'store_id', as: 'managers', })
+        this.hasMany(models.Order, { foreignKey: "store_id", as: "order" })
+        this.hasMany(models.ProductsOrder, { foreignKey: "store_id", as: "order_map" })
     }
 }
 

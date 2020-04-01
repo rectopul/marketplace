@@ -10,7 +10,7 @@ class ProductsOrder extends Model {
         this.belongsTo(models.Order, { foreignKey: "order_id", as: "order" });
         this.belongsTo(models.Client, { foreignKey: "client_id", as: "client" });
         this.belongsTo(models.Product, { foreignKey: "product_id", as: "product" });
-        this.belongsTo(models.Variation, { foreignKey: "variation_id", as: "variation" });
+        this.belongsTo(models.VariablesMap, { foreignKey: "variation_id", as: "variation" });
     }
 }
 

@@ -8,6 +8,7 @@ class Order extends Model {
     static associate(models) {
         this.belongsTo(models.Stores, { foreignKey: "store_id", as: "store" });
         this.belongsTo(models.Client, { foreignKey: 'client_id', as: 'client' })
+        this.hasMany(models.ProductsOrder, { foreignKey: 'order_id', as: 'products_order' })
     }
 }
 
