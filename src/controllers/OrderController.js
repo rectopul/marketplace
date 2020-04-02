@@ -3,9 +3,11 @@ const Store = require('../models/Stores')
 const Order = require('../models/Order')
 const ProdutctOrder = require('../models/ProductOrder')
 const UserByToken = require('../middlewares/userByToken')
+const User = require('../models/User')
 
 const jwt = require('jsonwebtoken')
 const { promisify } = require("util");
+const { Op } = require('sequelize')
 
 module.exports = {
     async index(req, res) {
@@ -52,38 +54,36 @@ module.exports = {
             }
 
             //todos
-            if (client_id) {
-                const resume = await Order.findAll({
-                    where: { client_id },
-                    attributes: { exclude: [`client_id`] },
-                    include: [
-                        {
-                            association: `client`,
-                            include: { association: `delivery_addresses` }
-                        },
-                        {
-                            association: 'products_order',
-                            attributes: [`quantity`],
-                            include: [
-                                {
-                                    association: `product`,
-                                    attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
-                                },
-                                {
-                                    association: `variation`,
-                                    attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
-                                    include: [
-                                        { association: `image` },
-                                        { association: `variation_info` },
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                })
+            const resume = await Order.findAll({
+                where: { client_id: client_id || user_id },
+                attributes: { exclude: [`client_id`] },
+                include: [
+                    {
+                        association: `client`,
+                        include: { association: `delivery_addresses` }
+                    },
+                    {
+                        association: 'products_order',
+                        attributes: [`quantity`],
+                        include: [
+                            {
+                                association: `product`,
+                                attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                            },
+                            {
+                                association: `variation`,
+                                attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                                include: [
+                                    { association: `image` },
+                                    { association: `variation_info` },
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            })
 
-                return res.json(resume)
-            }
+            return res.json(resume)
         } catch (error) {
             //Validação de erros
             if (error.name == `JsonWebTokenError`)
@@ -189,4 +189,198 @@ module.exports = {
             return res.status(500).send({ error: error })
         }
     },
+
+    //Adm
+    async admIndex(req, res) {
+        try {
+            const { order_id, store_id } = req.params
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await UserByToken(authHeader)
+
+            const user = await User.findByPk(user_id)
+
+            //filters = store / date / order / limit
+            const { limit, order, date } = req.query
+            //mount query filter
+            let filter = {}
+
+            //com limitador
+            if (limit) filter.limit = limit
+
+            //order
+            if (order) filter.order = [`id`, order]
+            //date
+            if (date) {
+                const to = `${date[0]} 00:00:00.000+00`
+                const from = `${date[1]} 23:59:28.516+00`
+                filter.date = { store_id, createdAt: { [Op.between]: [to, from] } }
+
+            }
+
+            if (order_id) {
+                //unitário
+                //manager / adm
+                if (user.type == `storeAdministrator`) {
+                    //only get in administrator store
+
+                    //get all stores from administrator
+                    const store = await Store.findByPk(store_id)
+
+                    if (!store)
+                        return res.status(400).send({ error: `This store does not belong to this user` })
+
+                    const resume = await Order.findOne({
+                        where: { id: order_id, store_id },
+                        include: [
+                            {
+                                association: `client`,
+                                include: { association: `delivery_addresses` }
+                            },
+                            {
+                                association: 'products_order',
+                                attributes: [`quantity`],
+                                include: [
+                                    {
+                                        association: `product`,
+                                        attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                                    },
+                                    {
+                                        association: `variation`,
+                                        attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                                        include: [
+                                            { association: `image` },
+                                            { association: `variation_info` },
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    })
+
+                    if (!resume)
+                        return res.status(400).send({ error: `Order does not exist` })
+
+                    return res.json(resume)
+                }
+                //super
+                const resume = await Order.findByPk(order_id, {
+                    include: [
+                        {
+                            association: `client`,
+                            include: { association: `delivery_addresses` }
+                        },
+                        {
+                            association: 'products_order',
+                            attributes: [`quantity`],
+                            include: [
+                                {
+                                    association: `product`,
+                                    attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                                },
+                                {
+                                    association: `variation`,
+                                    attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                                    include: [
+                                        { association: `image` },
+                                        { association: `variation_info` },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                })
+
+                return res.json(resume)
+            }
+
+            //todos
+            //manager / adm
+            if (user.type == `storeAdministrator`) {
+                //only get in administrator store
+
+                //get all stores from administrator
+                const store = await Store.findByPk(store_id)
+
+                if (!store)
+                    return res.status(400).send({ error: `This store does not belong to this user` })
+
+                //filtro
+
+
+                const resume = await Order.findAll({
+                    limit: filter.limit || 20,
+                    order: [filter.order] || ['id', 'ASC'],
+                    where: filter.date || { store_id },
+                    include: [
+                        {
+                            association: `client`,
+                            include: { association: `delivery_addresses` }
+                        },
+                        {
+                            association: 'products_order',
+                            attributes: [`quantity`],
+                            include: [
+                                {
+                                    association: `product`,
+                                    attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                                },
+                                {
+                                    association: `variation`,
+                                    attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                                    include: [
+                                        { association: `image` },
+                                        { association: `variation_info` },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                })
+
+                return res.json(resume)
+            }
+            //super
+            const resume = await Order.findAll({
+                include: [
+                    {
+                        association: `client`,
+                        include: { association: `delivery_addresses` }
+                    },
+                    {
+                        association: 'products_order',
+                        attributes: [`quantity`],
+                        include: [
+                            {
+                                association: `product`,
+                                attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                            },
+                            {
+                                association: `variation`,
+                                attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                                include: [
+                                    { association: `image` },
+                                    { association: `variation_info` },
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            })
+
+            return res.json(resume)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro listar pedidos`, error);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
+        }
+    }
 };
