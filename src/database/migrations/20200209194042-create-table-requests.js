@@ -29,6 +29,13 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      cart_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: "carts", key: "id" },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+      },
       status: {
         type: Sequelize.DataTypes.STRING
       },

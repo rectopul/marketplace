@@ -25,7 +25,7 @@ module.exports = async (req, res, next) => {
     var id = decoded.id;
 
     // Fetch the user by id 
-    const clientToken = await Client.findOne({ where: { id } })
+    const clientToken = await Client.findByPk(id)
 
     const userToken = await User.findByPk(id)
 

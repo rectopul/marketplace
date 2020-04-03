@@ -4,10 +4,19 @@ const Order = require('../models/Order')
 const ProdutctOrder = require('../models/ProductOrder')
 const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
+const Cart = require('../models/Cart')
+const CartProduct = require('../models/CartProduct')
 
 const jwt = require('jsonwebtoken')
 const { promisify } = require("util");
 const { Op } = require('sequelize')
+
+const removeHash = (list) => {
+    const maping = list.map(item => {
+        if (item = `password_hash`)
+            delete list[item]
+    })
+}
 
 module.exports = {
     async index(req, res) {
@@ -110,11 +119,92 @@ module.exports = {
 
             const { client_id, user_id } = await UserByToken(authHeader)
 
+            //Cart id
+            if (cart_id) {
+                //
+                const cart = await Client.findByPk(client_id, {
+                    attributes: { exclude: [`password_hash`] },
+                    include: {
+                        association: `cart`,
+                        where: { id: cart_id }
+                    }
+                })
+
+                if (!cart)
+                    return res.status(400).send({ error: `This cart does not exist or does not belong to this user` })
+
+                const create = await Order.create({
+                    client_id,
+                    store_id: cart.store_id,
+                    status: `pagamento_pendente`,
+                    cart_id
+                })
+
+                const cartProducts = await Cart.findByPk(cart_id, {
+                    include: { association: `cartProducts` }
+                })
+
+                const getids = cartProducts.cartProducts.map(item => {
+                    const product = {
+                        store_id: cart.store_id,
+                        order_id: create.id,
+                        client_id,
+                        product_id: item.product_id,
+                        variation_id: item.variation_id,
+                        quantity: item.quantity
+                    }
+                    return product
+                })
+
+                //Insert products in order
+                const orderproducts = await ProdutctOrder.bulkCreate(getids)
+
+                const resume = await Order.findByPk(create.id, {
+                    attributes: { exclude: [`client_id`] },
+                    include: [
+                        {
+                            association: `client`,
+                            attributes: { exclude: [`password_hash`] },
+                            include: { association: `delivery_addresses`, where: { active: true } }
+                        },
+                        {
+                            association: 'products_order',
+                            attributes: [`quantity`],
+                            include: [
+                                {
+                                    association: `product`,
+                                    attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                                },
+                                {
+                                    association: `variation`,
+                                    attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                                    include: [
+                                        { association: `image` },
+                                        { association: `variation_info` },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                })
+
+                return res.json(resume)
+            }
+
+            //info products
             if (products) {
                 //clients
                 if (client_id) {
                     //cliente
-                    const client = await Client.findByPk(client_id)
+                    const client = await Client.findByPk(client_id, {
+                        include: { association: `delivery_addresses`, where: { active: true } }
+                    })
+
+                    if (!client)
+                        return res.status(400).send({ error: `Client does not have an active address` })
+
+                    console.log('Client id', client_id);
+
                     //loja
                     const store = await Store.findByPk(client.store_id)
 
@@ -142,11 +232,11 @@ module.exports = {
                     const prodct = await ProdutctOrder.bulkCreate(productsId)
 
                     const resume = await Order.findByPk(order.id, {
-                        attributes: { exclude: [`client_id`] },
                         include: [
                             {
                                 association: `client`,
-                                include: { association: `delivery_addresses` }
+                                attributes: { exclude: [`password_hash`] },
+                                include: { association: `delivery_addresses`, where: { active: true } }
                             },
                             {
                                 association: 'products_order',
@@ -202,12 +292,66 @@ module.exports = {
             const user = await User.findByPk(user_id)
 
             //filters = store / date / order / limit
-            const { limit, order, date } = req.query
+            const { limit, order, date, name, email, cpf, status } = req.query
+
+            //pesquisa por cliente
+            let where = {}
+
+            if (name)
+                where.name = name
+
+            if (email)
+                where.email = email
+
+            if (cpf)
+                where.cpf = cpf
+
+            console.log(`Where: `, where);
+
+            const includes = {
+                association: 'products_order',
+                attributes: [`quantity`],
+                include: [
+                    {
+                        association: `product`,
+                        attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                    },
+                    {
+                        association: `variation`,
+                        attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                        include: [
+                            { association: `image` },
+                            { association: `variation_info` },
+                        ]
+                    }
+                ]
+            }
+
+
+            //consult by client
+            if (name || email || cpf) {
+                const order = await Order.findAll({
+                    include: [
+                        {
+                            association: `client`,
+                            attributes: { exclude: [`password_hash`] },
+                            where: where
+                        },
+                        includes
+                    ]
+                })
+
+                return res.json(order)
+            }
+
+
             //mount query filter
             let filter = {}
 
             //com limitador
             if (limit) filter.limit = limit
+
+            let whereFilter = { store_id }
 
             //order
             if (order) filter.order = [`id`, order]
@@ -217,7 +361,10 @@ module.exports = {
                 const from = `${date[1]} 23:59:28.516+00`
                 filter.date = { store_id, createdAt: { [Op.between]: [to, from] } }
 
+                whereFilter.createdAt = { [Op.between]: [to, from] }
             }
+
+            if (status) whereFilter.status = status
 
             if (order_id) {
                 //unitário
@@ -236,26 +383,10 @@ module.exports = {
                         include: [
                             {
                                 association: `client`,
+                                attributes: { exclude: [`password_hash`] },
                                 include: { association: `delivery_addresses` }
                             },
-                            {
-                                association: 'products_order',
-                                attributes: [`quantity`],
-                                include: [
-                                    {
-                                        association: `product`,
-                                        attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
-                                    },
-                                    {
-                                        association: `variation`,
-                                        attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
-                                        include: [
-                                            { association: `image` },
-                                            { association: `variation_info` },
-                                        ]
-                                    }
-                                ]
-                            }
+                            includes
                         ]
                     })
 
@@ -269,26 +400,10 @@ module.exports = {
                     include: [
                         {
                             association: `client`,
+                            attributes: { exclude: [`password_hash`] },
                             include: { association: `delivery_addresses` }
                         },
-                        {
-                            association: 'products_order',
-                            attributes: [`quantity`],
-                            include: [
-                                {
-                                    association: `product`,
-                                    attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
-                                },
-                                {
-                                    association: `variation`,
-                                    attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
-                                    include: [
-                                        { association: `image` },
-                                        { association: `variation_info` },
-                                    ]
-                                }
-                            ]
-                        }
+                        includes
                     ]
                 })
 
@@ -312,60 +427,32 @@ module.exports = {
                 const resume = await Order.findAll({
                     limit: filter.limit || 20,
                     order: [filter.order] || ['id', 'ASC'],
-                    where: filter.date || { store_id },
+                    where: whereFilter,
                     include: [
                         {
                             association: `client`,
+                            attributes: { exclude: [`password_hash`] },
                             include: { association: `delivery_addresses` }
                         },
-                        {
-                            association: 'products_order',
-                            attributes: [`quantity`],
-                            include: [
-                                {
-                                    association: `product`,
-                                    attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
-                                },
-                                {
-                                    association: `variation`,
-                                    attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
-                                    include: [
-                                        { association: `image` },
-                                        { association: `variation_info` },
-                                    ]
-                                }
-                            ]
-                        }
+                        includes
                     ]
                 })
+
 
                 return res.json(resume)
             }
             //super
             const resume = await Order.findAll({
+                limit: filter.limit || 20,
+                order: [filter.order] || ['id', 'ASC'],
+                where: filter.date || { store_id },
                 include: [
                     {
                         association: `client`,
+                        attributes: { exclude: [`password_hash`] },
                         include: { association: `delivery_addresses` }
                     },
-                    {
-                        association: 'products_order',
-                        attributes: [`quantity`],
-                        include: [
-                            {
-                                association: `product`,
-                                attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
-                            },
-                            {
-                                association: `variation`,
-                                attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
-                                include: [
-                                    { association: `image` },
-                                    { association: `variation_info` },
-                                ]
-                            }
-                        ]
-                    }
+                    includes
                 ]
             })
 
@@ -382,5 +469,100 @@ module.exports = {
 
             return res.status(500).send({ error: error })
         }
+    },
+
+    async cancel(req, res) {
+        const { order_id } = req.params
+        //Get user id by token
+        const authHeader = req.headers.authorization
+
+        const { client_id, user_id } = await UserByToken(authHeader)
+
+        if (client_id) {
+
+            const order = await Order.update({ status: `canceled` }, { where: { id: order_id, client_id } })
+
+
+            if (!order[0])
+                return res.status(400).send({ error: `This request does not belong to this user` })
+
+            return res.status(200).send()
+
+        } else {
+            const user = await User.findByPk(user_id)
+
+            if (user.type && user.type == `super`) {
+                //Super admin
+                const order = await Order.update({ status: `canceled` }, { where: { id: order_id } })
+
+                return res.status(200).send()
+            } else if (user.type && user.type != `super`) {
+                //admin
+                const order = await Order.update({ status: `canceled` }, {
+                    where: { id: order_id },
+                    include: {
+                        association: `client`,
+                        include: {
+                            association: `store`,
+                            where: { user_id }
+                        }
+                    }
+                })
+
+                if (!order[0])
+                    return res.status(400).send({ error: `This order does not belong to any store of this user` })
+
+                return res.status(200).send()
+            }
+        }
+
+        console.log(`Aqui entrou`);
+    },
+
+    async delete(req, res) {
+        const { order_id } = req.params
+        //Get user id by token
+        const authHeader = req.headers.authorization
+
+        const { client_id, user_id } = await UserByToken(authHeader)
+
+        if (client_id) {
+
+            const order = await Order.destroy({ where: { id: order_id, client_id } })
+
+            if (!order)
+                return res.status(400).send({ error: `This request does not belong to this user` })
+
+            return res.status(200).send()
+
+        } else {
+            const user = await User.findByPk(user_id)
+
+            if (user.type && user.type == `super`) {
+                //Super admin
+                const order = await Order.destroy({ where: { id: order_id } })
+
+                return res.status(200).send()
+            } else if (user.type && user.type != `super`) {
+                //admin
+                const order = await Order.destroy({
+                    where: { id: order_id },
+                    include: {
+                        association: `client`,
+                        include: {
+                            association: `store`,
+                            where: { user_id }
+                        }
+                    }
+                })
+
+                if (!order)
+                    return res.status(400).send({ error: `This order does not belong to any store of this user` })
+
+                return res.status(200).send()
+            }
+        }
+
+        console.log(`Aqui entrou`);
     }
 };

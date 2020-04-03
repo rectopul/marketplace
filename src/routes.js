@@ -73,6 +73,8 @@ routes.put('/delivery/:delivery_id', DeliveryAddressController.update)
 routes.post('/order', OrderController.store)
 routes.get('/order/:order_id?', OrderController.index)
 routes.get('/order/adm/:store_id/:order_id?', OrderController.admIndex)
+routes.put('/order/cancel/:order_id', OrderController.cancel)
+routes.delete('/order/:order_id', OrderController.delete)
 
 /**
  * Authentication
