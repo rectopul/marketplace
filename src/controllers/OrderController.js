@@ -306,7 +306,6 @@ module.exports = {
             if (cpf)
                 where.cpf = cpf
 
-            console.log(`Where: `, where);
 
             const includes = {
                 association: 'products_order',

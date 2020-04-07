@@ -1,6 +1,8 @@
 const Store = require("../models/Stores");
 const Categories = require("../models/Categories");
-const CategoryMapController = require('./CategoryMapController')
+const CategoryMap = require('../models/CategoryMap')
+const UserByToken = require('../middlewares/userByToken')
+const User = require('../models/User')
 
 module.exports = {
     async index(req, res) {
@@ -16,69 +18,172 @@ module.exports = {
 
     async store(req, res) {
         /* Categories */
-        const { store_id } = req.params;
-        const { name, description, parent, slug, characteristics, address, user_id, product_id } = req.body;
+        try {
+            const { store_id } = req.params;
 
-        const store = await Store.findByPk(store_id);
+            const { name, description, parent, slug, characteristics, address, product_id } = req.body;
 
-        if (!store) {
-            return res.status(400).json({ error: "Store informed not exists" });
-        }
+            //Get user id by token
+            const authHeader = req.headers.authorization
 
-        /* Check slug */
-        searchSlug = await Categories.findOne({ where: { slug } })
+            const { user_id } = await UserByToken(authHeader)
 
-        if (searchSlug) {
-            return res.status(400).json({ error: "This slug informed already exist" });
-        }
+            const user = await User.findByPk(user_id, {
+                include: {
+                    association: `stores`,
+                    where: { id: store_id }
+                }
+            })
 
-        /* Check address */
+            if (!user)
+                return res.status(400).send({ error: `This store does not exist for this user` })
 
-        searchAddress = await Categories.findOne({ where: { address } })
+            if (product_id) {
+                //check product exist in store
+                const productStore = await Store.findByPk(store_id, {
+                    include: {
+                        association: `products`,
+                        where: { id: product_id }
+                    }
+                })
 
-        if (searchAddress) {
-            return res.status(400).json({ error: "This address informed already exist" });
-        }
-
-        const category = await Categories.create({
-            name,
-            description,
-            parent,
-            slug,
-            characteristics,
-            address,
-            store_id
-        }).then(async result => {
-            /* Map */
-            const { id: category_id } = result
-            const paramsPass = {
-                store_id: parseInt(store_id),
-                category_id,
-                user_id,
-                product_id
+                if (!productStore)
+                    return res.status(400).send({ error: `This product does not exist in this store` })
             }
 
-            const processMap = await CategoryMapController.store(req.body = paramsPass).then(response => {
-                console.log('Resposta: ', response);
-
-                return res.json(result);
-            }).catch(async err => {
-                console.log("Erro:", err)
-                const categorydel = await Categories.destroy({
-                    where: {
-                        id: category_id
-                    },
-                    individualHooks: true
-                }).then((ev) => {
-                    return res.send()
-                }).catch((err) => {
-                    console.log(err)
-                })
+            //Mapeat categoria
+            const category = await Categories.create({
+                name,
+                description,
+                parent,
+                slug,
+                characteristics,
+                address,
+                store_id
             })
-        }).catch(err => {
-            console.log('Erro: ', err)
-        })
+
+            if (product_id) {
+                //check product exist in store
+                const productStore = await Store.findByPk(store_id, {
+                    include: {
+                        association: `products`,
+                        where: { id: product_id }
+                    }
+                })
+
+                if (!productStore)
+                    return res.status(400).send({ error: `This product does not exist in this store` })
+
+                //Check mapeation aready exist
+                const productMap = await CategoryMap.findOne({ where: { product_id, category_id: category.id } })
+
+                if (productMap) {
+                    const categoryReturn = await Categories.findByPk(category.id, {
+                        include: {
+                            association: `products_category`,
+                            where: { product_id },
+                            include: {
+                                association: `product`
+                            }
+                        }
+                    })
+
+                    return res.json(categoryReturn)
+                }
+
+                /* Map */
+                const categoryMap = await CategoryMap.create({
+                    store_id: parseInt(store_id),
+                    category_id: category.id,
+                    user_id,
+                    product_id
+                })
+
+                const categoryReturn = await Categories.findByPk(category.id, {
+                    include: {
+                        association: `products_category`,
+                        where: { product_id },
+                        include: {
+                            association: `product`
+                        }
+                    }
+                })
+
+                return res.json(categoryReturn)
 
 
+            }
+
+            return res.json(category)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro listar pedidos`, error);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
+        }
+    },
+
+    async update(req, res) {
+        try {
+            //bodyes
+            const { name, description, parent, slug, characteristics, address } = req.body
+
+            //params
+            const { caregory_id } = req.params
+
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await UserByToken(authHeader)
+
+            const user = await User.findByPk(user_id)
+
+            //super
+            if (user.type = `super`) {
+                const category = await Categories.update({ name, description, parent, slug, characteristics, address }, {
+                    where: { id: caregory_id },
+                    returning: true,
+                    plain: true
+                })
+
+                return res.json(category)
+            }
+
+            //adm
+            const category = await Categories.update({ name, description, parent, slug, characteristics, address }, {
+                where: { id: caregory_id },
+                include: {
+                    association: `store`,
+                    where: { user_id }
+                },
+                returning: true,
+                plain: true
+            })
+
+            if (!category)
+                return res.status(400).send({ error: `This category does not exist in your store` })
+
+            return res.json(category)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro listar pedidos`, error);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
+        }
+    },
+
+    async delete(req, res) {
     }
 };

@@ -7,22 +7,10 @@ class CategoryMap extends Model {
 
     static associate(models) {
         //category_id
-        this.belongsTo(models.Categories, {
-            foreignKey: 'category_id',
-            as: 'categories_map'
-        })
-        this.belongsTo(models.Product, {
-            foreignKey: "user_id",
-            as: "product_categories_map"
-        });
-        this.belongsTo(models.Product, {
-            foreignKey: "store_id",
-            as: "store_categories_map"
-        });
-        this.belongsTo(models.Product, {
-            foreignKey: "product_id",
-            as: "user_categories_map"
-        });
+        this.belongsTo(models.Categories, { foreignKey: 'category_id', as: 'categories_map' })
+        this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+        this.belongsTo(models.Stores, { foreignKey: "store_id", as: "store" });
+        this.belongsTo(models.Product, { foreignKey: "product_id", as: "product" });
     }
 }
 

@@ -135,6 +135,7 @@ routes.post("/variation/:store_id/:variation_id", VariationController.update);
 /* Categories */
 routes.post('/insert/:store_id/category', CategoriesController.store)
 routes.get('/store/:store_id/category', CategoriesController.index)
+routes.put('/category/:caregory_id', CategoriesController.update)
 
 /* Somente Administrador e super user */
 routes.use(StoreAdministrator)
