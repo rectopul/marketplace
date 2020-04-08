@@ -4,6 +4,8 @@ const CategoryMap = require('../models/CategoryMap')
 const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
 
+const { Op } = require('sequelize')
+
 module.exports = {
     async index(req, res) {
         const { store_id } = req.params;
@@ -135,7 +137,7 @@ module.exports = {
             const { name, description, parent, slug, characteristics, address } = req.body
 
             //params
-            const { caregory_id } = req.params
+            const { caregory_id, product_id } = req.params
 
             //Get user id by token
             const authHeader = req.headers.authorization
@@ -152,10 +154,15 @@ module.exports = {
                     plain: true
                 })
 
+                if (product_id) {
+                    const unmap = await CategoryMap.destroy({ where: { product_id, caregory_id } })
+                }
+
                 return res.json(category)
             }
 
             //adm
+
             const category = await Categories.update({ name, description, parent, slug, characteristics, address }, {
                 where: { id: caregory_id },
                 include: {
@@ -185,5 +192,72 @@ module.exports = {
     },
 
     async delete(req, res) {
+        try {
+            const { caregory_id, product_id } = req.params
+
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await UserByToken(authHeader)
+
+            const stores = await Store.findAll({ where: { user_id } })
+
+            if (!stores)
+                return res.status(400).send({ error: `There are no stores registered for this user` })
+
+            const storesId = stores.map(item => {
+                return item.id
+            })
+
+            //adm
+            if (product_id) {
+
+                //Check is product exist in store
+                const checkproduct = await CategoryMap.findOne({
+                    where: {
+                        product_id,
+                        store_id: {
+                            [Op.in]: storesId
+                        }
+                    }
+                })
+
+                if (!checkproduct)
+                    return res.status(400).send({ error: `This product does not belong to your store` })
+
+                const unmap = await CategoryMap.destroy({ where: { product_id, caregory_id } })
+
+                if (!unmap)
+                    return res.status(400).send({ error: `This category does not exist in your store` })
+
+                return res.status(200).send()
+            }
+
+            const category = await Categories.destroy({
+                where: {
+                    id: caregory_id,
+                    store_id: {
+                        [Op.in]: storesId
+                    }
+                }
+            })
+
+            if (!category)
+                return res.status(400).send({ error: `This category does not exist in your store` })
+
+            return res.status(200).send()
+
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro listar pedidos`, error);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
+        }
     }
 };
