@@ -118,17 +118,17 @@ class Stores extends Model {
 
     static associate(models) {
         this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
-        this.hasMany(models.Banners, { foreignKey: 'store_id', as: 'banners', });
-        this.hasMany(models.Product, { foreignKey: 'store_id', as: 'products', });
-        this.hasMany(models.Categories, { foreignKey: 'store_id', as: 'categories', });
-        this.hasMany(models.CategoryMap, { foreignKey: 'store_id', as: 'store_categories_map', })
-        this.hasMany(models.Variation, { foreignKey: 'store_id', as: 'variable', });
-        this.hasMany(models.VariablesMap, { foreignKey: 'product_id', as: 'variablemap', });
-        this.hasMany(models.Client, { foreignKey: 'store_id', as: 'clients', });
-        this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
-        this.hasMany(models.User, { foreignKey: 'store_id', as: 'managers', })
-        this.hasMany(models.Order, { foreignKey: "store_id", as: "order" })
-        this.hasMany(models.ProductsOrder, { foreignKey: "store_id", as: "order_map" })
+        this.hasMany(models.Banners, { foreignKey: 'store_id', as: 'banners', onDelete: 'cascade', hooks: true });
+        this.hasMany(models.Product, { foreignKey: 'store_id', as: 'products', onDelete: 'cascade', hooks: true });
+        this.hasMany(models.Categories, { foreignKey: 'store_id', as: 'categories', onDelete: 'cascade', hooks: true });
+        this.hasMany(models.CategoryMap, { foreignKey: 'store_id', as: 'store_categories_map', onDelete: 'cascade', hooks: true })
+        this.hasMany(models.Variation, { foreignKey: 'store_id', as: 'variable', onDelete: 'cascade', hooks: true });
+        this.hasMany(models.VariablesMap, { foreignKey: 'product_id', as: 'variablemap', onDelete: 'cascade', hooks: true });
+        this.hasMany(models.Client, { foreignKey: 'store_id', as: 'clients', onDelete: 'cascade', hooks: true });
+        this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct`, onDelete: 'cascade', hooks: true })
+        this.hasMany(models.User, { foreignKey: 'store_id', as: 'managers', onDelete: 'cascade', hooks: true })
+        this.hasMany(models.Order, { foreignKey: "store_id", as: "order", onDelete: 'cascade', hooks: true })
+        this.hasMany(models.ProductsOrder, { foreignKey: "store_id", as: "order_map", onDelete: 'cascade', hooks: true })
     }
 }
 

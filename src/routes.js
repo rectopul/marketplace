@@ -93,7 +93,7 @@ routes.put(`/client/disable/:client_id`, ClientController.clientDisable)
 /* Stores */
 routes.get("/store", StoresController.index);
 routes.post("/store/create", StoresController.store);
-routes.delete("/store/:store_id", StoresController.storedelete);
+routes.delete("/store/:store_id", StoresController.delete);
 routes.put(`/store/:store_id`, StoresController.storeUpdate);
 
 /* Banners da Loja */
@@ -129,6 +129,7 @@ routes.delete('/image/banner/:image_id', ImagesBannersController.delete)
 routes.post("/product/maping/variation", VariableMapController.store);
 routes.post("/:store_id/product/create/variation", VariationController.store);
 routes.get("/product/:store_id/:product_id/variation", VariationController.index);
+routes.delete("/variation/:variation_id", VariationController.delete);
 /* UPDATE */
 routes.post("/variation/:store_id/:variation_id", VariationController.update);
 

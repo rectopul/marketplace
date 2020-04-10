@@ -36,6 +36,9 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      total: {
+        type: Sequelize.DECIMAL
+      },
       status: {
         type: Sequelize.DataTypes.STRING
       },

@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Store = require("../models/Stores");
 const jwt = require("jsonwebtoken");
+const UserByToken = require('../middlewares/userByToken')
 
 module.exports = {
     async index(req, res) {
@@ -104,50 +105,6 @@ module.exports = {
 
     },
 
-    async storedelete(req, res) {
-        try {
-
-            //Pegar identificação do usuário
-            const authHeader = req.headers.authorization;
-
-            if (!authHeader)
-                return res.status(401).send({ error: "No token provided" });
-
-            const [, token] = authHeader.split(" ");
-
-            var decoded
-
-            try {
-                decoded = jwt.verify(token, process.env.APP_SECRET)
-            } catch (e) {
-                return res.status(401).send({ error: 'unauthorized' });
-            }
-
-            const user_id = decoded.id
-
-            const { store_id } = req.params
-
-            //Consulta se a loja existe
-            const storeconsult = await Store.findOne({ where: { id: store_id } })
-
-            if (!storeconsult)
-                return res.status(400).send({ error: `This store does not exist` })
-
-            //Consulta se a loja pertence ao usuário
-            const storebyuser = await Store.findOne({ where: { user_id } })
-
-            if (!storebyuser)
-                return res.status(401).send({ error: `This store does not belong to this user` });
-
-            const storedelete = await Store.destroy({ where: { id: store_id } })
-
-            return res.status(200).send()
-        } catch (error) {
-            console.log('Erro ao Excluir loja: ', error)
-            return res.status(401).send()
-        }
-    },
-
     async storeUpdate(req, res) {
         try {
 
@@ -182,6 +139,53 @@ module.exports = {
         } catch (error) {
             console.log(`Erro ao Atualizar Produto`, error);
             return res.status(400).send({ error })
+        }
+    },
+
+    async delete(req, res) {
+        try {
+            const { store_id } = req.params
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await UserByToken(authHeader)
+
+            const user = await User.findByPk(user_id)
+
+            //check store exist
+            const ext = await Store.findByPk(store_id)
+
+            if (!ext)
+                return res.status(400).send({ error: `This store do not exist` })
+
+            //super
+            if (user.type == `super`) {
+                const deleteStore = await Store.destroy({ where: { id: store_id } })
+
+                return res.status(200).send()
+            }
+
+            //check
+            const store = await Store.findOne({ where: { user_id, id: store_id } })
+
+            if (!store)
+                return res.status(400).send({ error: `This store does not belong to this user` })
+
+            const deleteStore = await Store.destroy({ where: { id: store_id } })
+            return res.status(200).send()
+
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro ao excluir loja: `, error)
+
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
         }
     }
 };

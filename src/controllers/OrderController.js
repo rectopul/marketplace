@@ -6,6 +6,8 @@ const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
 const Cart = require('../models/Cart')
 const CartProduct = require('../models/CartProduct')
+const Product = require('../models/Product')
+const ProductVariation = require('../models/VariationMap')
 
 const jwt = require('jsonwebtoken')
 const { promisify } = require("util");
@@ -203,15 +205,37 @@ module.exports = {
                     if (!client)
                         return res.status(400).send({ error: `Client does not have an active address` })
 
-                    console.log('Client id', client_id);
-
                     //loja
                     const store = await Store.findByPk(client.store_id)
+
+                    //map products
+                    const productsSum = products.map(async item => {
+
+                        if (item.variation) {
+                            const variation = await ProductVariation.findByPk(item.variation)
+
+                            if (variation.variable_sale_price && variation.variable_sale_price_dates_to >= new Date())
+                                return parseFloat(variation.variable_sale_price)
+                            else
+                                return parseFloat(variation.variable_sale_price) || parseFloat(variation.variable_regular_price)
+                        }
+
+                        const prod = await Product.findByPk(item.id)
+                        return parseFloat(prod.promotional_price) || parseFloat(prod.price)
+
+                    })
+
+                    const values = await Promise.all(productsSum)
+
+                    const total = values.reduce((a, b) => {
+                        return a + b
+                    })
 
                     const order = await Order.create({
                         store_id: store.id,
                         client_id,
-                        status: `pagamento_pendente`
+                        status: `pagamento_pendente`,
+                        total
                     })
 
                     //map products

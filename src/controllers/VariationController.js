@@ -1,4 +1,5 @@
 const Store = require('../models/Stores')
+const User = require('../models/User')
 const Product = require("../models/Product");
 const Variation = require('../models/Variation')
 const VariationMap = require('../models/VariationMap')
@@ -321,5 +322,54 @@ module.exports = {
                 }
             }
         })
+    },
+
+    async delete(req, res) {
+        try {
+            const { variation_id } = req.params
+
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await UserByToken(authHeader)
+
+            const user = await User.findByPk(user_id)
+
+            //super
+            if (user.type == `super`) {
+                const productVariationDestroy = await VariationMap.destroy({ where: { variation_id } })
+                const variationDestroy = await Variation.destroy({ where: { id: variation_id } })
+
+                return res.status(200).send()
+            }
+
+            //check variation is store user
+            const variation = await Variation.findByPk(variation_id, {
+                include: {
+                    association: `store`,
+                    where: { user_id }
+                }
+            })
+
+            if (!variation)
+                return res.status(400).send({ error: `this variation does not belong to your store` })
+
+            const productVariationDestroy = await VariationMap.destroy({ where: { variation_id } })
+            const variationDestroy = await Variation.destroy({ where: { id: variation_id } })
+
+            return res.status(200).send()
+
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro listar endereço de entrega: `, error);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: error })
+        }
     }
 };
