@@ -36,17 +36,21 @@ class SessionClientController {
 	async fbLogin(req, res) {
 		try {
 
-			const { accessToken, userID, name, email } = req.body
+			const { accessToken } = req.body
 
 			//console.log(`informações: `, req.body);
 
 			//Get infos user
-			const user = await axios.get(`https://graph.facebook.com/v6.0/me?access_token=${accessToken}&method=get&pretty=0&sdk=joey&suppress_http_code=1`)
+			const user = await axios.get(`https://graph.facebook.com/v6.0/me?access_token=${accessToken}&fields=name%2Cemail&method=get&pretty=0&sdk=joey&suppress_http_code=1`)
 
-			if (user.status !== 200)
-				return res.status(400).send({ error: user.data })
+			const { data: response } = user
 
-			console.log(`Informações do usuario: `, user)
+			if (response.error)
+				return res.status(401).send({ error: response.error })
+
+			console.log(`Informações do usuario: `, response)
+
+			const { name, email } = response
 
 			//check if user exist
 			const client = await Client.findOne({ where: { email } })

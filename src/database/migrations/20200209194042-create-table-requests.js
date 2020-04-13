@@ -36,6 +36,9 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
+      discount: {
+        type: Sequelize.DECIMAL
+      },
       total: {
         type: Sequelize.DECIMAL
       },
