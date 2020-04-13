@@ -12,8 +12,11 @@ class SessionClientController {
 			}
 
 
-			const client = await Client.findOne({ where: { email } });
-			//console.log(user);
+			const client = await Client.findOne({
+				where: { email },
+				attributes: [`name`, `email`, `active`]
+			})
+
 			if (!client || client.active != true)
 				return res.status(401).json({ message: 'Client not found' });
 
@@ -53,7 +56,10 @@ class SessionClientController {
 			const { name, email } = response
 
 			//check if user exist
-			const client = await Client.findOne({ where: { email } })
+			const client = await Client.findOne({
+				where: { email },
+				attributes: [`name`, `email`, `active`]
+			})
 
 			if (!client || client.active != true)
 				return res.status(401).json({ message: 'Client not found' });
