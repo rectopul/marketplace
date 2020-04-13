@@ -55,6 +55,8 @@ routes.get('/client/:store_id', ClientController.index)
 
 /* Session */
 routes.post("/sessions", SessionController.store);
+/* Facebook */
+routes.post(`/fb-login`, SessionClientController.fbLogin)
 /* session client */
 routes.post("/sessions/client", SessionClientController.store)
 routes.use(authMiddleware)
