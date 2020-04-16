@@ -13,8 +13,7 @@ class SessionClientController {
 
 
 			const client = await Client.findOne({
-				where: { email },
-				attributes: [`name`, `email`, `active`]
+				where: { email }
 			})
 
 			if (!client || client.active != true)
@@ -26,8 +25,14 @@ class SessionClientController {
 				return res.status(401).json({ message: 'incorrect Password' });
 			}
 
+			let cliente = client.toJSON()
+
+			delete cliente.password_hash
+			delete cliente.createdAt
+			delete cliente.updatedAt
+
 			return res.json({
-				client,
+				cliente,
 				token: client.generateToken(),
 			});
 		} catch (error) {
@@ -51,8 +56,6 @@ class SessionClientController {
 			if (response.error)
 				return res.status(401).send({ error: response.error })
 
-			console.log(`Informações do usuario: `, response)
-
 			const { name, email } = response
 
 			//check if user exist
@@ -64,11 +67,11 @@ class SessionClientController {
 			if (!client || client.active != true)
 				return res.status(401).json({ message: 'Client not found' });
 
+			//if exist return token en logging
 			return res.json({
 				client,
 				token: client.generateToken(),
 			})
-			//if exist return token en logging
 
 			//else sign-up and loggin & send token
 		} catch (error) {

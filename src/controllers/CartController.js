@@ -363,8 +363,16 @@ module.exports = {
 
             if (req.headers.authorization) {
                 const authHeader = req.headers.authorization
-                values.client_id = await ClientMiddleware(authHeader, store_id)
+
+                const { client_id } = await UserByToken(authHeader)
+
+                if (!client_id)
+                    return res.status(400).send({ error: `Customer does not exist` })
+
+                values.client_id = client_id
+
                 const store = await Client.findByPk(client_id)
+
                 values.store_id = store.store_id
             }
 

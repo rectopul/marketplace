@@ -45,7 +45,7 @@ module.exports = {
       },
       variation_id: {
         type: Sequelize.INTEGER,
-        references: { model: "variations", key: "id" },
+        references: { model: "variables_maps", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },

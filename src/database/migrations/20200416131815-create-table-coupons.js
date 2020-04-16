@@ -2,13 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    /*
-      Add altering commands here.
-      Return a promise to correctly handle asynchronicity.
-
-      Example:
-      */
-    return queryInterface.createTable('orders', {
+    return queryInterface.createTable("coupons", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -24,26 +18,28 @@ module.exports = {
       },
       client_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: { model: "clients", key: "id" },
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
-      cart_id: {
-        type: Sequelize.INTEGER,
+      code: {
+        type: Sequelize.STRING,
         allowNull: false,
-        references: { model: "carts", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
+        unique: true
       },
-      discount: {
-        type: Sequelize.DECIMAL
+      value: {
+        type: Sequelize.DECIMAL,
+        allowNull: false,
       },
-      total: {
-        type: Sequelize.DECIMAL
+      valid_from: {
+        type: Sequelize.DATE,
       },
-      status: {
-        type: Sequelize.DataTypes.STRING
+      valid_to: {
+        type: Sequelize.DATE,
+      },
+      active: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
       created_at: {
         type: Sequelize.DATE,
@@ -59,10 +55,11 @@ module.exports = {
   down: (queryInterface, Sequelize) => {
     /*
       Add reverting commands here.
-      Return a promise to correctly handle asynchronicity. src/database/migrations/20200209194042-create-table-requests.js
+      Return a promise to correctly handle asynchronicity.
 
-      Example:
-      */
-    return queryInterface.dropTable('orders');
+      Example: /mnt/d/jobs/node/instacheckout/src/database/migrations/20200125192548-create-table-images-product.js
+      return queryInterface.dropTable('images_products');
+    */
+    return queryInterface.dropTable('coupons');
   }
 };

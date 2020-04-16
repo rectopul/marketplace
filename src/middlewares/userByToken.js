@@ -27,7 +27,7 @@ module.exports = async (authHeader, store_id) => {
             return resolve({ client_id: client.id })
 
         // Fetch the user by id 
-        const UserExist = await User.findByPk(id)
+        const UserExist = await User.findOne({ where: { id, name } })
 
         if (!UserExist)
             return reject("User informed by token not exists")

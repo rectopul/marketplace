@@ -16,6 +16,7 @@ const ImageController = require('./controllers/ImageController')
  * Product
  */
 const ProductController = require('./controllers/ProductController')
+const Coupon = require('./controllers/CouponController')
 
 const VariationController = require('./controllers/VariationController')
 const VariableMapController = require('./controllers/VariableMapController')
@@ -83,6 +84,9 @@ routes.delete('/order/:order_id', OrderController.delete)
  */
 
 routes.use(StoreManager)
+
+//Copons
+routes.post(`/coupon/:store_id/:client_id?`, Coupon.Store)
 
 //Visualizar carrinhos
 //routes.get(`/cart/list/:store_id`, CartController.list)

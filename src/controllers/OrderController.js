@@ -8,6 +8,7 @@ const Cart = require('../models/Cart')
 const CartProduct = require('../models/CartProduct')
 const Product = require('../models/Product')
 const ProductVariation = require('../models/VariationMap')
+const Coupon = require('../models/Coupon')
 
 const jwt = require('jsonwebtoken')
 const { promisify } = require("util");
@@ -114,32 +115,122 @@ module.exports = {
         try {
             const { store_id } = req.params
 
-            const { products, cart_id } = req.body
+            const { products, cart_id, coupon: code } = req.body
 
             //Get user id by token
             const authHeader = req.headers.authorization
 
             const { client_id, user_id } = await UserByToken(authHeader)
 
+            //check coupon
+            if (code) {
+                const coupon = await Coupon.findOne({ where: { code } })
+
+                if (!coupon)
+                    return res.status(400).send({ error: `Coupon does not exist` })
+            }
+
             //Cart id
             if (cart_id) {
                 //
-                const cart = await Client.findByPk(client_id, {
-                    attributes: { exclude: [`password_hash`] },
+                const cart = await Cart.findOne({
+                    where: { id: cart_id, client_id },
                     include: {
-                        association: `cart`,
-                        where: { id: cart_id }
+                        association: `cartProducts`,
+                        include: {
+                            association: `product`,
+                            association: `variation`
+                        }
                     }
                 })
 
                 if (!cart)
                     return res.status(400).send({ error: `This cart does not exist or does not belong to this user` })
 
+                const cartSum = cart.cartProducts.map(item => {
+                    if (item.variation) {
+                        const salePrice = item.variation.variable_sale_price
+                        const salePriceTo = item.variation.variable_sale_price_dates_to
+
+                        if (salePrice) {
+                            if (salePriceTo && new Date(salePriceTo) <= new Date()) {
+                                return salePrice * item.quantity
+                            }
+
+                            return salePrice * item.quantity
+                        }
+
+                        return item.variation.variable_regular_price * item.quantity
+                    }
+
+                    return item.promotional_price * item.quantity || price * item.quantity
+                })
+
+                const value = cartSum.reduce((a, b) => {
+                    return a + b
+                })
+
+                if (code) {
+                    const coupon = await Coupon.findOne({ where: { code } })
+
+                    if (!coupon)
+                        return res.status(400).send({ error: `Coupon does not exist` })
+
+                    const prodCart = await CartProduct.findAll({
+                        where: { id: cart_id },
+                        include: [
+                            {
+                                association: `product`,
+                                where: { store_id: coupon.store_id }
+                            },
+                            {
+                                association: `variation`,
+                                where: { store_id: coupon.store_id }
+                            }
+                        ]
+                    })
+
+                    console.log(`Produtos`, prodCart);
+
+                    if (!prodCart.length)
+                        return res.status(204).send({ message: `There are no in-store products related to the coupon` })
+
+                    const sumProdcart = prodCart
+                        .map(item => {
+                            if (item.variation) {
+                                const salePrice = item.variation.variable_sale_price
+                                const salePriceTo = item.variation.variable_sale_price_dates_to
+
+                                if (salePrice) {
+                                    if (salePriceTo && new Date(salePriceTo) <= new Date()) {
+                                        return salePrice * item.quantity
+                                    }
+
+                                    return salePrice * item.quantity
+                                }
+
+                                return item.variation.variable_regular_price * item.quantity
+                            }
+
+                            return item.promotional_price * item.quantity || price * item.quantity
+                        })
+                        .reduce((a, b) => a + b)
+
+                    return console.log(`Soma: `, sumProdcart);
+                }
+
+                const discount = code ? coupon.value : 0
+
+                console.log(`Sem desconto`, value)
+
+                const total = value - discount
+
                 const create = await Order.create({
                     client_id,
                     store_id: cart.store_id,
                     status: `pagamento_pendente`,
-                    cart_id
+                    cart_id,
+                    coupon_id: code ? coupon.id || null : null
                 })
 
                 const cartProducts = await Cart.findByPk(cart_id, {
@@ -160,6 +251,7 @@ module.exports = {
 
                 //Insert products in order
                 const orderproducts = await ProdutctOrder.bulkCreate(getids)
+
 
                 const resume = await Order.findByPk(create.id, {
                     attributes: { exclude: [`client_id`] },
@@ -227,14 +319,21 @@ module.exports = {
 
                     const values = await Promise.all(productsSum)
 
-                    const total = values.reduce((a, b) => {
+                    const value = values.reduce((a, b) => {
                         return a + b
                     })
+
+                    const discount = coupon.value || 0
+
+                    const total = value - discount
 
                     const order = await Order.create({
                         store_id: store.id,
                         client_id,
                         status: `pagamento_pendente`,
+                        coupon_id: coupon.id || null,
+                        value,
+                        discount,
                         total
                     })
 
@@ -261,6 +360,9 @@ module.exports = {
                                 association: `client`,
                                 attributes: { exclude: [`password_hash`] },
                                 include: { association: `delivery_addresses`, where: { active: true } }
+                            },
+                            {
+                                association: `coupon`
                             },
                             {
                                 association: 'products_order',
@@ -295,12 +397,12 @@ module.exports = {
             if (error.name == `JsonWebTokenError`)
                 return res.status(400).send({ error })
 
-            console.log(`Erro listar endereço de entrega: `, error);
+            console.log(`Erro ao criar pedido: `, error);
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
 
 
-            return res.status(500).send({ error: error })
+            return res.status(500).send({ error: `Erro de servidor` })
         }
     },
 

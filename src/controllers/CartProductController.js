@@ -59,47 +59,28 @@ module.exports = {
             }
 
             //Get Cart association
-            const assocCart = await Cart.findByPk(cart_id, { include: { association: `cartProducts` } })
-
-            let cartJson = assocCart.toJSON()
-
-            const resCart = cartJson.cartProducts.map(async product => {
-                const productInfos = await Product.findByPk(product.product_id)
-
-                //Produto
-                product.product_sku = productInfos.sku
-                product.product_except = productInfos.except
-                product.product_title = productInfos.title
-                product.product_description = productInfos.description
-                product.product_brand = productInfos.brand
-                product.product_model = productInfos.model
-
-                //Variação
-                if (product.variation_id) {
-                    const variationMapInfos = await VariationMap.findByPk(product.variation_id)
-                    const variationInfos = await Variation.findByPk(variationMapInfos.variation_id)
-
-                    product.product_variation_name = variationInfos.attribute_name
-                    product.product_variation_value = variationInfos.attribute_value
-                    product.product_variation_price = parseFloat(variationMapInfos.variable_regular_price)
-
-                    if (variationMapInfos.variable_sale_price)
-                        product.product_variation_sale_price = parseFloat(variationMapInfos.variable_sale_price)
-
-                    product.product_variation_variable_description = variationMapInfos.variable_description
-
-                    if (variationMapInfos.upload_image_id) {
-                        const productVariationImage = await Image.findByPk(variationMapInfos.upload_image_id)
-                        product.product_variation_image = productVariationImage.url
-                    }
-
-                    return product
+            const assocCart = await Cart.findByPk(cart_id, {
+                include: {
+                    association: `cartProducts`,
+                    attributes: [`quantity`],
+                    include: [
+                        {
+                            association: `product`,
+                            attributes: { exclude: [`createdAt`, `updatedAt`,] },
+                            include: { association: `images_product` }
+                        },
+                        {
+                            association: `variation`,
+                            include: {
+                                association: `image`,
+                                attributes: [`url`, `name`]
+                            }
+                        }
+                    ]
                 }
             })
 
-            cartJson.cartProducts = await Promise.all(resCart)
-
-            return res.json(cartJson)
+            return res.json(assocCart)
 
         } catch (error) {
             console.log(`Erro ao adicionar produto no carrinho: `, error);
