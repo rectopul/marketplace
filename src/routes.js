@@ -79,6 +79,9 @@ routes.get('/order/adm/:store_id/:order_id?', OrderController.admIndex)
 routes.put('/order/cancel/:order_id', OrderController.cancel)
 routes.delete('/order/:order_id', OrderController.delete)
 
+//Cupons
+routes.patch(`/coupon/:order_id/:coupon_code`, Coupon.insert)
+
 /**
  * Authentication
  */
