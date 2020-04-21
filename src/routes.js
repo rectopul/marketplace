@@ -25,8 +25,6 @@ const SessionController = require("./controllers/SessionController");
 
 const routes = express.Router();
 
-const authMiddleware = require("./middlewares/auth");
-
 const credentials = require('./middlewares/UserCredentials');
 const ClientCredentials = require('./middlewares/ClientCredentials')
 const StoreManager = require('./middlewares/storeManagerCredentials')
@@ -65,7 +63,6 @@ routes.post(`/sessions`, SessionController.store);
 routes.post(`/fb-login`, SessionClientController.fbLogin)
 /* session client */
 routes.post(`/sessions/client`, SessionClientController.store)
-routes.use(authMiddleware)
 
 routes.use(ClientCredentials)
 //Visualizar carrinhos
