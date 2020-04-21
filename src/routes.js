@@ -39,6 +39,11 @@ const SessionClientController = require('./controllers/SessionClientController')
 const CartController = require('./controllers/CartController')
 const CartProduct = require('./controllers/CartProductController')
 
+//Test de rota
+routes.get(`/`, (req, res) => {
+    return res.status(200).send({ message: `Rota principal` })
+})
+
 /* Forgot e Recuperação de senha */
 routes.post('/forgot', UserController.forgot)
 routes.post('/reset_password', UserController.reset)
