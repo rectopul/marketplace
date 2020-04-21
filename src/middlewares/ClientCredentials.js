@@ -5,12 +5,11 @@ const { promisify } = require("util");
 
 module.exports = async (req, res, next) => {
     const authHeader = req.headers.authorization;
-    const { email } = req.body
 
     var decoded
 
     if (!authHeader) {
-        return res.status(401).send({ error: "No token provided 7" });
+        return res.status(401).send({ error: "No token provided" });
     }
 
     const [, token] = authHeader.split(" ");
@@ -22,12 +21,12 @@ module.exports = async (req, res, next) => {
         return res.status(401).send({ error: 'unauthorized' });
     }
 
-    var id = decoded.id;
+    const { id, name } = decoded;
 
     // Fetch the user by id 
-    const clientToken = await Client.findByPk(id)
+    const clientToken = await Client.findOne({ where: { id, name } })
 
-    const userToken = await User.findByPk(id)
+    const userToken = await User.findOne({ where: { id, name } })
 
     if (clientToken) {
         next()
