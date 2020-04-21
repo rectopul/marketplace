@@ -10,7 +10,7 @@ module.exports = async (authHeader, store_id) => {
         const [, token] = authHeader.split(" ");
 
         if (!token)
-            return reject("No token provided")
+            return reject("No token provided 8")
 
         try {
             decoded = jwt.verify(token, process.env.APP_SECRET_CLIENT)

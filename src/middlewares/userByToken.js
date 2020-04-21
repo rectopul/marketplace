@@ -7,10 +7,19 @@ module.exports = async (authHeader, store_id) => {
     return new Promise(async (resolve, reject) => {
         let decoded
 
+        if (!authHeader)
+            return reject({
+                name: `userToken`,
+                message: `No token provided 12`
+            })
+
         const [, token] = authHeader.split(" ");
 
         if (!token)
-            reject("No token provided")
+            return reject({
+                name: `userToken`,
+                message: `No token provided 12`
+            })
 
         try {
             decoded = jwt.verify(token, process.env.APP_SECRET)
@@ -30,7 +39,10 @@ module.exports = async (authHeader, store_id) => {
         const UserExist = await User.findOne({ where: { id, name } })
 
         if (!UserExist)
-            return reject("User informed by token not exists")
+            return reject({
+                name: `userToken`,
+                message: `User informed by token not exists`
+            })
         else
             return resolve({ user_id: UserExist.id })
     })

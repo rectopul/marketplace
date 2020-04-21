@@ -16,7 +16,7 @@ module.exports = {
         const authHeader = req.headers.authorization;
 
         if (!authHeader)
-            return res.status(401).send({ error: "No token provided" });
+            return res.status(401).send({ error: "No token provided 5" });
 
         const [, token] = authHeader.split(" ");
 

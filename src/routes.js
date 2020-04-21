@@ -44,10 +44,6 @@ routes.get(`/`, (req, res) => {
     return res.status(200).send({ message: `Rota principal` })
 })
 
-/* Forgot e Recuperação de senha */
-routes.post('/forgot', UserController.forgot)
-routes.post('/reset_password', UserController.reset)
-
 //Carrinho de compras
 routes.post(`/cart/create`, CartController.create)
 routes.get(`/cart/list/:session_id?`, CartController.list)
@@ -58,6 +54,10 @@ routes.delete(`/cart/product/:cart_id/:session_id`, CartProduct.remove)
 /* Clientes */
 routes.post(`/client`, ClientController.store)
 routes.get(`/client`, ClientController.index)
+
+/* Forgot e Recuperação de senha */
+routes.post('/forgot', UserController.forgot)
+routes.post('/reset_password', UserController.reset)
 
 /* Session */
 routes.post(`/sessions`, SessionController.store);

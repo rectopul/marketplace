@@ -10,7 +10,7 @@ module.exports = async (req, store_id) => {
         let decoded
 
         if (!authHeader)
-            reject(Error("No token provided"))
+            reject(Error("No token provided 11"))
 
         const [, token] = authHeader.split(" ");
 

@@ -8,18 +8,34 @@ const { promisify } = require("util");
 
 module.exports = {
     async index(req, res) {
-        const authHeader = req.headers.authorization
+        try {
+            const authHeader = req.headers.authorization
 
-        const { client_id } = await UserbyToken(authHeader)
+            console.log(`Token: `, authHeader);
 
-        if (!client_id)
-            return res.status(400).send({ error: `This user not exist` })
+            const { client_id } = await UserbyToken(authHeader)
 
-        const client = await Client.findByPk(client_id, {
-            attributes: { exclude: [`password_hash`, `createdAt`, `updatedAt`] }
-        });
+            if (!client_id)
+                return res.status(400).send({ error: `This user not exist` })
 
-        return res.json(client);
+            const client = await Client.findByPk(client_id, {
+                attributes: { exclude: [`password_hash`, `createdAt`, `updatedAt`] }
+            });
+
+            return res.json(client);
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError` || error.name == `userToken`)
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar novo cliente: `, error)
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
+
     },
 
     async store(req, res) {

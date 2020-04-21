@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
     var decoded
 
     if (!authHeader) {
-        return res.status(401).send({ error: "No token provided" });
+        return res.status(401).send({ error: "No token provided 9" });
     }
 
     const [, token] = authHeader.split(" ");
