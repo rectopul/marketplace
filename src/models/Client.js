@@ -7,9 +7,11 @@ class Client extends Model {
 	static init(sequelize) {
 		super.init(
 			{
-				store_id: DataTypes.INTEGER,
 				email: {
 					type: DataTypes.STRING,
+					unique: {
+						msg: `This email already exist`
+					},
 					validate: {
 						notEmpty: {
 							msg: `This field cannot be empty`
@@ -21,6 +23,9 @@ class Client extends Model {
 				},
 				name: {
 					type: DataTypes.STRING,
+					unique: {
+						msg: `This name already exist`
+					},
 					validate: {
 						notEmpty: {
 							msg: `This field cannot be empty`
@@ -29,6 +34,9 @@ class Client extends Model {
 				},
 				phone: {
 					type: DataTypes.STRING,
+					unique: {
+						msg: `This phone already exist`
+					},
 					validate: {
 						notEmpty: {
 							msg: `This field cannot be empty`
@@ -41,6 +49,9 @@ class Client extends Model {
 				},
 				cell: {
 					type: DataTypes.STRING,
+					unique: {
+						msg: `This cell already exist`
+					},
 					validate: {
 						notEmpty: {
 							msg: `This field cannot be empty`
@@ -62,6 +73,9 @@ class Client extends Model {
 				password_hash: DataTypes.STRING,
 				cpf: {
 					type: DataTypes.STRING,
+					unique: {
+						msg: `This cpf already exist`
+					},
 					validate: {
 						notEmpty: {
 							msg: `This field cannot be empty`
@@ -130,7 +144,6 @@ class Client extends Model {
 	}
 
 	static associate(models) {
-		this.belongsTo(models.Stores, { foreignKey: "store_id", as: "store" });
 		this.hasMany(models.DeliveryAddress, { foreignKey: 'client_id', as: 'delivery_addresses' })
 		this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
 		this.hasMany(models.Cart, { foreignKey: `client_id`, as: `cart` })

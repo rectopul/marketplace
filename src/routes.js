@@ -51,8 +51,8 @@ routes.delete(`/cart/:cart_id`, CartProduct.remove)
 routes.delete(`/cart/product/:cart_id/:session_id`, CartProduct.remove)
 
 /* Clientes */
-routes.post('/client/:store_id', ClientController.store)
-routes.get('/client/:store_id', ClientController.index)
+routes.post('/client', ClientController.store)
+routes.get('/client', ClientController.index)
 
 /* Session */
 routes.post("/sessions", SessionController.store);
@@ -77,6 +77,7 @@ routes.post('/order', OrderController.store)
 routes.get('/order/:order_id?', OrderController.index)
 routes.get('/order/adm/:store_id/:order_id?', OrderController.admIndex)
 routes.put('/order/cancel/:order_id', OrderController.cancel)
+routes.put('/order/:order_id', OrderController.update)
 routes.delete('/order/:order_id', OrderController.delete)
 
 //Cupons

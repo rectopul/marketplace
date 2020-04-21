@@ -1,68 +1,62 @@
 const Client = require('../models/Client');
 const Store = require('../models/Stores')
 const User = require('../models/User')
+const UserbyToken = require('../middlewares/userByToken')
 
 const jwt = require('jsonwebtoken')
 const { promisify } = require("util");
 
 module.exports = {
     async index(req, res) {
-        const { client_id } = req.params
-        const client = await Client.findByPk(client_id);
+        const authHeader = req.headers.authorization
+
+        const { client_id } = await UserbyToken(authHeader)
+
+        if (!client_id)
+            return res.status(400).send({ error: `This user not exist` })
+
+        const client = await Client.findByPk(client_id, {
+            attributes: { exclude: [`password_hash`, `createdAt`, `updatedAt`] }
+        });
 
         return res.json(client);
     },
 
     async store(req, res) {
-        const { store_id } = req.params
-        const { name, email, phone, cell, password, cpf, address, zipcode, city, state } = req.body
+        try {
+            const { name, email, phone, cell, password, cpf, address, zipcode, city, state } = req.body
 
-        const store = await Store.findByPk(store_id)
-
-        if (!store) {
-            return res.status(400).json({ error: "Store not exist" });
-        }
-
-        const ClientMail = await Client.findOne({ where: { email } })
-
-        const ClientCpf = await Client.findOne({ where: { cpf } })
-
-        const ClientPhone = await Client.findOne({ where: { phone } })
-
-        const ClientCell = await Client.findOne({ where: { cell } })
-
-        if (ClientMail) {
-            return res.status(401).json({ message: 'the email you entered is already registered' })
-        } else if (ClientCpf) {
-            return res.status(401).json({ message: 'the cpf you entered is already registered' })
-        } else if (ClientPhone) {
-            return res.status(401).json({ message: 'the phone you entered is already registered' })
-        } else if (ClientCell) {
-            return res.status(401).json({ message: 'the cell you entered is already registered' })
-        }
-
-        const client = await Client.create({
-            name,
-            email,
-            password,
-            phone,
-            cell,
-            cpf,
-            address,
-            zipcode,
-            city,
-            state,
-            active: true,
-            store_id
-        })
-            .then(result => {
-                return res.json(result);
-            })
-            .catch(err => {
-                return res.status(400).send({ error: err })
+            const client = await Client.create({
+                name,
+                email,
+                password,
+                phone,
+                cell,
+                cpf,
+                address,
+                zipcode,
+                city,
+                state,
+                active: true,
             })
 
+            const getClient = await Client.findByPk(client.id, {
+                attributes: { exclude: [`password_hash`, `created_at`, `updated_at`] }
+            })
 
+            return res.json(getClient)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`)
+                return res.status(400).send({ error })
+
+            console.log(`Erro ao criar novo cliente: `, error);
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
     },
 
     async clientActive(req, res) {

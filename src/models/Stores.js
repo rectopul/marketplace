@@ -124,7 +124,6 @@ class Stores extends Model {
         this.hasMany(models.CategoryMap, { foreignKey: 'store_id', as: 'store_categories_map', onDelete: 'cascade', hooks: true })
         this.hasMany(models.Variation, { foreignKey: 'store_id', as: 'variable', onDelete: 'cascade', hooks: true });
         this.hasMany(models.VariablesMap, { foreignKey: 'product_id', as: 'variablemap', onDelete: 'cascade', hooks: true });
-        this.hasMany(models.Client, { foreignKey: 'store_id', as: 'clients', onDelete: 'cascade', hooks: true });
         this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct`, onDelete: 'cascade', hooks: true })
         this.hasMany(models.User, { foreignKey: 'store_id', as: 'managers', onDelete: 'cascade', hooks: true })
         this.hasMany(models.Order, { foreignKey: "store_id", as: "order", onDelete: 'cascade', hooks: true })

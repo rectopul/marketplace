@@ -231,6 +231,19 @@ module.exports = {
                 if (!addressCheck)
                     return res.status(400).send({ error: `This address does not exist` })
 
+                if (active) {
+                    const inactiveAddress = await Delivery.update({ active: false }, {
+                        where: { client_id, active: true }
+                    })
+
+                    const activeAddress = await Delivery.update({ active: true }, {
+                        where: { client_id, id: delivery_id },
+                        returning: true, plain: true
+                    })
+
+                    return res.json(activeAddress)
+                }
+
                 const addressUpdate = await Delivery.update({
                     name,
                     cpf,

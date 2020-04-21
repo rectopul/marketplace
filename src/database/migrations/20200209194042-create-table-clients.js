@@ -15,13 +15,6 @@ module.exports = {
         autoIncrement: true,
         allowNull: false
       },
-      store_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: "stores", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
-      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,

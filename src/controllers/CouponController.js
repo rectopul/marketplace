@@ -102,7 +102,7 @@ module.exports = {
             if (!client.order[0].products_order.length)
                 return res.status(400).send({ error: `Don't have products valid on this coupon` })
 
-            const products = client.order[0].products_order.length.map(item => {
+            const products = client.order[0].products_order.map(item => {
                 return item.price
             }).reduce((a, b) => a + b)
 
