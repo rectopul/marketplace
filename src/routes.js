@@ -51,15 +51,15 @@ routes.delete(`/cart/:cart_id`, CartProduct.remove)
 routes.delete(`/cart/product/:cart_id/:session_id`, CartProduct.remove)
 
 /* Clientes */
-routes.post('/client', ClientController.store)
-routes.get('/client', ClientController.index)
+routes.post(`/client`, ClientController.store)
+routes.get(`/client`, ClientController.index)
 
 /* Session */
-routes.post("/sessions", SessionController.store);
+routes.post(`/sessions`, SessionController.store);
 /* Facebook */
 routes.post(`/fb-login`, SessionClientController.fbLogin)
 /* session client */
-routes.post("/sessions/client", SessionClientController.store)
+routes.post(`/sessions/client`, SessionClientController.store)
 routes.use(authMiddleware)
 
 routes.use(ClientCredentials)
@@ -166,22 +166,5 @@ routes.get("/user", UserController.single)
 routes.get("/users/:user_id/addresses", AddressController.index);
 routes.post("/users/addresses", AddressController.store)
 
-/**
- * Autencicação
- */
-
-routes.post("/authenticate", async (req, res) => {
-    const { email, password } = req.body;
-
-    const user = await UserController;
-});
-
-/**
- * Dashboard
- */
-
-routes.get("/dashboard", (req, res) => {
-    return res.status(200).send();
-});
 
 module.exports = routes;

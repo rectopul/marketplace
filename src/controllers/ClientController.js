@@ -50,10 +50,10 @@ module.exports = {
             if (error.name == `JsonWebTokenError`)
                 return res.status(400).send({ error })
 
-            console.log(`Erro ao criar novo cliente: `, error);
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
 
+            console.log(`Erro ao criar novo cliente: `, error.name)
 
             return res.status(500).send({ error: `Erro de servidor` })
         }
