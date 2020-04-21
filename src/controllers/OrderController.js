@@ -113,227 +113,131 @@ module.exports = {
     async store(req, res) {
 
         try {
-            const { store_id } = req.params
-
-            const { products, cart_id } = req.body
+            const { product_id, quantity, variation_id } = req.body
 
             //Get user id by token
             const authHeader = req.headers.authorization
 
             const { client_id, user_id } = await UserByToken(authHeader)
 
-            //Cart id
-            if (cart_id) {
-                //
-                const cart = await Cart.findOne({
-                    where: { id: cart_id, client_id },
-                    include: {
-                        association: `cartProducts`,
-                        include: {
+            //Includes
+            const includes = [
+                {
+                    association: `client`,
+                    attributes: { exclude: [`password_hash`] },
+                    include: { association: `delivery_addresses`, where: { active: true } }
+                },
+                {
+                    association: `store`,
+                    attributes: { exclude: [`user_id`, `createdAt`, `updatedAt`] }
+                },
+                {
+                    association: `coupon`
+                },
+                {
+                    association: 'products_order',
+                    attributes: [`quantity`],
+                    include: [
+                        {
                             association: `product`,
-                            association: `variation`
+                            attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
+                        },
+                        {
+                            association: `variation`,
+                            attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                            include: [
+                                { association: `image` },
+                                { association: `variation_info` },
+                            ]
                         }
+                    ]
+                }
+            ]
+
+            const product = await Product.findByPk(product_id)
+
+            if (!product)
+                return res.status(400).send({ error: `Product not exist!` })
+
+            if (variation_id) {
+
+                const variation = await Product.findByPk(product_id, {
+                    include: {
+                        association: `variations`,
+                        where: { id: variation_id }
                     }
                 })
 
-                if (!cart)
-                    return res.status(400).send({ error: `This cart does not exist or does not belong to this user` })
 
-                const cartSum = cart.cartProducts.map(item => {
-                    if (item.variation) {
-                        const salePrice = item.variation.variable_sale_price
-                        const salePriceTo = item.variation.variable_sale_price_dates_to
+                if (!variation)
+                    return res.status(400).send({ error: `Product variation not exist!` })
 
-                        if (salePrice) {
-                            if (salePriceTo && new Date(salePriceTo) <= new Date()) {
-                                return salePrice * item.quantity
-                            }
+                const { variations } = variation
 
-                            return salePrice * item.quantity
-                        }
-
-                        return item.variation.variable_regular_price * item.quantity
-                    }
-
-                    return item.promotional_price * item.quantity || price * item.quantity
-                })
-
-                const value = cartSum.reduce((a, b) => {
-                    return a + b
-                })
+                if (variations.variable_sale_price && variations.variable_sale_price_dates_to >= new Date()) {
+                    const value = parseFloat(variations.variable_sale_price) * quantity
+                } else {
+                    const value = parseFloat(variations.variable_sale_price) * quantity || parseFloat(variations.variable_regular_price) * quantity
+                }
 
                 const discount = 0
 
                 const total = value
 
-                const create = await Order.create({
+                //create order
+                const order = await Order.create({
+                    store_id: product.store_id,
                     client_id,
-                    store_id: cart.store_id,
                     status: `pagamento_pendente`,
-                    cart_id,
+                    coupon_id: null,
+                    value,
                     discount,
-                    total,
-                    coupon_id: null
+                    total
                 })
 
-                const cartProducts = await Cart.findByPk(cart_id, {
-                    include: { association: `cartProducts` }
+                //Product order
+                const productOrder = await ProdutctOrder.create({
+                    store_id: product.store_id,
+                    order_id: order.id,
+                    client_id,
+                    product_id,
+                    variation_id,
+                    quantity
                 })
 
-                const getids = cartProducts.cartProducts.map(item => {
-                    const product = {
-                        store_id: cart.store_id,
-                        order_id: create.id,
-                        client_id,
-                        product_id: item.product_id,
-                        variation_id: item.variation_id,
-                        quantity: item.quantity
-                    }
-                    return product
-                })
-
-                //Insert products in order
-                const orderproducts = await ProdutctOrder.bulkCreate(getids)
-
-
-                const resume = await Order.findByPk(create.id, {
-                    attributes: { exclude: [`client_id`] },
-                    include: [
-                        {
-                            association: `client`,
-                            attributes: { exclude: [`password_hash`] },
-                            include: { association: `delivery_addresses`, where: { active: true } }
-                        },
-                        {
-                            association: 'products_order',
-                            attributes: [`quantity`],
-                            include: [
-                                {
-                                    association: `product`,
-                                    attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
-                                },
-                                {
-                                    association: `variation`,
-                                    attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
-                                    include: [
-                                        { association: `image` },
-                                        { association: `variation_info` },
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                })
+                const resume = await Order.findByPk(order.id, { include: includes })
 
                 return res.json(resume)
             }
 
-            //info products
-            if (products) {
-                //clients
-                if (client_id) {
-                    //cliente
-                    const client = await Client.findByPk(client_id, {
-                        include: { association: `delivery_addresses`, where: { active: true } }
-                    })
+            const value = parseFloat(product.promotional_price) * quantity || parseFloat(product.price) * quantity
 
-                    if (!client)
-                        return res.status(400).send({ error: `Client does not have an active address` })
+            const discount = 0
 
-                    //loja
-                    const store = await Store.findByPk(client.store_id)
+            const total = value
 
-                    //map products
-                    const productsSum = products.map(async item => {
+            const order = await Order.create({
+                store_id: product.store_id,
+                client_id,
+                status: `pagamento_pendente`,
+                coupon_id: null,
+                value,
+                discount,
+                total
+            })
 
-                        if (item.variation) {
-                            const variation = await ProductVariation.findByPk(item.variation)
+            //Product order
+            const productOrder = await ProdutctOrder.create({
+                store_id: product.store_id,
+                order_id: order.id,
+                client_id,
+                product_id,
+                quantity
+            })
 
-                            if (variation.variable_sale_price && variation.variable_sale_price_dates_to >= new Date())
-                                return parseFloat(variation.variable_sale_price)
-                            else
-                                return parseFloat(variation.variable_sale_price) || parseFloat(variation.variable_regular_price)
-                        }
+            const resume = await Order.findByPk(order.id, { include: includes })
 
-                        const prod = await Product.findByPk(item.id)
-                        return parseFloat(prod.promotional_price) || parseFloat(prod.price)
-
-                    })
-
-                    const values = await Promise.all(productsSum)
-
-                    const value = values.reduce((a, b) => {
-                        return a + b
-                    })
-
-                    const discount = 0
-
-                    const total = value
-
-                    const order = await Order.create({
-                        store_id: store.id,
-                        client_id,
-                        status: `pagamento_pendente`,
-                        coupon_id: null,
-                        value,
-                        discount,
-                        total
-                    })
-
-                    //map products
-                    const productsId = products.map(item => {
-                        const mountjson = {
-                            store_id: store.id,
-                            order_id: order.id,
-                            client_id,
-                            product_id: item.id,
-                            variation_id: item.variation || null,
-                            quantity: item.quantity
-                        }
-
-                        return mountjson
-                    })
-
-                    //insert products
-                    const prodct = await ProdutctOrder.bulkCreate(productsId)
-
-                    const resume = await Order.findByPk(order.id, {
-                        include: [
-                            {
-                                association: `client`,
-                                attributes: { exclude: [`password_hash`] },
-                                include: { association: `delivery_addresses`, where: { active: true } }
-                            },
-                            {
-                                association: `coupon`
-                            },
-                            {
-                                association: 'products_order',
-                                attributes: [`quantity`],
-                                include: [
-                                    {
-                                        association: `product`,
-                                        attributes: { exclude: [`store_id`, `stock`, `cust_price`] }
-                                    },
-                                    {
-                                        association: `variation`,
-                                        attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
-                                        include: [
-                                            { association: `image` },
-                                            { association: `variation_info` },
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    })
-
-                    return res.json(resume)
-
-                }
-                //users
-
-            }
+            return res.json(resume)
 
         } catch (error) {
             //Validação de erros
