@@ -65,6 +65,9 @@ routes.post(`/fb-login`, SessionClientController.fbLogin)
 routes.post(`/sessions/client`, SessionClientController.store)
 
 routes.use(ClientCredentials)
+//Atualizar client
+routes.put(`/client`, ClientController.update)
+
 //Visualizar carrinhos
 routes.get(`/cart/list/:store_id`, CartController.list)
 

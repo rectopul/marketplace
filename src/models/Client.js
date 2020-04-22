@@ -32,36 +32,6 @@ class Client extends Model {
 						}
 					}
 				},
-				phone: {
-					type: DataTypes.STRING,
-					unique: {
-						msg: `This phone already exist`
-					},
-					validate: {
-						notEmpty: {
-							msg: `This field cannot be empty`
-						},
-						is: {
-							args: /(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})/g,
-							msg: `This field must be a phone`
-						}
-					}
-				},
-				cell: {
-					type: DataTypes.STRING,
-					unique: {
-						msg: `This cell already exist`
-					},
-					validate: {
-						notEmpty: {
-							msg: `This field cannot be empty`
-						},
-						is: {
-							args: /(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})/g,
-							msg: `This field must be a cell`
-						}
-					}
-				},
 				password: {
 					type: DataTypes.VIRTUAL,
 					validate: {
@@ -71,56 +41,6 @@ class Client extends Model {
 					}
 				},
 				password_hash: DataTypes.STRING,
-				cpf: {
-					type: DataTypes.STRING,
-					unique: {
-						msg: `This cpf already exist`
-					},
-					validate: {
-						notEmpty: {
-							msg: `This field cannot be empty`
-						},
-						is: {
-							args: /([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})/g,
-							msg: `This field must be a phone`
-						}
-					}
-				},
-				address: {
-					type: DataTypes.STRING,
-					validate: {
-						notEmpty: {
-							msg: `This field cannot be empty`
-						}
-					}
-				},
-				zipcode: {
-					type: DataTypes.STRING,
-					validate: {
-						notEmpty: {
-							msg: `This field cannot be empty`
-						},
-						isInt: {
-							msg: `This field must be a number`
-						}
-					}
-				},
-				city: {
-					type: DataTypes.STRING,
-					validate: {
-						notEmpty: {
-							msg: `This field cannot be empty`
-						}
-					}
-				},
-				state: {
-					type: DataTypes.STRING,
-					validate: {
-						notEmpty: {
-							msg: `This field cannot be empty`
-						}
-					}
-				},
 				active: {
 					type: DataTypes.BOOLEAN,
 					validate: {
@@ -149,6 +69,7 @@ class Client extends Model {
 		this.hasMany(models.Cart, { foreignKey: `client_id`, as: `cart` })
 		this.hasMany(models.ProductsOrder, { foreignKey: "client_id", as: "order_map" })
 		this.hasMany(models.Order, { foreignKey: "client_id", as: "order" })
+		this.belongsTo(models.Image, { foreignKey: "image_id", as: "image" })
 	}
 }
 
