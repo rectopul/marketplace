@@ -124,7 +124,7 @@ module.exports = {
 
         } catch (error) {
             console.log(error);
-            res.status(400).send({ error: 'Erro on forgot password, try again' })
+            return res.status(400).send({ error: 'Erro on forgot password, try again' })
         }
     },
 

@@ -42,6 +42,11 @@ routes.get(`/`, (req, res) => {
     return res.status(200).send({ message: `Rota principal` })
 })
 
+//Listagem de produtos
+routes.get("/store/:store_id/product", ProductController.index);
+routes.get("/product/:store_id/:product_id", ProductController.store);
+routes.get("/products", ProductController.allstore)
+
 //Carrinho de compras
 routes.post(`/cart/create`, CartController.create)
 routes.get(`/cart/list/:session_id?`, CartController.list)
@@ -124,9 +129,6 @@ routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageControlle
 
 /* Products */
 routes.post("/product/:store_id/create", ProductController.create);
-routes.get("/store/:store_id/product", ProductController.index);
-routes.get("/product/:store_id/:product_id", ProductController.store);
-routes.get("/products", ProductController.allstore);
 routes.delete(`/product/delete/:product_id`, ProductController.productDelete)
 routes.put(`/product/update/:product_id`, ProductController.productUpdate)
 

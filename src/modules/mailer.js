@@ -1,7 +1,16 @@
 const path = require('path')
 const nodemailer = require('nodemailer')
-
+let aws = require('aws-sdk')
 const hbs = require('nodemailer-express-handlebars')
+
+aws.config.update({ region: process.env.AWS_DEFAULT_REGION })
+
+// create Nodemailer SES transporter
+let transporter = nodemailer.createTransport({
+    SES: new aws.SES({
+        apiVersion: '2010-12-01'
+    })
+})
 
 var transport = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
