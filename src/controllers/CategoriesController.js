@@ -8,13 +8,28 @@ const { Op } = require('sequelize')
 
 module.exports = {
     async index(req, res) {
-        const { store_id } = req.params;
+        const { slug } = req.params;
 
-        const store = await Store.findByPk(store_id, {
-            include: { association: "categories" }
-        });
+        if (slug) {
+            const categories = await Categories.findAll({
+                where: { slug },
+                include: {
+                    association: `products_category`,
+                    include: { association: `product` }
+                }
+            })
 
-        return res.json(store);
+            return res.json(categories)
+        }
+
+        const categories = await Categories.findAll({
+            include: {
+                association: `products_category`,
+                include: { association: `product` }
+            }
+        })
+
+        return res.json(categories);
 
     },
 

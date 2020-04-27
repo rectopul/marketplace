@@ -61,7 +61,7 @@ class SessionClientController {
 			//check if user exist
 			const client = await Client.findOne({
 				where: { email },
-				attributes: [`name`, `email`, `active`]
+				attributes: [`id`, `name`, `email`, `active`]
 			})
 
 			if (!client || client.active != true)

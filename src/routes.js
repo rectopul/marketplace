@@ -46,6 +46,8 @@ routes.get(`/`, (req, res) => {
 routes.get("/store/:store_id/product", ProductController.index);
 routes.get("/product/:store_id/:product_id", ProductController.store);
 routes.get("/products", ProductController.allstore)
+//Listagem de produtos por categoria
+routes.get('/categories/:slug?', CategoriesController.index)
 
 //Carrinho de compras
 routes.post(`/cart/create`, CartController.create)
@@ -152,7 +154,6 @@ routes.post("/variation/:store_id/:variation_id", VariationController.update);
 
 /* Categories */
 routes.post('/insert/:store_id/category', CategoriesController.store)
-routes.get('/store/:store_id/category', CategoriesController.index)
 routes.put('/category/:caregory_id/:product_id?', CategoriesController.update)
 routes.delete('/category/:caregory_id/:product_id?', CategoriesController.delete)
 

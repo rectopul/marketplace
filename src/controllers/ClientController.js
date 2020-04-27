@@ -11,8 +11,10 @@ module.exports = {
     async index(req, res) {
         try {
             const authHeader = req.headers.authorization
+            console.log(`Client Id:`, authHeader);
 
             const { client_id } = await UserbyToken(authHeader)
+
 
             if (!client_id)
                 return res.status(400).send({ error: `This user not exist` })
@@ -24,14 +26,13 @@ module.exports = {
 
             return res.json(client);
         } catch (error) {
+            console.log(`Erro ao criar novo cliente: `, error)
             //Validação de erros
             if (error.name == `JsonWebTokenError`)
                 return res.status(400).send({ error })
 
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError` || error.name == `userToken`)
                 return res.status(400).send({ error: error.message })
-
-            console.log(`Erro ao criar novo cliente: `, error)
 
             return res.status(500).send({ error: `Erro de servidor` })
         }
@@ -62,7 +63,10 @@ module.exports = {
                 include: { association: `image` }
             })
 
-            return res.json(getClient)
+            return res.json({
+                client: getClient,
+                token: getClient.generateToken()
+            })
         } catch (error) {
             //Validação de erros
             if (error.name == `JsonWebTokenError`)
