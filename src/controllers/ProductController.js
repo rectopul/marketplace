@@ -37,7 +37,14 @@ module.exports = {
     },
 
     async allstore(req, res) {
-        const products = await Product.findAll();
+        const products = await Product.findAll({
+            include: [
+                { association: `images_product` },
+                { association: `stores` },
+                { association: `variations`, include: { association: `variation_info` } },
+                { association: `product_categories_map` }
+            ]
+        });
 
         return res.json(products);
     },
