@@ -43,8 +43,8 @@ routes.get(`/`, (req, res) => {
 })
 
 //Listagem de produtos
-routes.get("/store/:store_id/product", ProductController.index);
-routes.get("/product/:store_id/:product_id", ProductController.store);
+routes.get("/product/:product_id", ProductController.index);
+routes.post("/product/:store_id/:product_id", ProductController.store);
 routes.get("/products", ProductController.allstore)
 //Listagem de produtos por categoria
 routes.get('/categories/:slug?', CategoriesController.index)

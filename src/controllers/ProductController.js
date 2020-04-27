@@ -8,11 +8,16 @@ const Image = require('../models/Image')
 
 module.exports = {
     async index(req, res) {
-        const { store_id } = req.params;
+        const { product_id } = req.params;
 
-        const store = await Stores.findByPk(store_id, {
-            include: { association: "products" }
-        });
+        const product = await Product.findByPk(product_id, {
+            include: [
+                { association: `images_product` },
+                { association: `stores` },
+                { association: `variations` },
+                { association: `product_categories_map` }
+            ]
+        })
 
         return res.json(store);
     },
