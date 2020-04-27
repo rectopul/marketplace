@@ -7,6 +7,7 @@ const Address = require("../models/Address");
 const Stores = require('../models/Stores')
 const Product = require('../models/Product')
 const ImagesProducts = require('../models/ImageProduct')
+const ProductRating = require('../models/ProductRating')
 const Variation = require('../models/Variation')
 const VariationMap = require('../models/VariationMap')
 const Categories = require('../models/Categories')
@@ -32,6 +33,7 @@ Address.init(connection);
 Image.init(connection)
 Stores.init(connection);
 Product.init(connection);
+ProductRating.init(connection)
 ImagesProducts.init(connection);
 ImagesBanners.init(connection)
 Variation.init(connection);
@@ -65,6 +67,7 @@ Order.associate(connection.models)
 Client.associate(connection.models)
 DeliveryAddress.associate(connection.models)
 ProductOrder.associate(connection.models)
+ProductRating.associate(connection.models)
 Coupon.associate(connection.models)
 Cart.associate(connection.models)
 CartProduct.associate(connection.models)

@@ -118,6 +118,7 @@ class Product extends Model {
         this.hasMany(models.VariablesMap, { foreignKey: 'product_id', as: 'variations', });
         this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
         this.hasMany(models.ProductsOrder, { foreignKey: "product_id", as: "order_map" })
+        this.hasMany(models.ProductRating, { foreignKey: `product_id`, as: `rating` })
     }
 }
 
