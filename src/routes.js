@@ -75,6 +75,9 @@ routes.use(ClientCredentials)
 //Atualizar client
 routes.put(`/client`, ClientController.update)
 
+//Images
+routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
+
 //Visualizar carrinhos
 routes.get(`/cart/list/:store_id`, CartController.list)
 
@@ -125,9 +128,6 @@ routes.delete("/banners/:banner_id", BannersController.delete);
 routes.put("/banners/:banner_id", BannersController.update);
 /* Pegar imagens Banner por localização */
 routes.get("/banners/:store_id/:location", BannersController.location);
-
-//Images
-routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
 
 /* Products */
 routes.post("/product/:store_id/create", ProductController.create);
