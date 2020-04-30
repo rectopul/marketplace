@@ -4,11 +4,9 @@ module.exports = async (env) => {
     try {
         let url = `https://apphom.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl`
 
-        if (env == `prod`)
-            url = `https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl`
+        if (env == `prod`) url = `https://apps.correios.com.br/SigepMasterJPA/AtendeClienteService/AtendeCliente?wsdl`
 
-        if (env == `calc`)
-            url = `http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx?wsdl`
+        if (env == `calc`) url = `http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx?wsdl`
 
         const clientCalc = (args) => {
             const calcArgs = {
@@ -35,9 +33,7 @@ module.exports = async (env) => {
                             result.CalcPrecoPrazoResult.Servicos &&
                             result.CalcPrecoPrazoResult.Servicos.cServico
                         ) {
-                            return resolve(
-                                result.CalcPrecoPrazoResult.Servicos.cServico[0]
-                            )
+                            return resolve(result.CalcPrecoPrazoResult.Servicos.cServico[0])
                         }
 
                         return reject(error)
@@ -50,15 +46,7 @@ module.exports = async (env) => {
             return {
                 CalcPrecoPrazo: (params) => {
                     return new Promise((resolve, reject) => {
-                        const {
-                            sCepOrigem,
-                            sCepDestino,
-                            nVlPeso,
-                            nVlComprimento,
-                            nVlAltura,
-                            nVlLargura,
-                            nVlDiametro,
-                        } = params
+                        const { sCepOrigem, sCepDestino, nVlPeso, nVlComprimento, nVlAltura, nVlLargura, nVlDiametro } = params
 
                         const result = [`04510`, `04014`].map((item) => {
                             return clientCalc({
@@ -88,12 +76,7 @@ module.exports = async (env) => {
                 },
                 servicos: (params) => {
                     return new Promise((resolve, reject) => {
-                        const {
-                            idContrato,
-                            idCartaoPostagem,
-                            usuario,
-                            senha,
-                        } = params
+                        const { idContrato, idCartaoPostagem, usuario, senha } = params
 
                         client.buscaCliente(
                             {
@@ -112,14 +95,7 @@ module.exports = async (env) => {
                 },
                 disponibilidadeServico: (params) => {
                     return new Promise((resolve, reject) => {
-                        const {
-                            codAdministrativo,
-                            numeroServico,
-                            cepOrigem,
-                            cepDestino,
-                            usuario,
-                            senha,
-                        } = params
+                        const { codAdministrativo, numeroServico, cepOrigem, cepDestino, usuario, senha } = params
                         client.verificaDisponibilidadeServico(
                             {
                                 codAdministrativo,
