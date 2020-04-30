@@ -1,5 +1,5 @@
-const Image = require("../models/Image");
-const Product = require('../models/Product')
+const Image = require('../models/Image')
+const ImgProducts = require('../models/ImageProduct')
 
 module.exports = {
     async index(req, res) {
@@ -17,16 +17,18 @@ module.exports = {
             return res.status(200).json({ message: 'Image not exist ' })
         }
 
-        const imagedel = await ImgProducts.destroy({
+        await ImgProducts.destroy({
             where: {
-                id: req.params.id
+                id: req.params.id,
             },
-            individualHooks: true
-        }).then((ev) => {
-            return res.send()
-        }).catch((err) => {
-            console.log(err)
+            individualHooks: true,
         })
+            .then(() => {
+                return res.send()
+            })
+            .catch((err) => {
+                console.log(err)
+            })
     },
 
     async store(req, res) {
@@ -36,9 +38,9 @@ module.exports = {
             name,
             size,
             key,
-            url
+            url,
         })
 
         return res.json(image)
-    }
-};
+    },
+}

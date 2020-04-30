@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require("sequelize");
+const { Model, DataTypes } = require('sequelize')
 
 class Variation extends Model {
     static init(sequelize) {
@@ -9,49 +9,55 @@ class Variation extends Model {
                     allowNull: false,
                     validate: {
                         notEmpty: {
-                            msg: `This field cannot be empty`
-                        }
-                    }
+                            msg: `This field cannot be empty`,
+                        },
+                    },
                 },
                 attribute_value: {
                     type: DataTypes.STRING,
                     allowNull: false,
                     validate: {
                         notEmpty: {
-                            msg: `This field cannot be empty`
-                        }
-                    }
+                            msg: `This field cannot be empty`,
+                        },
+                    },
                 },
                 variation_menu_order: {
                     type: DataTypes.INTEGER,
                     validate: {
                         isInt: {
-                            msg: `This field must be a integer value`
-                        }
-                    }
+                            msg: `This field must be a integer value`,
+                        },
+                    },
                 },
                 upload_image_id: {
                     type: DataTypes.INTEGER,
                     validate: {
                         isInt: {
-                            msg: `This field must be a integer value`
-                        }
-                    }
+                            msg: `This field must be a integer value`,
+                        },
+                    },
                 },
                 variable_enabled: DataTypes.STRING,
-                variable_description: DataTypes.STRING
+                variable_description: DataTypes.STRING,
             },
             {
-                sequelize
+                sequelize,
             }
-        );
+        )
     }
 
     static associate(models) {
-        this.belongsTo(models.Stores, { foreignKey: "store_id", as: "store" });
-        this.hasMany(models.VariablesMap, { foreignKey: 'variation_id', as: 'productVariation', });
-        this.hasMany(models.CartProduct, { foreignKey: `product_id`, as: `cartProduct` })
+        this.belongsTo(models.Stores, { foreignKey: 'store_id', as: 'store' })
+        this.hasMany(models.VariablesMap, {
+            foreignKey: 'variation_id',
+            as: 'productVariation',
+        })
+        this.hasMany(models.CartProduct, {
+            foreignKey: `product_id`,
+            as: `cartProduct`,
+        })
     }
 }
 
-module.exports = Variation;
+module.exports = Variation
