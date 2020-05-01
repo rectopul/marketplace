@@ -77,6 +77,8 @@ routes.put(`/client`, ClientController.update)
 
 //Images
 routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
+//Image client
+routes.post(`/client/image`, multer(multerConfig).single('file'), ClientController.image)
 
 //Visualizar carrinhos
 routes.get(`/cart/list/:store_id`, CartController.list)

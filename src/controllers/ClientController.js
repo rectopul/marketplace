@@ -35,6 +35,39 @@ module.exports = {
         }
     },
 
+    async image(req, res) {
+        try {
+            const authHeader = req.headers.authorization
+
+            const { client_id } = await UserbyToken(authHeader)
+
+            let { originalname: name, size, key, location: url = '' } = req.file
+
+            const image = await Image.create({
+                name,
+                size,
+                key,
+                url,
+            })
+
+            await Client.update({ image_id: image.id }, { where: { id: client_id } })
+
+            const client = await Client.findByPk(client_id, { include: { association: `image` } })
+
+            return res.json(client)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar novo cliente: `, error.message)
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
+    },
+
     async store(req, res) {
         try {
             const { name, email, password, image_id } = req.body
