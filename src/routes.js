@@ -60,6 +60,10 @@ routes.delete(`/cart/product/:cart_id/:session_id`, CartProduct.remove)
 routes.post(`/client`, ClientController.store)
 routes.get(`/client`, ClientController.index)
 
+/* Forgot e Recuperação de senha Client */
+routes.post('/client/forgot', ClientController.forgot)
+routes.post('/client/reset_password', ClientController.reset)
+
 /* Forgot e Recuperação de senha */
 routes.post('/forgot', UserController.forgot)
 routes.post('/reset_password', UserController.reset)

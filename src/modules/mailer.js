@@ -6,15 +6,25 @@ const hbs = require('nodemailer-express-handlebars')
 aws.config.update({ region: process.env.AWS_DEFAULT_REGION })
 
 // create Nodemailer SES transporter
+const gmail = {
+    host: `smtp.gmail.com`,
+    port: 587,
+    auth: {
+        user: `mateusrectopul@gmail.com`,
+        pass: `308554970B`,
+    },
+}
 
-var transport = nodemailer.createTransport({
+/* {
     host: process.env.MAIL_HOST,
     port: process.env.MAIL_PORT,
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
     },
-})
+}
+ */
+var transport = nodemailer.createTransport(gmail)
 
 transport.use(
     'compile',

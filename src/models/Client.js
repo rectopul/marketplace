@@ -49,6 +49,8 @@ class Client extends Model {
                         },
                     },
                 },
+                passwordResetToken: DataTypes.STRING,
+                passwordResetExpires: DataTypes.DATE,
             },
             {
                 hooks: {

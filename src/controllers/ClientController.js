@@ -1,4 +1,6 @@
 const Client = require('../models/Client')
+const crypto = require('crypto')
+const mailer = require('../modules/mailer')
 const Store = require('../models/Stores')
 const User = require('../models/User')
 const UserbyToken = require('../middlewares/userByToken')
@@ -228,6 +230,73 @@ module.exports = {
             return res.status(200).send({ message: `Client disable` })
         } catch (error) {
             return res.status(400).send({ error })
+        }
+    },
+
+    async forgot(req, res) {
+        const { email } = req.body
+
+        try {
+            const user = await Client.findOne({ where: { email } })
+
+            if (!user) {
+                return res.status(401).json({ message: 'the email you entered not exists' })
+            }
+
+            const token = crypto.randomBytes(20).toString('hex')
+
+            const now = new Date()
+
+            now.setHours(now.getHours() + 1)
+
+            await user.update(
+                {
+                    passwordResetToken: token,
+                    passwordResetExpires: now,
+                },
+                { where: { email } }
+            )
+
+            mailer.sendMail(
+                {
+                    to: email,
+                    from: process.env.MAIL_FROM,
+                    template: 'auth/forgot_password',
+                    context: { token },
+                },
+                (err) => {
+                    if (err) return res.status(400).send({ error: 'Cannot send forgot password email' })
+
+                    return res.send()
+                }
+            )
+        } catch (error) {
+            console.log(error)
+            return res.status(400).send({ error: 'Erro on forgot password, try again' })
+        }
+    },
+
+    async reset(req, res) {
+        const { email, password, token } = req.body
+
+        try {
+            const user = await Client.findOne({ where: { email } })
+
+            if (!user) return res.status(400).json({ Error: 'the email you entered not exists' })
+
+            if (token !== user.passwordResetToken) return res.status(400).json({ Error: 'Token invalid' })
+
+            const now = new Date()
+
+            if (now > user.passwordResetExpires) return res.status(400).json({ Error: 'Token Expired, generate a new one' })
+
+            user.password = password
+
+            await user.update({ user })
+
+            return res.json({ message: 'success!' })
+        } catch (error) {
+            res.status(400).send({ error: 'Erro on reset password, try again' })
         }
     },
 }
