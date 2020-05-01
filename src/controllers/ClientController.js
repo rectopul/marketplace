@@ -50,6 +50,7 @@ module.exports = {
             const client = await Client.create({
                 name,
                 email,
+                image_id,
                 password,
                 active: true,
             })

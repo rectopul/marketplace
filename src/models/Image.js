@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require("sequelize")
+const { Model, DataTypes } = require('sequelize')
 const aws = require('aws-sdk')
 const fs = require('fs')
 const path = require('path')
@@ -13,40 +13,40 @@ class Image extends Model {
                 name: DataTypes.STRING,
                 size: DataTypes.STRING,
                 key: DataTypes.STRING,
-                url: DataTypes.STRING
-
+                url: DataTypes.STRING,
             },
             {
                 hooks: {
-                    beforeSave: async file => {
+                    beforeSave: async (file) => {
                         if (!file.url) {
                             file.url = `${process.env.APP_URL}/files/${file.key}`
 
                             file.url = file.url.replace(' ', '%20')
                         }
                     },
-                    beforeDestroy: async file => {
+                    beforeDestroy: async (file) => {
                         if (process.env.STORAGE_TYPE === 's3') {
-                            console.log('S3 Storage');
+                            console.log('S3 Storage')
 
-                            return s3.deleteObject({
-                                Bucket: 'uploadwecheckout',
-                                Key: file.key,
-                            }).promise()
+                            return s3
+                                .deleteObject({
+                                    Bucket: 'uploadwecheckout',
+                                    Key: file.key,
+                                })
+                                .promise()
                         } else {
-                            return promisify(fs.unlink)(
-                                path.resolve(__dirname, '..', '..', 'tmp', 'uploads', file.key)
-                            )
+                            return promisify(fs.unlink)(path.resolve(__dirname, '..', '..', 'tmp', 'uploads', file.key))
                         }
-                    }
+                    },
                 },
-                sequelize
+                sequelize,
             }
-        );
+        )
     }
     static associate(models) {
         this.hasMany(models.VariablesMap, { foreignKey: 'user_id', as: 'product_variation' })
+        this.hasMany(models.Client, { foreignKey: 'image_id', as: 'client' })
     }
 }
 
-module.exports = Image;
+module.exports = Image
