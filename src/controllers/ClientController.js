@@ -14,28 +14,22 @@ module.exports = {
 
             const { client_id } = await UserbyToken(authHeader)
 
-            if (!client_id)
-                return res.status(400).send({ error: `This user not exist` })
+            if (!client_id) return res.status(400).send({ error: `This user not exist` })
 
             const client = await Client.findByPk(client_id, {
                 attributes: {
                     exclude: [`password_hash`, `createdAt`, `updatedAt`],
                 },
-                include: { association: `delivery_addresses` },
+                include: [{ association: `image` }, { association: `delivery_addresses` }],
             })
 
             return res.json(client)
         } catch (error) {
             console.log(`Erro ao criar novo cliente: `, error)
             //Validação de erros
-            if (error.name == `JsonWebTokenError`)
-                return res.status(400).send({ error })
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            if (
-                error.name == `SequelizeValidationError` ||
-                error.name == `SequelizeUniqueConstraintError` ||
-                error.name == `userToken`
-            )
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError` || error.name == `userToken`)
                 return res.status(400).send({ error: error.message })
 
             return res.status(500).send({ error: `Erro de servidor` })
@@ -50,10 +44,7 @@ module.exports = {
             if (image_id) {
                 const image = await Image.findByPk(image_id)
 
-                if (!image)
-                    return res
-                        .status(400)
-                        .send({ error: `This image not exist` })
+                if (!image) return res.status(400).send({ error: `This image not exist` })
             }
 
             const client = await Client.create({
@@ -76,13 +67,9 @@ module.exports = {
             })
         } catch (error) {
             //Validação de erros
-            if (error.name == `JsonWebTokenError`)
-                return res.status(400).send({ error })
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            if (
-                error.name == `SequelizeValidationError` ||
-                error.name == `SequelizeUniqueConstraintError`
-            )
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
 
             console.log(`Erro ao criar novo cliente: `, error.message)
@@ -118,13 +105,9 @@ module.exports = {
             return res.json(getClient)
         } catch (error) {
             //Validação de erros
-            if (error.name == `JsonWebTokenError`)
-                return res.status(400).send({ error })
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            if (
-                error.name == `SequelizeValidationError` ||
-                error.name == `SequelizeUniqueConstraintError`
-            )
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
 
             console.log(`Erro ao criar novo cliente: `, error.message)
@@ -148,25 +131,15 @@ module.exports = {
             //Buscar usuario by token
             const user = await User.findByPk(user_id)
 
-            if (!user)
-                return res.status(400).send({ error: `User does not exist` })
+            if (!user) return res.status(400).send({ error: `User does not exist` })
 
-            if (
-                !user.type == `storeAdministrator` ||
-                !user.type == `storeManager` ||
-                !user.type == `super`
-            )
-                return res
-                    .status(400)
-                    .send({ error: `User is not allowed to perform this task` })
+            if (!user.type == `storeAdministrator` || !user.type == `storeManager` || !user.type == `super`)
+                return res.status(400).send({ error: `User is not allowed to perform this task` })
 
             //Verifica a loja do cliente
             const client = await Client.findByPk(client_id)
 
-            if (!client)
-                return res
-                    .status(400)
-                    .send({ error: `Customer does not exist` })
+            if (!client) return res.status(400).send({ error: `Customer does not exist` })
 
             const store = Store.findOne({ where: { user_id } })
 
@@ -199,25 +172,15 @@ module.exports = {
             //Buscar usuario by token
             const user = await User.findByPk(user_id)
 
-            if (!user)
-                return res.status(400).send({ error: `User does not exist` })
+            if (!user) return res.status(400).send({ error: `User does not exist` })
 
-            if (
-                !user.type == `storeAdministrator` ||
-                !user.type == `storeManager` ||
-                !user.type == `super`
-            )
-                return res
-                    .status(400)
-                    .send({ error: `User is not allowed to perform this task` })
+            if (!user.type == `storeAdministrator` || !user.type == `storeManager` || !user.type == `super`)
+                return res.status(400).send({ error: `User is not allowed to perform this task` })
 
             //Verifica a loja do cliente
             const client = await Client.findByPk(client_id)
 
-            if (!client)
-                return res
-                    .status(400)
-                    .send({ error: `Customer does not exist` })
+            if (!client) return res.status(400).send({ error: `Customer does not exist` })
 
             const store = Store.findOne({ where: { user_id } })
 

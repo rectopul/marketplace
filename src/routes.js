@@ -76,11 +76,7 @@ routes.use(ClientCredentials)
 routes.put(`/client`, ClientController.update)
 
 //Images
-routes.post(
-    `/image/upload`,
-    multer(multerConfig).single('file'),
-    ImageController.store
-)
+routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
 
 //Visualizar carrinhos
 routes.get(`/cart/list/:store_id`, CartController.list)
@@ -139,30 +135,19 @@ routes.delete(`/product/delete/:product_id`, ProductController.productDelete)
 routes.put(`/product/update/:product_id`, ProductController.productUpdate)
 
 /* Images Products */
-routes.post(
-    '/image/:id_product/product',
-    multer(multerConfig).single('file'),
-    ImageProductController.store
-)
+routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)
 routes.get('/image/:id_product/product', ImageProductController.index)
 routes.delete('/image/:id', ImageProductController.delete)
 
 /* Images Banners */
-routes.post(
-    '/image/banner',
-    multer(multerConfig).single('file'),
-    ImagesBannersController.store
-)
+routes.post('/image/banner', multer(multerConfig).single('file'), ImagesBannersController.store)
 routes.get('/image/banner/:image_id', ImagesBannersController.index)
 routes.delete('/image/banner/:image_id', ImagesBannersController.delete)
 
 /* Variations */
 routes.post('/product/maping/variation', VariableMapController.store)
 routes.post('/:store_id/product/create/variation', VariationController.store)
-routes.get(
-    '/product/:store_id/:product_id/variation',
-    VariationController.index
-)
+routes.get('/product/:store_id/:product_id/variation', VariationController.index)
 routes.delete('/variation/:variation_id', VariationController.delete)
 /* UPDATE */
 routes.post('/variation/:store_id/:variation_id', VariationController.update)
@@ -170,10 +155,7 @@ routes.post('/variation/:store_id/:variation_id', VariationController.update)
 /* Categories */
 routes.post('/insert/:store_id/category', CategoriesController.store)
 routes.put('/category/:caregory_id/:product_id?', CategoriesController.update)
-routes.delete(
-    '/category/:caregory_id/:product_id?',
-    CategoriesController.delete
-)
+routes.delete('/category/:caregory_id/:product_id?', CategoriesController.delete)
 
 /* Somente Administrador e super user */
 routes.use(StoreAdministrator)
