@@ -1,15 +1,13 @@
-const Store = require("../models/Stores");
+const Store = require('../models/Stores')
 const Client = require('../models/Client')
 const User = require('../models/User')
-const Delivery = require("../models/DeliveryAddress");
-const ClientMiddleware = require('../middlewares/ClientMiddleware')
+const Delivery = require('../models/DeliveryAddress')
 const UserByToken = require('../middlewares/userByToken')
 const { Op } = require('sequelize')
 
 module.exports = {
     async index(req, res) {
         try {
-
             const { delivery_id } = req.params
             //Get user id by token
             const authHeader = req.headers.authorization
@@ -22,8 +20,7 @@ module.exports = {
                 if (delivery_id) {
                     const address = await Delivery.findOne({ where: { id: delivery_id, client_id } })
 
-                    if (!address)
-                        return res.status(400).send({ error: `This address does not belong to this user` })
+                    if (!address) return res.status(400).send({ error: `This address does not belong to this user` })
 
                     return res.json(address)
                 } else {
@@ -32,7 +29,6 @@ module.exports = {
 
                     return res.json(address)
                 }
-
             }
 
             //Administradores
@@ -50,7 +46,7 @@ module.exports = {
                     } else {
                         //todos
                         const address = await Client.findAll({
-                            association: { association: `delivery_addresses` }
+                            association: { association: `delivery_addresses` },
                         })
 
                         return res.json(address)
@@ -66,7 +62,7 @@ module.exports = {
                     } else {
                         const stores = await Store.findAll({ where: { user_id } })
                         //create operator
-                        const operators = stores.map(id => {
+                        const operators = stores.map((id) => {
                             return id.id
                         })
 
@@ -74,26 +70,22 @@ module.exports = {
                         const address = await Client.findAll({
                             where: {
                                 store_id: {
-                                    [Op.or]: operators
-                                }
+                                    [Op.or]: operators,
+                                },
                             },
-                            include: { association: `delivery_addresses` }
+                            include: { association: `delivery_addresses` },
                         })
 
                         return res.json(address)
                     }
                 }
-
             }
-
         } catch (error) {
-            if (error.name == `JsonWebTokenError`)
-                return res.status(400).send({ error })
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            console.log(`Erro listar endereço de entrega: `, error);
+            console.log(`Erro listar endereço de entrega: `, error)
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
-
 
             return res.status(500).send({ error: error })
         }
@@ -101,7 +93,6 @@ module.exports = {
 
     async store(req, res) {
         try {
-
             const { name, cpf, zipcode, city, address, state } = req.body
 
             //Get user id by token
@@ -109,16 +100,14 @@ module.exports = {
 
             const { client_id } = await UserByToken(authHeader)
 
-            if (!client_id)
-                return res.status(400).send({ error: `This customer does not exist` })
+            if (!client_id) return res.status(400).send({ error: `This customer does not exist` })
 
             // check if is first record
             let active = true
 
             const checkFirst = await Delivery.findOne({ where: { client_id } })
 
-            if (checkFirst)
-                active = false
+            if (checkFirst) active = false
 
             const delivery = await Delivery.create({
                 name,
@@ -128,20 +117,16 @@ module.exports = {
                 address,
                 state,
                 active,
-                client_id
+                client_id,
             })
 
             return res.json(delivery)
-
-
         } catch (error) {
-            if (error.name == `JsonWebTokenError`)
-                return res.status(400).send({ error })
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            console.log(`Erro inserir endereço de entrega: `, error.message);
+            console.log(`Erro inserir endereço de entrega: `, error.message)
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
-
 
             return res.status(500).send({ error: error })
         }
@@ -160,8 +145,7 @@ module.exports = {
             if (client_id) {
                 const addressDel = await Delivery.destroy({ where: { id: delivery_id } })
 
-                if (!addressDel)
-                    return res.status(400).send({ error: `This address does not exist` })
+                if (!addressDel) return res.status(400).send({ error: `This address does not exist` })
 
                 return res.status(200).send()
             }
@@ -172,40 +156,36 @@ module.exports = {
             if (user.type == `super`) {
                 const addressDel = await Delivery.destroy({ where: { id: delivery_id } })
 
-                if (!addressDel)
-                    return res.status(400).send({ error: `This address does not exist` })
+                if (!addressDel) return res.status(400).send({ error: `This address does not exist` })
 
                 return res.status(200).send()
             } else {
                 //ger address
                 const address = await Delivery.findByPk(delivery_id)
 
-                if (!address)
-                    return res.status(400).send({ error: `This address does not exist` })
+                if (!address) return res.status(400).send({ error: `This address does not exist` })
 
                 const client = await Client.findByPk(address.client_id, {
-                    include: [{
-                        association: `store`,
-                        where: { user_id }
-                    }]
+                    include: [
+                        {
+                            association: `store`,
+                            where: { user_id },
+                        },
+                    ],
                 })
 
-                if (!client)
-                    return res.status(400).send({ error: `This store does not belong to this user` })
+                if (!client) return res.status(400).send({ error: `This store does not belong to this user` })
 
-                const addressDel = await Delivery.destroy({ where: { id: delivery_id } })
+                await Delivery.destroy({ where: { id: delivery_id } })
 
                 return res.status(200).send()
             }
-
         } catch (error) {
-            if (error.name == `JsonWebTokenError` || error.name == `TokenExpiredError`)
-                return res.status(400).send({ error })
+            if (error.name == `JsonWebTokenError` || error.name == `TokenExpiredError`) return res.status(400).send({ error })
 
-            console.log(`Erro excluir endereço de entrega: `, error);
+            console.log(`Erro excluir endereço de entrega: `, error)
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
-
 
             return res.status(500).send({ error: error })
         }
@@ -213,8 +193,7 @@ module.exports = {
 
     async update(req, res) {
         try {
-
-            const { name, cpf, zipcode, city, address, state } = req.body
+            const { name, cpf, zipcode, city, address, state, active } = req.body
 
             const { delivery_id } = req.params
 
@@ -225,48 +204,52 @@ module.exports = {
 
             //client
             if (client_id) {
-
                 const addressCheck = await Delivery.findOne({ where: { id: delivery_id, client_id } })
 
-                if (!addressCheck)
-                    return res.status(400).send({ error: `This address does not exist` })
+                if (!addressCheck) return res.status(400).send({ error: `This address does not exist` })
 
                 if (active) {
-                    const inactiveAddress = await Delivery.update({ active: false }, {
-                        where: { client_id, active: true }
-                    })
+                    await Delivery.update(
+                        { active: false },
+                        {
+                            where: { client_id, active: true },
+                        }
+                    )
 
-                    const activeAddress = await Delivery.update({ active: true }, {
-                        where: { client_id, id: delivery_id },
-                        returning: true, plain: true
-                    })
+                    const activeAddress = await Delivery.update(
+                        { active: true },
+                        {
+                            where: { client_id, id: delivery_id },
+                            returning: true,
+                            plain: true,
+                        }
+                    )
 
                     return res.json(activeAddress)
                 }
 
-                const addressUpdate = await Delivery.update({
-                    name,
-                    cpf,
-                    zipcode,
-                    city,
-                    address,
-                    state
-                }, { where: { id: delivery_id }, returning: true, plain: true })
+                const addressUpdate = await Delivery.update(
+                    {
+                        name,
+                        cpf,
+                        zipcode,
+                        city,
+                        address,
+                        state,
+                    },
+                    { where: { id: delivery_id }, returning: true, plain: true }
+                )
 
                 return res.json(addressUpdate[1])
             }
-
         } catch (error) {
+            if (error.name == `JsonWebTokenError` || error.name == `TokenExpiredError`) return res.status(400).send({ error })
 
-            if (error.name == `JsonWebTokenError` || error.name == `TokenExpiredError`)
-                return res.status(400).send({ error })
-
-            console.log(`Erro excluir endereço de entrega: `, error);
+            console.log(`Erro excluir endereço de entrega: `, error)
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
 
-
             return res.status(500).send({ error: error })
         }
-    }
-};
+    },
+}

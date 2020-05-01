@@ -10,7 +10,6 @@ module.exports = {
     async index(req, res) {
         try {
             const authHeader = req.headers.authorization
-            console.log(`Client Id:`, authHeader)
 
             const { client_id } = await UserbyToken(authHeader)
 
