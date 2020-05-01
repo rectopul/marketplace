@@ -52,7 +52,7 @@ module.exports = {
 
             await Client.update({ image_id: image.id }, { where: { id: client_id } })
 
-            const client = await Client.findByPk(client_id, { include: { association: `image` } })
+            const client = await Client.findByPk(client_id, { include: { association: `image` }, attributes: { exclude: [`password_hash`] } })
 
             return res.json(client)
         } catch (error) {
