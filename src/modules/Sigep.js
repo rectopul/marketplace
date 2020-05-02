@@ -64,12 +64,17 @@ module.exports = async (env) => {
 
                         Promise.all(result)
                             .then((result) => {
+                                result.map((item) => {
+                                    if (item.MsgErro) return reject({ name: `SigepError`, message: item.MsgErro })
+                                })
+
                                 return resolve({
                                     SEDEX: result[1],
                                     PAC: result[0],
                                 })
                             })
                             .catch((err) => {
+                                console.log(`Resultado: `, err)
                                 return reject(err)
                             })
                     })

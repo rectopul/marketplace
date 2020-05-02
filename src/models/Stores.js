@@ -117,6 +117,7 @@ class Stores extends Model {
 
     static associate(models) {
         this.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' })
+        this.hasMany(models.OrderDelivery, { foreignKey: `store_id`, as: `order_delivery` })
         this.hasMany(models.Banners, {
             foreignKey: 'store_id',
             as: 'banners',

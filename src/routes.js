@@ -29,6 +29,7 @@ const credentials = require('./middlewares/UserCredentials')
 const ClientCredentials = require('./middlewares/ClientCredentials')
 const StoreManager = require('./middlewares/storeManagerCredentials')
 const StoreAdministrator = require('./middlewares/storeAdministratorCredentials')
+const ShippingController = require('./controllers/ShippingController')
 
 const ClientController = require('./controllers/ClientController')
 const OrderController = require('./controllers/OrderController')
@@ -74,6 +75,10 @@ routes.post(`/sessions`, SessionController.store)
 routes.post(`/fb-login`, SessionClientController.fbLogin)
 /* session client */
 routes.post(`/sessions/client`, SessionClientController.store)
+
+/** Shipping */
+routes.get(`/shipping/:product_id`, ShippingController.index)
+routes.post(`/shipping/:order_id`, ShippingController.store)
 
 routes.use(ClientCredentials)
 //Atualizar client
