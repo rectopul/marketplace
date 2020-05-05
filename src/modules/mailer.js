@@ -6,6 +6,7 @@ const hbs = require('nodemailer-express-handlebars')
 aws.config.update({ region: process.env.AWS_DEFAULT_REGION })
 
 // create Nodemailer SES transporter
+// eslint-disable-next-line no-unused-vars
 const gmail = {
     host: `smtp.gmail.com`,
     port: 587,
@@ -24,7 +25,15 @@ const gmail = {
     },
 }
  */
-var transport = nodemailer.createTransport(gmail)
+var transport = nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    secure: true,
+    auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+    },
+})
 
 transport.use(
     'compile',
