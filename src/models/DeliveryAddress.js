@@ -24,6 +24,25 @@ class DeliveryAddress extends Model {
                         },
                     },
                 },
+                street: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `The street field cannot be empty`,
+                        },
+                    },
+                },
+                number: {
+                    type: DataTypes.INTEGER,
+                    validate: {
+                        isInt: {
+                            msg: `The number field must be of the integer type`,
+                        },
+                        notEmpty: {
+                            msg: `The number field cannot be empty`,
+                        },
+                    },
+                },
                 address: {
                     type: DataTypes.STRING,
                     validate: {

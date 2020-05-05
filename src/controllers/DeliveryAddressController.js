@@ -93,7 +93,7 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const { name, cpf, zipcode, city, address, state } = req.body
+            const { name, cpf, zipcode, city, street, number, address, state } = req.body
 
             //Get user id by token
             const authHeader = req.headers.authorization
@@ -114,6 +114,8 @@ module.exports = {
                 cpf,
                 zipcode,
                 city,
+                street,
+                number,
                 address,
                 state,
                 active,

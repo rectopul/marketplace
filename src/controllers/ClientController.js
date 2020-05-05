@@ -30,7 +30,11 @@ module.exports = {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError` || error.name == `userToken`)
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `userToken`
+            )
                 return res.status(400).send({ error: error.message })
 
             return res.status(500).send({ error: `Erro de servidor` })
@@ -54,7 +58,10 @@ module.exports = {
 
             await Client.update({ image_id: image.id }, { where: { id: client_id } })
 
-            const client = await Client.findByPk(client_id, { include: { association: `image` }, attributes: { exclude: [`password_hash`] } })
+            const client = await Client.findByPk(client_id, {
+                include: { association: `image` },
+                attributes: { exclude: [`password_hash`] },
+            })
 
             return res.json(client)
         } catch (error) {
@@ -72,7 +79,7 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const { name, email, password, image_id } = req.body
+            const { name, surname, email, password, image_id } = req.body
 
             //check image id
             if (image_id) {
@@ -83,6 +90,7 @@ module.exports = {
 
             const client = await Client.create({
                 name,
+                surname,
                 email,
                 image_id,
                 password,

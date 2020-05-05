@@ -28,7 +28,15 @@ class Client extends Model {
                     },
                     validate: {
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The name field cannot be empty`,
+                        },
+                    },
+                },
+                surname: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `The surname field cannot be empty`,
                         },
                     },
                 },
@@ -36,7 +44,7 @@ class Client extends Model {
                     type: DataTypes.VIRTUAL,
                     validate: {
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `Tthe password field cannot be empty`,
                         },
                     },
                 },
