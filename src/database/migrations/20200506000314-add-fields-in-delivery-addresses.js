@@ -5,15 +5,12 @@ module.exports = {
         try {
             await queryInterface.addColumn('delivery_addresses', 'phone', {
                 type: Sequelize.STRING,
-                allowNull: false,
             })
             await queryInterface.addColumn('delivery_addresses', 'receiver_name', {
                 type: Sequelize.STRING,
-                allowNull: false,
             })
             await queryInterface.addColumn('delivery_addresses', 'address_type', {
                 type: Sequelize.STRING,
-                allowNull: false,
             })
             await queryInterface.addColumn('delivery_addresses', 'additional_information', {
                 type: Sequelize.STRING,
