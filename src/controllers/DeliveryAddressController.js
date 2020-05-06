@@ -143,7 +143,16 @@ module.exports = {
                 client_id,
             })
 
-            return res.json(delivery)
+            //find client
+            const clientReturn = await Client.findByPk(client_id, {
+                attributes: { exclude: [`password_hash`, `passwordResetToken`, `passwordResetExpires`] },
+                include: {
+                    association: `delivery_addresses`,
+                    where: { id: delivery.id },
+                },
+            })
+
+            return res.json(clientReturn)
         } catch (error) {
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
