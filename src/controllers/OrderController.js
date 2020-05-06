@@ -150,7 +150,9 @@ module.exports = {
                 if (variations.variable_sale_price && variations.variable_sale_price_dates_to >= new Date()) {
                     value = parseFloat(variations.variable_sale_price) * quantity
                 } else {
-                    value = parseFloat(variations.variable_sale_price) * quantity || parseFloat(variations.variable_regular_price) * quantity
+                    value =
+                        parseFloat(variations.variable_sale_price) * quantity ||
+                        parseFloat(variations.variable_regular_price) * quantity
                 }
 
                 const discount = 0

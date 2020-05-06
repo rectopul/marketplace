@@ -93,7 +93,22 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const { name, cpf, zipcode, city, street, number, address, state } = req.body
+            const {
+                name,
+                cpf,
+                phone,
+                zipcode,
+                city,
+                street,
+                number,
+                address,
+                receiver_name,
+                address_type,
+                additional_information,
+                delivery_instructions,
+                delivery_number,
+                state,
+            } = req.body
 
             //Get user id by token
             const authHeader = req.headers.authorization
@@ -112,12 +127,18 @@ module.exports = {
             const delivery = await Delivery.create({
                 name,
                 cpf,
+                phone,
                 zipcode,
                 city,
                 street,
                 number,
                 address,
                 state,
+                receiver_name,
+                address_type,
+                additional_information,
+                delivery_instructions,
+                delivery_number,
                 active,
                 client_id,
             })
@@ -127,7 +148,11 @@ module.exports = {
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
             console.log(`Erro inserir endereço de entrega: `, error.message)
-            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `SequelizeDatabaseError`
+            )
                 return res.status(400).send({ error: error.message })
 
             return res.status(500).send({ error: error })
