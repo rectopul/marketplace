@@ -1,4 +1,3 @@
-const Client = require('../models/Client')
 const Store = require('../models/Stores')
 const Order = require('../models/Order')
 const ProdutctOrder = require('../models/ProductOrder')
@@ -37,7 +36,9 @@ module.exports = {
                                     },
                                     {
                                         association: `variation`,
-                                        attributes: { exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`] },
+                                        attributes: {
+                                            exclude: [`store_id`, `user_id`, `upload_image_id`, `variation_id`],
+                                        },
                                         include: [{ association: `image` }, { association: `variation_info` }],
                                     },
                                 ],
@@ -143,16 +144,18 @@ module.exports = {
 
                 if (!variation) return res.status(400).send({ error: `Product variation not exist!` })
 
-                const { variations } = variation
+                const {
+                    variable_sale_price,
+                    variable_sale_price_dates_to,
+                    variable_regular_price,
+                } = variation.variations
 
                 let value
 
-                if (variations.variable_sale_price && variations.variable_sale_price_dates_to >= new Date()) {
-                    value = parseFloat(variations.variable_sale_price) * quantity
+                if (variable_sale_price && variable_sale_price_dates_to && variable_sale_price_dates_to >= new Date()) {
+                    value = parseFloat(variable_sale_price) * quantity
                 } else {
-                    value =
-                        parseFloat(variations.variable_sale_price) * quantity ||
-                        parseFloat(variations.variable_regular_price) * quantity
+                    value = parseFloat(variable_sale_price) * quantity || parseFloat(variable_regular_price) * quantity
                 }
 
                 const discount = 0
@@ -185,7 +188,8 @@ module.exports = {
                 return res.json(resume)
             }
 
-            const value = parseFloat(product.promotional_price) * quantity || parseFloat(product.price) * quantity
+            const { promotional_price, price } = product
+            const value = parseFloat(promotional_price) * quantity || parseFloat(price) * quantity
 
             const discount = 0
 
@@ -308,7 +312,7 @@ module.exports = {
                     //only get in administrator store
 
                     //get all stores from administrator
-                    const store = await Store.findByPk(store_id)
+                    const store = await Store.findOne({ where: { id: store_id, user_id } })
 
                     if (!store) return res.status(400).send({ error: `This store does not belong to this user` })
 
@@ -349,7 +353,7 @@ module.exports = {
                 //only get in administrator store
 
                 //get all stores from administrator
-                const store = await Store.findByPk(store_id)
+                const store = await Store.findOne({ where: { id: store_id, user_id } })
 
                 if (!store) return res.status(400).send({ error: `This store does not belong to this user` })
 
@@ -437,7 +441,8 @@ module.exports = {
                     }
                 )
 
-                if (!order[0]) return res.status(400).send({ error: `This order does not belong to any store of this user` })
+                if (!order[0])
+                    return res.status(400).send({ error: `This order does not belong to any store of this user` })
 
                 return res.status(200).send()
             }
@@ -559,7 +564,8 @@ module.exports = {
                     },
                 })
 
-                if (!order) return res.status(400).send({ error: `This order does not belong to any store of this user` })
+                if (!order)
+                    return res.status(400).send({ error: `This order does not belong to any store of this user` })
 
                 return res.status(200).send()
             }
