@@ -37,19 +37,53 @@ module.exports = {
     },
 
     async allstore(req, res) {
-        const products = await Product.findAll({
-            include: [
-                { association: `images_product` },
-                { association: `stores` },
-                {
-                    association: `variations`,
-                    include: { association: `variation_info` },
-                },
-                { association: `product_categories_map` },
-            ],
-        })
+        try {
+            const { limit, order, orderby, offset } = req.query
 
-        return res.json(products)
+            const filters = [
+                `title`,
+                `sku`,
+                `description`,
+                `stock`,
+                `weight`,
+                `price`,
+                `promotional_price`,
+                `brand`,
+                `model`,
+            ]
+
+            if (order && [`ASC`, `DESC`].indexOf(order) == -1)
+                return res.status(400).send({ error: `The order parameter accepts the 'ASC' or 'DESC' values` })
+
+            if (orderby && filters.indexOf(orderby) == -1)
+                return res.status(400).send({ error: `orderby parameter does not exist` })
+
+            const products = await Product.findAll({
+                order: order ? (orderby ? [[orderby, order]] : [['createdAt', order]]) : null,
+                limit: parseInt(limit) || null,
+                offset: parseInt(offset) || null,
+                include: [
+                    { association: `images_product` },
+                    { association: `stores` },
+                    {
+                        association: `variations`,
+                        include: { association: `variation_info` },
+                    },
+                    { association: `product_categories_map` },
+                ],
+            })
+
+            return res.json(products)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            console.log(`Erro listar endereço de entrega: `, error)
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+            return res.status(500).send({ error: error })
+        }
     },
 
     async create(req, res) {
@@ -104,14 +138,9 @@ module.exports = {
 
             const productSku = await Product.findOne({ where: { sku } })
 
-            if (productSku)
-                return res
-                    .status(400)
-                    .json({ error: 'Product SKU informed already exists' })
+            if (productSku) return res.status(400).json({ error: 'Product SKU informed already exists' })
         } catch (error) {
-            return res
-                .status(400)
-                .send({ error: `Error in validation informations of product` })
+            return res.status(400).send({ error: `Error in validation informations of product` })
         }
 
         try {
@@ -219,11 +248,8 @@ module.exports = {
 
                             //Busca pela imagem
                             if (upload_image_id) {
-                                const productVariationImage = await Image.findByPk(
-                                    upload_image_id
-                                )
-                                mountResponse.upload_image =
-                                    productVariationImage.url
+                                const productVariationImage = await Image.findByPk(upload_image_id)
+                                mountResponse.upload_image = productVariationImage.url
                                 delete mountResponse.upload_image_id
                             }
 
@@ -276,11 +302,8 @@ module.exports = {
 
                             //Busca pela imagem
                             if (upload_image_id) {
-                                const productVariationImage = await Image.findByPk(
-                                    upload_image_id
-                                )
-                                mountResponse.upload_image =
-                                    productVariationImage.url
+                                const productVariationImage = await Image.findByPk(upload_image_id)
+                                mountResponse.upload_image = productVariationImage.url
                                 delete mountResponse.upload_image_id
                             }
 
@@ -291,9 +314,7 @@ module.exports = {
                         }
                     } catch (error) {
                         console.log(`Error in consult sku and name: `, error)
-                        return res
-                            .status(400)
-                            .json({ error: 'problems consulting sku or name' })
+                        return res.status(400).json({ error: 'problems consulting sku or name' })
                     }
                 })
 
@@ -365,10 +386,7 @@ module.exports = {
 
             //Campos não editáveis
             //delete fields not updated
-            if (req.body.store_id)
-                return res
-                    .status(400)
-                    .send({ error: `Cannot change the product store` })
+            if (req.body.store_id) return res.status(400).send({ error: `Cannot change the product store` })
 
             //Pegar id do usuário a partir do token
             const authHeader = req.headers.authorization
@@ -397,8 +415,7 @@ module.exports = {
             let updateValues = {}
 
             Object.keys(req.body).map((item) => {
-                if (req.body[item] != undefined && item != `id`)
-                    return (updateValues[item] = req.body[item])
+                if (req.body[item] != undefined && item != `id`) return (updateValues[item] = req.body[item])
             })
 
             const product = await Product.update(updateValues, {
