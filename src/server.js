@@ -12,9 +12,9 @@ const Rastro = require('./modules/Rastro')
 
 require('./database')
 
-Rastro(`PW420271224BR`)
+/* Rastro(`PW420271224BR`)
     .then((res) => console.log(res))
-    .catch((err) => console.log(`Erro Rastreio`, err))
+    .catch((err) => console.log(`Erro Rastreio`, err)) */
 
 const app = express()
 
