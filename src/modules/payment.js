@@ -70,7 +70,7 @@ module.exports = {
                     country,
                 } = informations
 
-                const areaCode = phone.substr(0, 2)
+                const areaCode = phone.substr(1, 2)
 
                 const account = await moip.account.create({
                     email: {
@@ -93,7 +93,7 @@ module.exports = {
                         phone: {
                             countryCode,
                             areaCode,
-                            number: phone.substr(3, 11),
+                            number: phone.substr(5, 11),
                         },
                         address: {
                             street,

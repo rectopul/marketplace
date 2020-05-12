@@ -16,9 +16,39 @@ module.exports = {
                 onUpdate: 'CASCADE',
                 onDelete: 'CASCADE',
             },
-            name: {
+            name_store: {
                 type: Sequelize.STRING,
                 unique: true,
+                allowNull: false,
+            },
+            name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            last_name: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            cpf: {
+                type: Sequelize.STRING,
+                unique: true,
+                allowNull: false,
+            },
+            rg: {
+                type: Sequelize.STRING,
+                unique: true,
+                allowNull: false,
+            },
+            issuer: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            issue_date: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            birth_date: {
+                type: Sequelize.STRING,
                 allowNull: false,
             },
             email: {
@@ -26,12 +56,11 @@ module.exports = {
                 unique: true,
                 allowNull: false,
             },
-            phone: {
+            country_code: {
                 type: Sequelize.STRING,
-                unique: true,
                 allowNull: false,
             },
-            cell: {
+            phone: {
                 type: Sequelize.STRING,
                 unique: true,
                 allowNull: false,
@@ -45,7 +74,15 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
-            state: {
+            street: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+            },
+            number: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            district: {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
@@ -53,12 +90,17 @@ module.exports = {
                 type: Sequelize.STRING,
                 allowNull: false,
             },
-            street: {
-                type: Sequelize.TEXT,
+            state: {
+                type: Sequelize.STRING,
                 allowNull: false,
             },
-            number: {
+            country: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            wirecard_id: {
                 type: Sequelize.INTEGER,
+                unique: true,
                 allowNull: false,
             },
             created_at: {

@@ -7,7 +7,9 @@ class Stores extends Model {
                 nameStore: {
                     type: DataTypes.STRING,
                     allowNull: false,
-                    unique: true,
+                    unique: {
+                        msg: `This name of store aready exist`,
+                    },
                     validate: {
                         notEmpty: {
                             msg: `The nameStore field cannot be empty`,
@@ -35,6 +37,9 @@ class Stores extends Model {
                 email: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                    unique: {
+                        msg: `This email of store aready exist`,
+                    },
                     validate: {
                         notEmpty: {
                             msg: `This field cannot be empty`,
@@ -47,7 +52,9 @@ class Stores extends Model {
                 cpf: {
                     type: DataTypes.STRING,
                     allowNull: false,
-                    unique: true,
+                    unique: {
+                        msg: `This cpf of store aready exist`,
+                    },
                     validate: {
                         notEmpty: {
                             msg: `The cpf field cannot be empty`,
@@ -61,7 +68,9 @@ class Stores extends Model {
                 rg: {
                     type: DataTypes.STRING,
                     allowNull: false,
-                    unique: true,
+                    unique: {
+                        msg: `This RG of store aready exist`,
+                    },
                     validate: {
                         notEmpty: {
                             msg: `The rg field cannot be empty`,
@@ -98,13 +107,16 @@ class Stores extends Model {
                 phone: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                    unique: {
+                        msg: `This phone of store aready exist`,
+                    },
                     validate: {
                         notEmpty: {
                             msg: `This field cannot be empty`,
                         },
                         is: {
                             args: /(\(?\d{2}\)?\s)?(\d{4,5}-\d{4})/g,
-                            msg: `This field must be a phone`,
+                            msg: `Please provide a valid phone number`,
                         },
                     },
                 },
@@ -120,22 +132,12 @@ class Stores extends Model {
                         },
                     },
                 },
-                cell: {
-                    type: DataTypes.STRING,
-                    allowNull: false,
-                    validate: {
-                        notEmpty: {
-                            msg: `This field cannot be empty`,
-                        },
-                        is: {
-                            args: /(\(?\d{2}\)?\s)?(\d{4,5}-\d{4})/g,
-                            msg: `This field must be a cell`,
-                        },
-                    },
-                },
                 url: {
                     type: DataTypes.STRING,
                     allowNull: false,
+                    unique: {
+                        msg: `This url of store aready exist`,
+                    },
                     validate: {
                         notEmpty: {
                             msg: `This field cannot be empty`,
@@ -212,6 +214,9 @@ class Stores extends Model {
                     },
                 },
                 wirecardId: {
+                    unique: {
+                        msg: `This wirecardId of store aready exist`,
+                    },
                     type: DataTypes.STRING,
                 },
             },

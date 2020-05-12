@@ -3,7 +3,7 @@ const User = require('../models/User')
 const Store = require('../models/Stores')
 const jwt = require('jsonwebtoken')
 const UserByToken = require('../middlewares/userByToken')
-const { createAccount, checkAccount } = require('../modules/payment')
+const { createAccount, checkAccount, consultAccount } = require('../modules/payment')
 
 module.exports = {
     async index(req, res) {
@@ -31,69 +31,9 @@ module.exports = {
     },
 
     async store(req, res) {
-        const {
-            nameStore,
-            name,
-            lastName,
-            email,
-            cpf,
-            rg,
-            issuer,
-            issueDate,
-            birthDate,
-            phone,
-            countryCode,
-            cell,
-            url,
-            street,
-            district,
-            zipcode,
-            state,
-            city,
-            country,
-            number,
-        } = req.body
-
-        const authHeader = req.headers.authorization
-
-        if (!authHeader) return res.status(401).send({ error: 'No token provided' })
-
-        const { user_id } = await UserByToken(authHeader)
-
-        const user = await User.findByPk(user_id)
-
-        if (!user) {
-            return res.status(400).json({ error: 'User not found' })
-        }
-
-        //Check email name
-        const consultname = await Store.findOne({ where: { nameStore } })
-
-        if (consultname) return res.status(400).json({ error: 'Store name already exist!' })
-        //Check email exists
-        const consultmail = await Store.findOne({ where: { email } })
-
-        if (consultmail) return res.status(400).json({ error: 'Store e-mail already exist!' })
-
-        //Check Phone
-        const consulphone = await Store.findOne({ where: { phone } })
-
-        if (consulphone) return res.status(400).json({ error: 'Store phone already exist!' })
-        //Check cell
-        const consultcell = await Store.findOne({ where: { cell } })
-
-        if (consultcell) return res.status(400).json({ error: 'Store cell already exist!' })
-        //Check url
-        const consulurl = await Store.findOne({ where: { url } })
-
-        if (consulurl) return res.status(400).json({ error: 'Store url already exist!' })
-
-        const account = await checkAccount(cpf)
-
-        if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
-
-        if (account.status == 404) {
-            const createWireAccount = await createAccount({
+        try {
+            const {
+                nameStore,
                 name,
                 lastName,
                 email,
@@ -104,47 +44,93 @@ module.exports = {
                 birthDate,
                 phone,
                 countryCode,
+                url,
                 street,
-                streetNumber: number,
                 district,
-                zipCode: zipcode,
-                city,
+                zipcode,
                 state,
+                city,
                 country,
-            })
-            return res.json(createWireAccount)
-        }
+                number,
+                wirecardId,
+            } = req.body
 
-        await Store.create({
-            nameStore,
-            name,
-            lastName,
-            email,
-            cpf,
-            rg,
-            issuer,
-            issueDate,
-            birthDate,
-            phone,
-            countryCode,
-            cell,
-            url,
-            street,
-            district,
-            zipcode,
-            state,
-            city,
-            country,
-            number,
-            wirecardId: account.status == 404 ? createWireAccount.body.id : null,
-            user_id,
-        })
-            .then((result) => {
-                return res.json(result)
+            const authHeader = req.headers.authorization
+
+            if (!authHeader) return res.status(401).send({ error: 'No token provided' })
+
+            const { user_id } = await UserByToken(authHeader)
+
+            const user = await User.findByPk(user_id)
+
+            if (!user) return res.status(400).send({ error: 'User not found' })
+
+            const account = await checkAccount(cpf)
+
+            if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
+
+            if (account.status == 404) {
+                // eslint-disable-next-line no-unused-vars
+                const createWireAccount = await createAccount({
+                    name,
+                    lastName,
+                    email,
+                    cpf,
+                    rg,
+                    issuer,
+                    issueDate,
+                    birthDate,
+                    phone,
+                    countryCode,
+                    street,
+                    streetNumber: number,
+                    district,
+                    zipCode: zipcode,
+                    city,
+                    state,
+                    country,
+                })
+            } else {
+                if (!wirecardId) return res.status(400).send({ error: `Please send wirecardId in body request` })
+
+                await consultAccount(wirecardId)
+            }
+
+            const store = await Store.create({
+                nameStore,
+                name,
+                lastName,
+                email,
+                cpf,
+                rg,
+                issuer,
+                issueDate,
+                birthDate,
+                phone,
+                countryCode,
+                url,
+                street,
+                district,
+                zipcode,
+                state,
+                city,
+                country,
+                number,
+                wirecardId: account.status == 404 ? createWireAccount.body.id : wirecardId,
+                user_id,
             })
-            .catch((err) => {
-                return res.status(400).send({ error: err })
-            })
+            return res.json(store)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar nova loja: `, error.message)
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
     },
 
     async storeUpdate(req, res) {
