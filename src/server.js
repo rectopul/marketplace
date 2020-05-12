@@ -8,7 +8,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const path = require('path')
 //const Sigep = require('./modules/Sigep')
-const Rastro = require('./modules/Rastro')
+//const Rastro = require('./modules/Rastro')
 
 require('./database')
 

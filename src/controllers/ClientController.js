@@ -297,7 +297,8 @@ module.exports = {
 
             const now = new Date()
 
-            if (now > user.passwordResetExpires) return res.status(400).json({ Error: 'Token Expired, generate a new one' })
+            if (now > user.passwordResetExpires)
+                return res.status(400).json({ Error: 'Token Expired, generate a new one' })
 
             user.password = password
 

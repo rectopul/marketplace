@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
 const User = require('../models/User')
 const Store = require('../models/Stores')
 const jwt = require('jsonwebtoken')
 const UserByToken = require('../middlewares/userByToken')
+const { createAccount, checkAccount } = require('../modules/payment')
 
 module.exports = {
     async index(req, res) {
@@ -29,23 +31,34 @@ module.exports = {
     },
 
     async store(req, res) {
-        const { name, email, phone, cell, url, zipcode, state, city, street, number } = req.body
+        const {
+            nameStore,
+            name,
+            lastName,
+            email,
+            cpf,
+            rg,
+            issuer,
+            issueDate,
+            birthDate,
+            phone,
+            countryCode,
+            cell,
+            url,
+            street,
+            district,
+            zipcode,
+            state,
+            city,
+            country,
+            number,
+        } = req.body
 
         const authHeader = req.headers.authorization
 
-        if (!authHeader) return res.status(401).send({ error: 'No token provided 4' })
+        if (!authHeader) return res.status(401).send({ error: 'No token provided' })
 
-        const [, token] = authHeader.split(' ')
-
-        var decoded
-
-        try {
-            decoded = jwt.verify(token, process.env.APP_SECRET)
-        } catch (e) {
-            return res.status(401).send({ error: 'unauthorized' })
-        }
-
-        const user_id = decoded.id
+        const { user_id } = await UserByToken(authHeader)
 
         const user = await User.findByPk(user_id)
 
@@ -54,7 +67,7 @@ module.exports = {
         }
 
         //Check email name
-        const consultname = await Store.findOne({ where: { name } })
+        const consultname = await Store.findOne({ where: { nameStore } })
 
         if (consultname) return res.status(400).json({ error: 'Store name already exist!' })
         //Check email exists
@@ -75,17 +88,55 @@ module.exports = {
 
         if (consulurl) return res.status(400).json({ error: 'Store url already exist!' })
 
+        const account = await checkAccount(cpf)
+
+        if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
+
+        if (account.status == 404) {
+            const createWireAccount = await createAccount({
+                name,
+                lastName,
+                email,
+                cpf,
+                rg,
+                issuer,
+                issueDate,
+                birthDate,
+                phone,
+                countryCode,
+                street,
+                streetNumber: number,
+                district,
+                zipCode: zipcode,
+                city,
+                state,
+                country,
+            })
+            return res.json(createWireAccount)
+        }
+
         await Store.create({
+            nameStore,
             name,
+            lastName,
             email,
+            cpf,
+            rg,
+            issuer,
+            issueDate,
+            birthDate,
             phone,
+            countryCode,
             cell,
             url,
+            street,
+            district,
             zipcode,
             state,
             city,
-            street,
+            country,
             number,
+            wirecardId: account.status == 404 ? createWireAccount.body.id : null,
             user_id,
         })
             .then((result) => {
@@ -120,7 +171,11 @@ module.exports = {
                 if (req.body[item] != undefined && item != `id`) return (updateValues[item] = req.body[item])
             })
 
-            const storeupdate = await Store.update(updateValues, { where: { id: store_id }, returning: true, plain: true })
+            const storeupdate = await Store.update(updateValues, {
+                where: { id: store_id },
+                returning: true,
+                plain: true,
+            })
 
             return res.status(200).send(storeupdate[1])
         } catch (error) {

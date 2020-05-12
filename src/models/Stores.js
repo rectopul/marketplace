@@ -4,12 +4,31 @@ class Stores extends Model {
     static init(sequelize) {
         super.init(
             {
+                nameStore: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    unique: true,
+                    validate: {
+                        notEmpty: {
+                            msg: `The nameStore field cannot be empty`,
+                        },
+                    },
+                },
                 name: {
                     type: DataTypes.STRING,
                     allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `This field cannot be empty`,
+                        },
+                    },
+                },
+                lastName: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The field lastName cannot be empty`,
                         },
                     },
                 },
@@ -25,6 +44,57 @@ class Stores extends Model {
                         },
                     },
                 },
+                cpf: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    unique: true,
+                    validate: {
+                        notEmpty: {
+                            msg: `The cpf field cannot be empty`,
+                        },
+                        is: {
+                            args: /([0-9]{2}[.]?[0-9]{3}[.]?[0-9]{3}[/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[.]?[0-9]{3}[.]?[0-9]{3}[-]?[0-9]{2})/g,
+                            msg: `The cpf field must be a cpf`,
+                        },
+                    },
+                },
+                rg: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    unique: true,
+                    validate: {
+                        notEmpty: {
+                            msg: `The rg field cannot be empty`,
+                        },
+                    },
+                },
+                issuer: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The issuer field cannot be empty`,
+                        },
+                    },
+                },
+                issueDate: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The issueDate field cannot be empty`,
+                        },
+                    },
+                },
+                birthDate: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The birthDate field cannot be empty`,
+                        },
+                    },
+                },
                 phone: {
                     type: DataTypes.STRING,
                     allowNull: false,
@@ -35,6 +105,18 @@ class Stores extends Model {
                         is: {
                             args: /(\(?\d{2}\)?\s)?(\d{4,5}-\d{4})/g,
                             msg: `This field must be a phone`,
+                        },
+                    },
+                },
+                countryCode: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `This field cannot be empty`,
+                        },
+                        isNumeric: {
+                            msg: `The countryCode field must be a two number`,
                         },
                     },
                 },
@@ -99,6 +181,15 @@ class Stores extends Model {
                         },
                     },
                 },
+                district: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The district field cannot be empty`,
+                        },
+                    },
+                },
                 number: {
                     type: DataTypes.STRING,
                     allowNull: false,
@@ -107,6 +198,21 @@ class Stores extends Model {
                             msg: `This field cannot be empty`,
                         },
                     },
+                },
+                country: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The country field cannot be empty`,
+                        },
+                        notNull: {
+                            msg: `The country field cannot be empty`,
+                        },
+                    },
+                },
+                wirecardId: {
+                    type: DataTypes.STRING,
                 },
             },
             {

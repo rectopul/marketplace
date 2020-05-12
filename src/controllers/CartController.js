@@ -1,33 +1,28 @@
-const Store = require("../models/Stores");
+const Store = require('../models/Stores')
 const Client = require('../models/Client')
-const jwt = require("jsonwebtoken");
-const ClientMiddleware = require('../middlewares/ClientMiddleware')
 const Cart = require('../models/Cart')
 const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
+// eslint-disable-next-line no-unused-vars
 const crypto = require('crypto')
 
 module.exports = {
     async index(req, res) {
         try {
-
             const { cart_id: id } = req.params
 
             const cart = await Cart.UserByToken(id, { include: { association: `cartProducts` } })
 
             return res.json(cart)
-
         } catch (error) {
             return res.status(400).send({ error })
         }
     },
 
     async listAll(req, res) {
-
         try {
-
             //Get user id by token
-            const authHeader = req.headers.authorization;
+            const authHeader = req.headers.authorization
 
             const user_id = await UserByToken(authHeader)
 
@@ -39,29 +34,23 @@ module.exports = {
             const carts = await Cart.findAll({ include: { association: `cartProducts` } })
 
             return res.json(carts)
-
         } catch (error) {
-            console.log(`Erro ao listar todos os carrinhos`, error);
+            console.log(`Erro ao listar todos os carrinhos`, error)
             //return res.status(400).send({ error })
         }
-
     },
 
     async list(req, res) {
-
         //Get user id by token
         const authHeader = req.headers.authorization
 
         try {
-
             const { session_id } = req.params
 
             if (authHeader) {
-
                 const { client_id, user_id } = await UserByToken(authHeader)
 
                 if (!session_id) {
-
                     //Caso seja um usuário
                     if (user_id) {
                         const user = await User.findByPk(user_id)
@@ -69,12 +58,10 @@ module.exports = {
                         //Verify if store é do usuario
                         const store = await Store.findOne({ where: { user_id } })
 
-                        if (!store)
-                            return res.status(400).send({ error: `This shop not exists` })
+                        if (!store) return res.status(400).send({ error: `This shop not exists` })
 
                         //User type shopadministrator or shopmanager
                         if (user && user.type != `super`) {
-
                             const listcart = await Cart.findAll({
                                 include: {
                                     association: `cartProducts`,
@@ -82,14 +69,8 @@ module.exports = {
                                     include: [
                                         {
                                             association: `product`,
-                                            attributes: [
-                                                `sku`,
-                                                `title`,
-                                                `description`,
-                                                `brand`,
-                                                `model`
-                                            ],
-                                            include: { association: `images_product` }
+                                            attributes: [`sku`, `title`, `description`, `brand`, `model`],
+                                            include: { association: `images_product` },
                                         },
                                         {
                                             association: `variation`,
@@ -97,22 +78,19 @@ module.exports = {
                                                 `variable_sku`,
                                                 `variable_regular_price`,
                                                 `variable_sale_price`,
-                                                `variable_description`
+                                                `variable_description`,
                                             ],
                                             include: [
                                                 {
                                                     association: `variation_info`,
-                                                    attributes: [
-                                                        `attribute_name`,
-                                                        `attribute_value`
-                                                    ]
+                                                    attributes: [`attribute_name`, `attribute_value`],
                                                 },
-                                                { association: `image` }
-                                            ]
-                                        }
-                                    ]
+                                                { association: `image` },
+                                            ],
+                                        },
+                                    ],
                                 },
-                                where: { store_id: store.id }
+                                where: { store_id: store.id },
                             })
 
                             return res.json(listcart)
@@ -120,7 +98,6 @@ module.exports = {
 
                         //User type super
                         if (user && user.type == `super`) {
-
                             const carts = await Cart.findAll({
                                 include: {
                                     association: `cartProducts`,
@@ -128,14 +105,8 @@ module.exports = {
                                     include: [
                                         {
                                             association: `product`,
-                                            attributes: [
-                                                `sku`,
-                                                `title`,
-                                                `description`,
-                                                `brand`,
-                                                `model`
-                                            ],
-                                            include: { association: `images_product` }
+                                            attributes: [`sku`, `title`, `description`, `brand`, `model`],
+                                            include: { association: `images_product` },
                                         },
                                         {
                                             association: `variation`,
@@ -143,21 +114,18 @@ module.exports = {
                                                 `variable_sku`,
                                                 `variable_regular_price`,
                                                 `variable_sale_price`,
-                                                `variable_description`
+                                                `variable_description`,
                                             ],
                                             include: [
                                                 {
                                                     association: `variation_info`,
-                                                    attributes: [
-                                                        `attribute_name`,
-                                                        `attribute_value`
-                                                    ]
+                                                    attributes: [`attribute_name`, `attribute_value`],
                                                 },
-                                                { association: `image` }
-                                            ]
-                                        }
-                                    ]
-                                }
+                                                { association: `image` },
+                                            ],
+                                        },
+                                    ],
+                                },
                             })
 
                             return res.json(carts)
@@ -165,12 +133,15 @@ module.exports = {
                     }
 
                     //Clients
-                    const cartsClient = await Cart.findAll({ include: { association: `cartProducts` }, where: { client_id } })
+                    const cartsClient = await Cart.findAll({
+                        include: { association: `cartProducts` },
+                        where: { client_id },
+                    })
 
                     return res.json(cartsClient)
                 }
 
-                const session = crypto.randomBytes(10).toString('hex')
+                //const session = crypto.randomBytes(10).toString('hex')
 
                 let cart, where
 
@@ -184,22 +155,18 @@ module.exports = {
                     where = { session_id }
                 }
 
-                if (!cart)
-                    return res.status(400).send({ error: `Cart not exists!` })
-
+                if (!cart) return res.status(400).send({ error: `Cart not exists!` })
 
                 //Busca única por usuarios
                 if (user_id) {
                     const user = await User.findByPk(user_id)
 
-                    //User type shopadministrator or shopmanager  
+                    //User type shopadministrator or shopmanager
                     if (user && user.type != `super`) {
-
                         //Verify if store é do usuario
                         const store = await Store.findOne({ where: { id: cart.store_id, user_id } })
 
-                        if (!store)
-                            return res.status(400).send({ error: `This store does not belong to this user` })
+                        if (!store) return res.status(400).send({ error: `This store does not belong to this user` })
 
                         const listcart = await Cart.findOne({
                             include: {
@@ -208,14 +175,8 @@ module.exports = {
                                 include: [
                                     {
                                         association: `product`,
-                                        attributes: [
-                                            `sku`,
-                                            `title`,
-                                            `description`,
-                                            `brand`,
-                                            `model`
-                                        ],
-                                        include: { association: `images_product` }
+                                        attributes: [`sku`, `title`, `description`, `brand`, `model`],
+                                        include: { association: `images_product` },
                                     },
                                     {
                                         association: `variation`,
@@ -223,22 +184,19 @@ module.exports = {
                                             `variable_sku`,
                                             `variable_regular_price`,
                                             `variable_sale_price`,
-                                            `variable_description`
+                                            `variable_description`,
                                         ],
                                         include: [
                                             {
                                                 association: `variation_info`,
-                                                attributes: [
-                                                    `attribute_name`,
-                                                    `attribute_value`
-                                                ]
+                                                attributes: [`attribute_name`, `attribute_value`],
                                             },
-                                            { association: `image` }
-                                        ]
-                                    }
-                                ]
+                                            { association: `image` },
+                                        ],
+                                    },
+                                ],
                             },
-                            where: { session_id, store_id: store.id }
+                            where: { session_id, store_id: store.id },
                         })
 
                         return res.json(listcart)
@@ -246,7 +204,6 @@ module.exports = {
 
                     //User type super
                     if (user && user.type == `super`) {
-
                         const carts = await Cart.findOne({
                             include: {
                                 association: `cartProducts`,
@@ -254,14 +211,8 @@ module.exports = {
                                 include: [
                                     {
                                         association: `product`,
-                                        attributes: [
-                                            `sku`,
-                                            `title`,
-                                            `description`,
-                                            `brand`,
-                                            `model`
-                                        ],
-                                        include: { association: `images_product` }
+                                        attributes: [`sku`, `title`, `description`, `brand`, `model`],
+                                        include: { association: `images_product` },
                                     },
                                     {
                                         association: `variation`,
@@ -269,31 +220,25 @@ module.exports = {
                                             `variable_sku`,
                                             `variable_regular_price`,
                                             `variable_sale_price`,
-                                            `variable_description`
+                                            `variable_description`,
                                         ],
                                         include: [
                                             {
                                                 association: `variation_info`,
-                                                attributes: [
-                                                    `attribute_name`,
-                                                    `attribute_value`
-                                                ]
+                                                attributes: [`attribute_name`, `attribute_value`],
                                             },
-                                            { association: `image` }
-                                        ]
-                                    }
-                                ]
+                                            { association: `image` },
+                                        ],
+                                    },
+                                ],
                             },
-                            where: where
+                            where: where,
                         })
 
-
                         return res.json(carts)
-
                     }
                 }
             }
-
 
             const carts = await Cart.findOne({
                 include: {
@@ -302,14 +247,8 @@ module.exports = {
                     include: [
                         {
                             association: `product`,
-                            attributes: [
-                                `sku`,
-                                `title`,
-                                `description`,
-                                `brand`,
-                                `model`
-                            ],
-                            include: { association: `images_product` }
+                            attributes: [`sku`, `title`, `description`, `brand`, `model`],
+                            include: { association: `images_product` },
                         },
                         {
                             association: `variation`,
@@ -317,48 +256,39 @@ module.exports = {
                                 `variable_sku`,
                                 `variable_regular_price`,
                                 `variable_sale_price`,
-                                `variable_description`
+                                `variable_description`,
                             ],
                             include: [
                                 {
                                     association: `variation_info`,
-                                    attributes: [
-                                        `attribute_name`,
-                                        `attribute_value`
-                                    ]
+                                    attributes: [`attribute_name`, `attribute_value`],
                                 },
-                                { association: `image` }
-                            ]
-                        }
-                    ]
+                                { association: `image` },
+                            ],
+                        },
+                    ],
                 },
-                where: { session_id, client_id: null }
+                where: { session_id, client_id: null },
             })
 
             return res.json(carts)
-
-
         } catch (error) {
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            if (error.name == `JsonWebTokenError`)
-                return res.status(400).send({ error })
-
-            console.log(`Erro ao listar carrinhos`, error);
+            console.log(`Erro ao listar carrinhos`, error)
             return res.status(500).send({ error: `Erro interno` })
         }
     },
 
     async create(req, res) {
         try {
-
             const { session_id } = req.body
 
-            if (!session_id)
-                return res.status(400).send({ error: `Please sen session_id in body` })
+            if (!session_id) return res.status(400).send({ error: `Please sen session_id in body` })
 
             let values = {
                 active: false,
-                session_id
+                session_id,
             }
 
             if (req.headers.authorization) {
@@ -366,8 +296,7 @@ module.exports = {
 
                 const { client_id } = await UserByToken(authHeader)
 
-                if (!client_id)
-                    return res.status(400).send({ error: `Customer does not exist` })
+                if (!client_id) return res.status(400).send({ error: `Customer does not exist` })
 
                 values.client_id = client_id
 
@@ -379,9 +308,8 @@ module.exports = {
             const cart = await Cart.create(values)
 
             return res.json(cart)
-
         } catch (error) {
-            console.log(`Erro ao criar carrinho: `, error);
+            console.log(`Erro ao criar carrinho: `, error)
             return res.status(400).send({ error })
         }
     },
@@ -395,14 +323,13 @@ module.exports = {
 
             const { user_id } = await UserByToken(authHeader)
 
-            if (!user_id)
-                return res.status(400).send({ error: `User is not allowed to delete this cart` })
+            if (!user_id) return res.status(400).send({ error: `User is not allowed to delete this cart` })
 
             //super user
             const user = await User.findByPk(user_id)
 
             if (user.type == `super`) {
-                const cartDestroy = await Cart.destroy({ where: { id: cart_id } })
+                await Cart.destroy({ where: { id: cart_id } })
 
                 return res.status(200).send({ message: `Cart deleted` })
             } else {
@@ -411,23 +338,21 @@ module.exports = {
                 //Store
                 const store = await Store.findByPk(cart.store_id)
 
-                if (!store)
-                    return res.status(400).send({ error: `This store does not belong to this user` })
+                if (!store) return res.status(400).send({ error: `This store does not belong to this user` })
 
                 //Somente storeAdministrator pode excluir um carrinho da propria loja
                 if (user.type != `storeAdministrator`)
                     return res.status(400).send({ error: `User is not allowed to delete this cart` })
 
-                const cartDestroy = await Cart.destroy({ where: { id: cart_id, store_id: store.id } })
+                await Cart.destroy({ where: { id: cart_id, store_id: store.id } })
 
                 return res.status(200).send({ message: `Cart deleted` })
             }
         } catch (error) {
-            if (error.name == `JsonWebTokenError`)
-                return res.status(400).send({ error })
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            console.log(`Erro ao listar carrinhos`, error);
+            console.log(`Erro ao listar carrinhos`, error)
             return res.status(500).send({ error: `Erro interno` })
         }
-    }
-};
+    },
+}
