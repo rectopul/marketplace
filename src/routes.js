@@ -40,6 +40,7 @@ const CartProduct = require('./controllers/CartProductController')
 
 const payment = require('./modules/payment')
 const paymentAccount = require('./controllers/WireCardController')
+const envio = require('./modules/melhorenvio')
 
 //Test de rota
 routes.get(`/`, (req, res) => {
@@ -63,6 +64,7 @@ routes.get('/product/:product_id', ProductController.index)
 routes.get('/products', ProductController.allstore)
 //Listagem de produtos por categoria
 routes.get('/categories/:slug?', CategoriesController.index)
+routes.get('/envio', envio.token)
 
 //Carrinho de compras
 routes.post(`/cart/create`, CartController.create)

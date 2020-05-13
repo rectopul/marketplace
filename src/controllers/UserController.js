@@ -119,7 +119,7 @@ module.exports = {
                     to: email,
                     from: process.env.MAIL_FROM,
                     template: 'auth/forgot_password',
-                    context: { token },
+                    context: { token, client: user.name },
                 },
                 (err) => {
                     if (err) return res.status(400).send({ error: 'Cannot send forgot password email' })

@@ -1,6 +1,7 @@
 const Client = require('../models/Client')
+const Order = require('../models/Order')
 const userByToken = require('../middlewares/userByToken')
-const { createClient } = require('../modules/payment')
+const { createClient, getOrder, createPayment } = require('../modules/payment')
 
 module.exports = {
     async createClient(req, res) {
@@ -102,6 +103,87 @@ module.exports = {
             })
 
             return res.json(resume)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar novo cliente: `, error.message)
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
+    },
+    async payment(req, res) {
+        try {
+            const authHeader = req.headers.authorization
+            const { order, method } = req.body
+
+            const { client_id } = await userByToken(authHeader)
+
+            //Buscar pedido
+            const orderWire = await Order.findByPk(order)
+
+            const { order: orderId } = orderWire
+
+            //Check se o pedido existe
+            if (!orderId) return res.status(400).send({ error: `This order not exist` })
+
+            const wireOrder = await getOrder(orderId)
+
+            //Check se o pedido existe no wirecard
+            if (!wireOrder) return res.status(400).send({ error: `This order not exist` })
+
+            //Busca informações do cliente
+            const client = await Client.findByPk(client_id)
+            const { ownId } = client
+
+            //check se o cliente possúi conta no wirecard
+            if (!ownId) return res.status(400).send({ error: `This order not exist` })
+
+            //metodo cartão
+            if (method == `CREDIT_CARD`) {
+                const {
+                    installmentCount, //quantidade de parcelas
+                    hash, //Cartão criptografado
+                    store, //Salvar o cartão?
+                    birthdate, //Data de aniverssário "YYYY-MM-DD"
+                    fullname,
+                    phone,
+                    cpf,
+                    countryCode,
+                    street,
+                    streetNumber,
+                    complement,
+                    district,
+                    city,
+                    state,
+                    country,
+                    zipCode,
+                } = req.body
+
+                const payment = await createPayment(method, orderId, {
+                    installmentCount,
+                    hash,
+                    store,
+                    birthdate,
+                    fullname,
+                    phone,
+                    cpf,
+                    countryCode,
+                    street,
+                    streetNumber,
+                    complement,
+                    district,
+                    city,
+                    state,
+                    country,
+                    zipCode,
+                })
+
+                return res.json(payment)
+            }
         } catch (error) {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })

@@ -271,7 +271,7 @@ module.exports = {
                     from: process.env.MAIL_FROM,
                     subject: 'Insta Checkout Reset Password!',
                     template: 'auth/forgot_password',
-                    context: { token },
+                    context: { token, client: user.name },
                 },
                 (err) => {
                     if (err) return res.status(400).send({ error: 'Cannot send forgot password email' })
