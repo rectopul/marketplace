@@ -120,12 +120,28 @@ class Stores extends Model {
                         },
                     },
                 },
+                cell: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    unique: {
+                        msg: `This cell of store aready exist`,
+                    },
+                    validate: {
+                        notEmpty: {
+                            msg: `The cell field cannot be empty`,
+                        },
+                        is: {
+                            args: /(\(?\d{2}\)?\s)?(\d{4,5}-\d{4})/g,
+                            msg: `Please provide a valid cell number`,
+                        },
+                    },
+                },
                 countryCode: {
                     type: DataTypes.STRING,
                     allowNull: false,
                     validate: {
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The countryCode field cannot be empty`,
                         },
                         isNumeric: {
                             msg: `The countryCode field must be a two number`,
