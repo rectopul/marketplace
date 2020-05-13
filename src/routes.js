@@ -39,6 +39,7 @@ const CartController = require('./controllers/CartController')
 const CartProduct = require('./controllers/CartProductController')
 
 const payment = require('./modules/payment')
+const paymentAccount = require('./controllers/WireCardController')
 
 //Test de rota
 routes.get(`/`, (req, res) => {
@@ -118,6 +119,7 @@ routes.get('/order/adm/:store_id/:order_id?', OrderController.admIndex)
 routes.put('/order/cancel/:order_id', OrderController.cancel)
 routes.put('/order/:order_id', OrderController.update)
 routes.delete('/order/:order_id', OrderController.delete)
+routes.post('/customers', paymentAccount.createClient)
 
 //Cupons
 routes.patch(`/coupon/:order_id/:coupon_code`, Coupon.insert)

@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 const Store = require('../models/Stores')
 const Order = require('../models/Order')
+const Client = require('../models/Client')
 const ProdutctOrder = require('../models/ProductOrder')
 const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
@@ -94,12 +96,23 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const { product_id, quantity, variation_id } = req.body
+            const { product_id, quantity, variation_id, customer } = req.body
 
             //Get user id by token
             const authHeader = req.headers.authorization
 
             const { client_id } = await UserByToken(authHeader)
+
+            const infClient = await Client.findByPk(client_id, {
+                include: { association: `delivery_addresses`, where: { active: true } },
+            })
+
+            //check wirecard account
+            if (!infClient.wireId)
+                return res.status(400).send({ error: `The customer does not have a payment account` })
+            //check delivery address
+            if (!infClient.delivery_addresses.length > 0)
+                return res.status(400).send({ error: `The customer has no registered delivery address` })
 
             //Includes
             const includes = [
@@ -204,8 +217,6 @@ module.exports = {
                     moipId: wirecard_id,
                 })
 
-                return console.log(`Order in wire`, orderWire)
-
                 return res.json(resume)
             }
 
@@ -241,7 +252,7 @@ module.exports = {
             const { wirecardId } = resume.store
             const { wireId, ownId } = resume.client
 
-            const objetoWire = {
+            let objetoWire = {
                 orderID: order.id,
                 customerId: wireId,
                 own_id: ownId,
