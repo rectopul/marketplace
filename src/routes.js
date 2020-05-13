@@ -38,14 +38,27 @@ const SessionClientController = require('./controllers/SessionClientController')
 const CartController = require('./controllers/CartController')
 const CartProduct = require('./controllers/CartProductController')
 
+const payment = require('./modules/payment')
+
 //Test de rota
 routes.get(`/`, (req, res) => {
     return res.status(200).send({ message: `Rota principal` })
 })
 
+routes.get('/moip', payment.redirectUri)
+routes.get('/moipclientlist', (req, res) => {
+    payment
+        .listClients()
+        .then((response) => {
+            return res.json(response)
+        })
+        .catch((err) => {
+            return res.status(400).send(err)
+        })
+})
+
 //Listagem de produtos
 routes.get('/product/:product_id', ProductController.index)
-routes.post('/product/:store_id/:product_id', ProductController.store)
 routes.get('/products', ProductController.allstore)
 //Listagem de produtos por categoria
 routes.get('/categories/:slug?', CategoriesController.index)

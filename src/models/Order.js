@@ -45,6 +45,12 @@ class Order extends Model {
                         },
                     },
                 },
+                order: {
+                    type: DataTypes.STRING,
+                    unique: {
+                        msg: `The order number already exist`,
+                    },
+                },
             },
             { sequelize }
         )

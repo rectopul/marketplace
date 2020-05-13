@@ -43,7 +43,7 @@ module.exports = {
             //Get user id by token
             const authHeader = req.headers.authorization
 
-            const { name, email, password, type, store_id } = req.body
+            const { name, email, phone, cell, password, type, store_id } = req.body
 
             const { user_id } = await UserByToken(authHeader)
 
@@ -62,20 +62,31 @@ module.exports = {
 
                 if (!store) return res.status(401).json({ message: 'This store not exist' })
 
-                if (store.user_id != user_id) return res.status(401).json({ message: 'This store does not belong to this user' })
+                if (store.user_id != user_id)
+                    return res.status(401).json({ message: 'This store does not belong to this user' })
             }
 
             const user = await User.create({
                 name,
                 email,
                 password,
+                phone,
+                cell,
                 type,
                 store_id,
             })
 
             return res.json(user)
         } catch (error) {
-            return res.status(400).send({ error: error })
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar novo usuário: `, error.message)
+
+            return res.status(500).send({ error: `Erro de servidor` })
         }
     },
 
@@ -134,7 +145,8 @@ module.exports = {
 
             const now = new Date()
 
-            if (now > user.passwordResetExpires) return res.status(400).json({ Error: 'Token Expired, generate a new one' })
+            if (now > user.passwordResetExpires)
+                return res.status(400).json({ Error: 'Token Expired, generate a new one' })
 
             user.password = password
 

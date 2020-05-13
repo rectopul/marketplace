@@ -90,36 +90,64 @@ module.exports = {
                     state,
                     country,
                 })
+
+                const store = await Store.create({
+                    nameStore,
+                    name,
+                    lastName,
+                    email,
+                    cpf,
+                    rg,
+                    issuer,
+                    issueDate,
+                    birthDate,
+                    phone,
+                    countryCode,
+                    url,
+                    street,
+                    district,
+                    zipcode,
+                    state,
+                    city,
+                    country,
+                    number,
+                    wirecardId: createWireAccount.id,
+                    user_id,
+                })
+                return res.json(store)
             } else {
-                if (!wirecardId) return res.status(400).send({ error: `Please send wirecardId in body request` })
+                if (!wirecardId)
+                    return res
+                        .status(400)
+                        .send({ error: `This cpf already has a wirecard account, please provide the account id` })
 
                 await consultAccount(wirecardId)
-            }
 
-            const store = await Store.create({
-                nameStore,
-                name,
-                lastName,
-                email,
-                cpf,
-                rg,
-                issuer,
-                issueDate,
-                birthDate,
-                phone,
-                countryCode,
-                url,
-                street,
-                district,
-                zipcode,
-                state,
-                city,
-                country,
-                number,
-                wirecardId: account.status == 404 ? createWireAccount.body.id : wirecardId,
-                user_id,
-            })
-            return res.json(store)
+                const store = await Store.create({
+                    nameStore,
+                    name,
+                    lastName,
+                    email,
+                    cpf,
+                    rg,
+                    issuer,
+                    issueDate,
+                    birthDate,
+                    phone,
+                    countryCode,
+                    url,
+                    street,
+                    district,
+                    zipcode,
+                    state,
+                    city,
+                    country,
+                    number,
+                    wirecardId,
+                    user_id,
+                })
+                return res.json(store)
+            }
         } catch (error) {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })

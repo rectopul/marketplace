@@ -7,94 +7,93 @@ class Product extends Model {
                 sku: DataTypes.STRING,
                 title: {
                     type: DataTypes.STRING,
+                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `This field cannot be empty`,
                         },
                     },
                 },
-                description: DataTypes.TEXT,
+                description: DataTypes.STRING,
                 except: DataTypes.STRING,
                 stock: {
                     type: DataTypes.INTEGER,
+                    allowNull: false,
                     validate: {
                         isInt: {
-                            msg: `This field must be an integer`,
+                            msg: `The stock field must be an integer`,
                         },
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The stock field cannot be empty`,
                         },
                     },
                 },
                 weight: {
-                    type: DataTypes.STRING,
+                    type: DataTypes.DECIMAL,
+                    allowNull: false,
                     validate: {
                         isFloat: {
                             msg: `This field must be a decimal number`,
                         },
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The weight field cannot be empty`,
                         },
                     },
                 },
                 width: {
-                    type: DataTypes.STRING,
+                    type: DataTypes.DECIMAL,
+                    allowNull: false,
                     validate: {
                         isFloat: {
-                            msg: `This field must be a decimal number`,
+                            msg: `The width field must be a decimal number`,
                         },
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The width field cannot be empty`,
                         },
                     },
                 },
                 height: {
-                    type: DataTypes.STRING,
+                    type: DataTypes.DECIMAL,
+                    allowNull: false,
                     validate: {
                         isFloat: {
-                            msg: `This field must be a decimal number`,
+                            msg: `The height field must be a decimal number`,
                         },
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The height field cannot be empty`,
                         },
                     },
                 },
                 length: {
-                    type: DataTypes.STRING,
+                    type: DataTypes.DECIMAL,
+                    allowNull: false,
                     validate: {
                         isFloat: {
-                            msg: `This field must be a decimal number`,
+                            msg: `The length field must be a decimal number`,
                         },
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The length field cannot be empty`,
                         },
                     },
                 },
                 price: {
-                    type: DataTypes.STRING,
+                    type: DataTypes.DECIMAL,
+                    allowNull: false,
                     validate: {
                         isFloat: {
-                            msg: `This field must be a decimal number`,
+                            msg: `The price field must be a decimal number`,
                         },
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The price field cannot be empty`,
                         },
                     },
                 },
                 promotional_price: {
                     type: DataTypes.STRING,
-                    validate: {
-                        isFloat: {
-                            msg: `This field must be a decimal number`,
-                        },
-                    },
                 },
                 cust_price: {
                     type: DataTypes.STRING,
                     validate: {
-                        isFloat: {
-                            msg: `This field must be a decimal number`,
-                        },
                         notEmpty: {
                             msg: `This field cannot be empty`,
                         },

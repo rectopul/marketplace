@@ -5,6 +5,7 @@ const Store = require('../models/Stores')
 const User = require('../models/User')
 const UserbyToken = require('../middlewares/userByToken')
 const Image = require('../models/Image')
+const { createClient } = require('../modules/payment')
 
 const jwt = require('jsonwebtoken')
 
@@ -79,7 +80,25 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const { name, surname, email, password, image_id } = req.body
+            const {
+                name,
+                surname,
+                email,
+                password,
+                birthDate,
+                cpf,
+                countryCode,
+                phoneNumber,
+                street,
+                streetNumber,
+                complement,
+                district,
+                city,
+                state,
+                country,
+                zipCode,
+                image_id,
+            } = req.body
 
             //check image id
             if (image_id) {
@@ -94,8 +113,42 @@ module.exports = {
                 email,
                 image_id,
                 password,
+                birthDate,
+                cpf,
+                countryCode,
+                areaCode: phoneNumber.substr(1, 2),
+                phoneNumber: phoneNumber,
+                street,
+                streetNumber,
+                complement,
+                district,
+                city,
+                state,
+                country,
+                zipCode,
                 active: true,
             })
+
+            const createWire = await createClient({
+                ownId: `WEC-${client.id}`,
+                fullname: `${name} ${surname}`,
+                email,
+                birthDate,
+                cpf,
+                countryCode,
+                areaCode: phoneNumber.substr(1, 2),
+                phoneNumber: phoneNumber.substr(5, 15).replace('-', ''),
+                street,
+                streetNumber,
+                complement,
+                district,
+                city,
+                state,
+                country,
+                zipCode,
+            })
+
+            await Client.update({ wireId: createWire.id, ownId: createWire.ownId }, { where: { id: client.id } })
 
             const getClient = await Client.findByPk(client.id, {
                 attributes: {
@@ -107,6 +160,7 @@ module.exports = {
             return res.json({
                 client: getClient,
                 token: getClient.generateToken(),
+                wirecard: createWire,
             })
         } catch (error) {
             //Validação de erros

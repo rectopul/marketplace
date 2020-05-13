@@ -20,10 +20,10 @@ class User extends Model {
                     type: DataTypes.STRING,
                     validate: {
                         notEmpty: {
-                            msg: `This field cannot be empty`,
+                            msg: `The email field cannot be empty`,
                         },
                         isEmail: {
-                            msg: `This field must be an email`,
+                            msg: `Enter a valid email`,
                         },
                     },
                 },
@@ -46,6 +46,38 @@ class User extends Model {
                 password_hash: DataTypes.STRING,
                 passwordResetToken: DataTypes.STRING,
                 passwordResetExpires: DataTypes.DATE,
+                phone: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    unique: {
+                        msg: `This phone of store aready exist`,
+                    },
+                    validate: {
+                        notEmpty: {
+                            msg: `The phone field cannot be empty`,
+                        },
+                        is: {
+                            args: /(\(?\d{2}\)?\s)?(\d{4,5}-\d{4})/g,
+                            msg: `Please provide a valid phone number`,
+                        },
+                    },
+                },
+                cell: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    unique: {
+                        msg: `This cell of store aready exist`,
+                    },
+                    validate: {
+                        notEmpty: {
+                            msg: `The cell field cannot be empty`,
+                        },
+                        is: {
+                            args: /(\(?\d{2}\)?\s)?(\d{4,5}-\d{4})/g,
+                            msg: `Please provide a valid cell number`,
+                        },
+                    },
+                },
             },
             {
                 hooks: {

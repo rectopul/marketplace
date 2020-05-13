@@ -1,7 +1,12 @@
 /* eslint-disable no-unused-vars */
-const accessToken = `5fab11f56c1b4e81ab7bd1b065aba4a8_v2`
+const accessToken = `8597790d032a4146b4832f49f6ff477d_v2`
 const token = `OJTJZAMDPYN8VG4W8QVNM9TV4E33D8WA`
 const chave = `XN653LFP0Y5ZCGPMA2S3ZPQRKGPINCFGCJUPIR6X`
+const secWonId = `MPA-7900077268CA`
+const logoUri = `logoUri`
+const statementDescriptor = `Wecheckout - Marketplace`
+const appId = `APP-ZUEJ4DILMQHB`
+const redirectUri = `http://localhost:3333/moip`
 const chavePublica = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlDd2mDvwvPM7L6kyZrVT
 c+VNiXua82Ua/WQqSjz5IUPr8rwfiQLYR6xFDv6i4L4m19GqjbE9ctlVyws4fhVN
@@ -17,7 +22,309 @@ const moip = require('moip-sdk-node').default({
     production: false,
 })
 
+const axios = require('axios')
+
 module.exports = {
+    async redirectUri(req, res) {
+        res.json(req.query)
+    },
+    async createPayment(method, order, paymentinfos) {
+        return new Promise((resolve, reject) => {
+            let params = {}
+            const { order } = paymentinfos
+            if (method == `CREDIT_CARD`) {
+                const {
+                    installmentCount,
+                    hash,
+                    store,
+                    fullname,
+                    birthdate,
+                    phone,
+                    cpf,
+                    countryCode,
+                    street,
+                    streetNumber,
+                    complement,
+                    district,
+                    city,
+                    state,
+                    country,
+                    zipCode,
+                } = paymentinfos
+
+                params = {
+                    installmentCount,
+                    statementDescriptor,
+                    fundingInstrument: {
+                        method: method,
+                        creditCard: {
+                            hash,
+                            store,
+                            holder: {
+                                fullname,
+                                birthdate,
+                                taxDocument: {
+                                    type: 'CPF',
+                                    number: cpf,
+                                },
+                                phone: {
+                                    countryCode,
+                                    areaCode: phone.substr(1, 2),
+                                    number: phone.substr(5, 15),
+                                },
+                                billingAddress: {
+                                    street,
+                                    streetNumber,
+                                    complement,
+                                    district,
+                                    city,
+                                    state,
+                                    country,
+                                    zipCode,
+                                },
+                            },
+                        },
+                    },
+                }
+            } else {
+                const { expirationDate, firstLine, secondLine, thirdLine } = paymentinfos
+                params = {
+                    statementDescriptor,
+                    fundingInstrument: {
+                        method,
+                        boleto: {
+                            expirationDate: expirationDate,
+                            instructionLines: {
+                                first: firstLine,
+                                second: secondLine,
+                                third: thirdLine,
+                            },
+                            logoUri,
+                        },
+                    },
+                }
+            }
+
+            moip.payment
+                .create(order, params)
+                .then((response) => {
+                    return resolve(response.body)
+                })
+                .catch((err) => {
+                    return reject(err)
+                })
+        })
+    },
+    getOrder(orderId) {
+        return new Promise((resolve, reject) => {
+            moip.order
+                .getOne(orderId)
+                .then((response) => {
+                    return resolve(response.body)
+                })
+                .catch((err) => {
+                    return reject(err)
+                })
+        })
+    },
+    async createOrder(receivers) {
+        return new Promise((resolve, reject) => {
+            const {
+                orderID,
+                customerId,
+                own_id,
+                shipping,
+                productTitle,
+                quantity,
+                detail,
+                productPrice,
+                moipId,
+            } = receivers
+
+            const percent = 7
+
+            moip.order
+                .create({
+                    ownId: moipId,
+                    amount: {
+                        currency: 'BRL',
+                        subtotals: {
+                            shipping,
+                        },
+                    },
+                    items: [
+                        {
+                            product: productTitle,
+                            quantity,
+                            detail,
+                            price: productPrice,
+                        },
+                    ],
+                    receivers: [
+                        {
+                            moipAccount: {
+                                id: moipId,
+                            },
+                            type: 'PRIMARY',
+                            amount: {
+                                percentual: 100 - percent,
+                            },
+                            feePayor: true,
+                        },
+                        {
+                            moipAccount: {
+                                id: secWonId,
+                            },
+                            type: 'SECONDARY',
+                            amount: {
+                                percentual: percent,
+                            },
+                            feePayor: false,
+                        },
+                    ],
+                    customer: {
+                        id: customerId,
+                        ownId: own_id,
+                    },
+                })
+                .then((response) => {
+                    return resolve(response.body)
+                })
+                .catch((err) => {
+                    return reject({
+                        name: `wireOrderError`,
+                        message: err.message,
+                    })
+                })
+        })
+    },
+    async listClients(cusID) {
+        return new Promise((resolve, reject) => {
+            moip.customer
+                .getAll()
+                .then((response) => {
+                    resolve(response.body)
+                })
+                .catch((err) => {
+                    console.log(err)
+                    reject(err)
+                })
+        })
+    },
+    async getClient(cusID) {
+        return new Promise((resolve, reject) => {
+            moip.customer
+                .getOne(cusID)
+                .then((response) => {
+                    resolve(response.body)
+                })
+                .catch((err) => {
+                    console.log(err)
+                    reject(err)
+                })
+        })
+    },
+    async createClient(infos) {
+        return new Promise((resolve, reject) => {
+            const {
+                ownId,
+                fullname,
+                email,
+                birthDate,
+                cpf,
+                countryCode,
+                areaCode,
+                phoneNumber,
+                street,
+                streetNumber,
+                complement,
+                district,
+                city,
+                state,
+                country,
+                zipCode,
+            } = infos
+
+            moip.customer
+                .create({
+                    ownId,
+                    fullname,
+                    email,
+                    birthDate,
+                    taxDocument: {
+                        type: 'CPF',
+                        number: cpf,
+                    },
+                    phone: {
+                        countryCode,
+                        areaCode,
+                        number: phoneNumber,
+                    },
+                    shippingAddress: {
+                        city,
+                        complement,
+                        district,
+                        street,
+                        streetNumber,
+                        zipCode,
+                        state,
+                        country,
+                    },
+                })
+                .then((response) => {
+                    resolve(response.body)
+                })
+                .catch((err) => {
+                    console.log(`Erro ao criar cliente wirecard`, err)
+                    reject(err)
+                })
+        })
+    },
+    async authorize() {
+        return new Promise((resolve, reject) => {
+            const config = {
+                response_type: 'code',
+                client_id: appId,
+                redirect_uri: redirectUri,
+                scopes: ['RECEIVE_FUNDS', 'REFUND'],
+            }
+
+            axios
+                .get(`https://connect-sandbox.moip.com.br/oauth/authorize`, {
+                    params: {
+                        response_type: 'code',
+                        client_id: appId,
+                        redirect_uri: redirectUri,
+                        scopes: 'RECEIVE_FUNDS,REFUND',
+                    },
+                    headers: {
+                        authorization: `OAuth ${accessToken}`,
+                    },
+                })
+                .then((url) => {
+                    return resolve(url.data)
+                })
+                .catch((err) => {
+                    console.log('Retorno de erro ao autorizar usuário', err)
+                    return reject({
+                        name: `WireError`,
+                        message: err,
+                    })
+                })
+            /* moip.connect
+                .getAuthorizeUrl(config, config)
+                .then((url) => {
+                    return resolve(url)
+                })
+                .catch((err) => {
+                    console.log('Retorno de erro ao autorizar usuário', err)
+                    return reject({
+                        name: `WireError`,
+                        message: err,
+                    })
+                }) */
+        })
+    },
     async consultAccount(accountId) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
@@ -106,7 +413,7 @@ module.exports = {
                         },
                     },
                     type: 'MERCHANT',
-                    transparentAccount: false,
+                    transparentAccount: true,
                 })
 
                 resolve(account.body)

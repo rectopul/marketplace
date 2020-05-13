@@ -4,7 +4,7 @@ const ProdutctOrder = require('../models/ProductOrder')
 const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
 const Product = require('../models/Product')
-
+const { createOrder, getOrder } = require('../modules/payment')
 const { Op } = require('sequelize')
 
 module.exports = {
@@ -46,7 +46,9 @@ module.exports = {
                         ],
                     })
 
-                    return res.json(resume)
+                    const wirecard = await getOrder(resume.order)
+
+                    return res.json({ order: resume, wirecard })
                 }
             }
 
@@ -150,12 +152,14 @@ module.exports = {
                     variable_regular_price,
                 } = variation.variations
 
-                let value
+                let value, unitValue
 
                 if (variable_sale_price && variable_sale_price_dates_to && variable_sale_price_dates_to >= new Date()) {
                     value = parseFloat(variable_sale_price) * quantity
+                    unitValue = parseFloat(variable_sale_price)
                 } else {
                     value = parseFloat(variable_sale_price) * quantity || parseFloat(variable_regular_price) * quantity
+                    unitValue = parseFloat(variable_sale_price) || parseFloat(variable_regular_price)
                 }
 
                 const discount = 0
@@ -185,12 +189,29 @@ module.exports = {
 
                 const resume = await Order.findByPk(order.id, { include: includes })
 
+                //idWirecard da Loja
+                const { wirecard_id } = resume.store
+                const { wire_id } = resume.client
+
+                const orderWire = await createOrder({
+                    orderID: order.id,
+                    customerId: wire_id,
+                    shipping: 1500,
+                    productTitle: product.title,
+                    quantity,
+                    detail: product.description,
+                    productPrice: parseInt(unitValue.toString().replace('.', '')),
+                    moipId: wirecard_id,
+                })
+
+                return console.log(`Order in wire`, orderWire)
+
                 return res.json(resume)
             }
 
             const { promotional_price, price } = product
             const value = parseFloat(promotional_price) * quantity || parseFloat(price) * quantity
-
+            let unitValue = parseFloat(promotional_price) || parseFloat(price)
             const discount = 0
 
             const total = value
@@ -216,13 +237,43 @@ module.exports = {
 
             const resume = await Order.findByPk(order.id, { include: includes })
 
-            return res.json(resume)
+            //idWirecard da Loja
+            const { wirecardId } = resume.store
+            const { wireId, ownId } = resume.client
+
+            const objetoWire = {
+                orderID: order.id,
+                customerId: wireId,
+                own_id: ownId,
+                shipping: 1500,
+                productTitle: product.title,
+                quantity,
+                detail: product.description,
+                productPrice: parseInt((unitValue / 100).toString().replace('.', '')),
+                moipId: wirecardId,
+            }
+
+            console.log(`Object moip`, objetoWire)
+
+            const orderWire = await createOrder(objetoWire)
+
+            const wireorder = orderWire.id
+
+            await Order.update({ order: wireorder }, { where: { id: order.id } })
+
+            const newOrder = await Order.findByPk(order.id, { include: includes })
+
+            return res.json({ order: newOrder, wirecard: orderWire })
         } catch (error) {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
             console.log(`Erro ao criar pedido: `, error)
-            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `wireOrderError`
+            )
                 return res.status(400).send({ error: error.message })
 
             return res.status(500).send({ error: `Erro de servidor` })

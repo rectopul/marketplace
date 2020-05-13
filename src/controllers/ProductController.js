@@ -5,6 +5,7 @@ const VariationMap = require('../models/VariationMap')
 const Variation = require('../models/Variation')
 const User = require('../models/User')
 const Image = require('../models/Image')
+const userByToken = require('../middlewares/userByToken')
 
 module.exports = {
     async index(req, res) {
@@ -87,63 +88,40 @@ module.exports = {
     },
 
     async create(req, res) {
-        const { store_id } = req.params
-
-        const authHeader = req.headers.authorization
-        const {
-            sku,
-            title,
-            description,
-            except,
-            stock,
-            weight,
-            width,
-            height,
-            length,
-            price,
-            promotional_price,
-            cust_price,
-            brand,
-            model,
-            frete_class,
-        } = req.body
-
-        var decoded
-
-        const store = await Stores.findByPk(store_id)
-
-        if (!store) {
-            return res.status(400).json({ error: 'Store not exist' })
-        }
-
-        const [, token] = authHeader.split(' ')
-
         try {
-            decoded = jwt.verify(token, process.env.APP_SECRET)
-        } catch (e) {
-            return res.status(401).send({ error: 'unauthorized' })
-        }
+            const { store_id } = req.params
 
-        var user_id = decoded.id
+            const authHeader = req.headers.authorization
+            const {
+                sku,
+                title,
+                description,
+                except,
+                stock,
+                weight,
+                width,
+                height,
+                length,
+                price,
+                promotional_price,
+                cust_price,
+                brand,
+                model,
+                frete_class,
+            } = req.body
 
-        try {
-            // Fetch the user by id
-            const StoreFromUser = await Stores.findOne({ where: { user_id } })
+            const { user_id } = await userByToken(authHeader)
 
-            if (!StoreFromUser) {
-                return res.status(400).json({
-                    error: 'This store does not belong to the informed user',
-                })
+            const store = await Stores.findOne({ where: { id: store_id, user_id } })
+
+            if (!store) {
+                return res.status(400).json({ error: 'Store not exist' })
             }
 
             const productSku = await Product.findOne({ where: { sku } })
 
             if (productSku) return res.status(400).json({ error: 'Product SKU informed already exists' })
-        } catch (error) {
-            return res.status(400).send({ error: `Error in validation informations of product` })
-        }
 
-        try {
             let product = await Product.create({
                 sku,
                 title,
@@ -328,8 +306,15 @@ module.exports = {
                 return res.json(product)
             }
         } catch (error) {
-            console.log(`Erro ao criar produto: `, error)
-            return res.status(400).send({ error: `Error in create product` })
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar novo produto: `, error)
+
+            return res.status(500).send({ error: `Erro de servidor` })
         }
     },
 

@@ -40,6 +40,128 @@ class Client extends Model {
                         },
                     },
                 },
+                birthDate: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The birthDate not empty`,
+                        },
+                    },
+                },
+                cpf: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The birthDate not empty`,
+                        },
+                        len: {
+                            args: [11, 11],
+                            msg: `cpf String length is not in this range`,
+                        },
+                    },
+                },
+                countryCode: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The countryCode not empty`,
+                        },
+                        len: {
+                            args: [2, 2],
+                            msg: `countryCode String length is not in this range`,
+                        },
+                    },
+                },
+                phoneNumber: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The phoneNumber not empty`,
+                        },
+                        len: {
+                            args: [13, 15],
+                            msg: `phoneNumber String length is not in this range`,
+                        },
+                    },
+                },
+                street: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The street not empty`,
+                        },
+                    },
+                },
+                streetNumber: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The streetNumber not empty`,
+                        },
+                    },
+                },
+                complement: {
+                    type: DataTypes.STRING,
+                },
+                district: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The district not empty`,
+                        },
+                    },
+                },
+                city: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The city not empty`,
+                        },
+                    },
+                },
+                state: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The birthDate not empty`,
+                        },
+                        len: {
+                            args: [2, 2],
+                            msg: `state String length is not in this range`,
+                        },
+                    },
+                },
+                country: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The birthDate not empty`,
+                        },
+                        len: {
+                            args: [3, 3],
+                            msg: `Country String length is not in this range`,
+                        },
+                    },
+                },
+                zipCode: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: {
+                            msg: `The birthDate not empty`,
+                        },
+                    },
+                },
                 password: {
                     type: DataTypes.VIRTUAL,
                     validate: {
@@ -59,6 +181,18 @@ class Client extends Model {
                 },
                 passwordResetToken: DataTypes.STRING,
                 passwordResetExpires: DataTypes.DATE,
+                wireId: {
+                    type: DataTypes.STRING,
+                    unique: {
+                        msg: `This Wirecard ID already exist`,
+                    },
+                },
+                ownId: {
+                    type: DataTypes.STRING,
+                    unique: {
+                        msg: `The own_id ID already exist`,
+                    },
+                },
             },
             {
                 hooks: {
