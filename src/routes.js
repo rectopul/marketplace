@@ -64,7 +64,8 @@ routes.get('/product/:product_id', ProductController.index)
 routes.get('/products', ProductController.allstore)
 //Listagem de produtos por categoria
 routes.get('/categories/:slug?', CategoriesController.index)
-routes.get('/envio', envio.token)
+routes.get('/envio', envio.authorize)
+routes.get('/melhorenvio', envio.token)
 
 //Carrinho de compras
 routes.post(`/cart/create`, CartController.create)
@@ -93,7 +94,7 @@ routes.post(`/fb-login`, SessionClientController.fbLogin)
 routes.post(`/sessions/client`, SessionClientController.store)
 
 /** Shipping */
-routes.get(`/shipping/:product_id`, ShippingController.index)
+routes.get(`/shipping/:product_id/:quantity`, envio.calculateShipping)
 routes.post(`/shipping/:order_id`, ShippingController.store)
 
 routes.use(ClientCredentials)

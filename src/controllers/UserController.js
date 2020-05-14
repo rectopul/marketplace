@@ -118,6 +118,7 @@ module.exports = {
                 {
                     to: email,
                     from: process.env.MAIL_FROM,
+                    subject: 'Insta Checkout Reset Password!',
                     template: 'auth/forgot_password',
                     context: { token, client: user.name },
                 },

@@ -26,6 +26,10 @@ const Client = require('../models/Client')
 const Cart = require('../models/Cart')
 const CartProduct = require('../models/CartProduct')
 
+//Melhor envio
+const MelhorEnvio = require('../models/MelhorEnvio')
+const Shipping = require('../models/Shipping')
+
 const connection = new Sequelize(dbConfig)
 
 User.init(connection)
@@ -53,6 +57,10 @@ Client.init(connection)
 Cart.init(connection)
 CartProduct.init(connection)
 
+//melhor envio
+MelhorEnvio.init(connection)
+Shipping.init(connection)
+
 User.associate(connection.models)
 Manager.associate(connection.models)
 Address.associate(connection.models)
@@ -74,5 +82,9 @@ ProductRating.associate(connection.models)
 Coupon.associate(connection.models)
 Cart.associate(connection.models)
 CartProduct.associate(connection.models)
+
+//melhor envio
+MelhorEnvio.associate(connection.models)
+Shipping.associate(connection.models)
 
 module.exports = connection

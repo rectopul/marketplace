@@ -51,7 +51,7 @@ transport.use(
             extName: '.html',
             partialsDir: path.resolve('./src/resources/mail/'),
             layoutsDir: path.resolve('./src/resources/mail/'),
-            defaultLayout: 'auth/forgot_password.html',
+            defaultLayout: false,
         },
         viewPath: path.resolve('./src/resources/mail/'),
         extName: '.html',

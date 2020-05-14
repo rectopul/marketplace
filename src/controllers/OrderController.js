@@ -8,6 +8,40 @@ const User = require('../models/User')
 const Product = require('../models/Product')
 const { createOrder, getOrder } = require('../modules/payment')
 const { Op } = require('sequelize')
+const { addToCart } = require('../modules/melhorenvio')
+const Shipping = require('../models/Shipping')
+
+const shipCompany = (type) => {
+    return new Promise((res, rej) => {
+        if (type == `PAC`)
+            return res({
+                name: `Correios`,
+                number: 1,
+            })
+        if (type == `SEDEX`)
+            return res({
+                name: `Correios`,
+                number: 2,
+            })
+        if (type == `.Package`)
+            return res({
+                name: `JadLog`,
+                number: 3,
+            })
+        if (type == `.Com`)
+            return res({
+                name: `JadLog`,
+                number: 4,
+            })
+
+        return rej({
+            error: {
+                name: `shippingInvalid`,
+                message: `This shipping not exist in system`,
+            },
+        })
+    })
+}
 
 module.exports = {
     async index(req, res) {
@@ -96,7 +130,9 @@ module.exports = {
 
     async store(req, res) {
         try {
-            const { product_id, quantity, variation_id, customer } = req.body
+            const { product_id, quantity, variation_id, customer, shipping } = req.body
+
+            if (!shipping) return res.status(400).send({ error: `Enter the type of shipping` })
 
             //Get user id by token
             const authHeader = req.headers.authorization
@@ -149,6 +185,7 @@ module.exports = {
 
             if (!product) return res.status(400).send({ error: `Product not exist!` })
 
+            //Variação de produto
             if (variation_id) {
                 const variation = await Product.findByPk(product_id, {
                     include: {
@@ -202,6 +239,7 @@ module.exports = {
 
                 const resume = await Order.findByPk(order.id, { include: includes })
 
+                //Wirecard
                 //idWirecard da Loja
                 const { wirecard_id } = resume.store
                 const { wire_id } = resume.client
@@ -227,6 +265,11 @@ module.exports = {
 
             const total = value
 
+            //MELHOR ENVIO
+            //adicionar etiqueta de envio ao carrinho
+            const shippingTicket = await addToCart({ client_id, product_id, store_id: product.store_id, quantity })
+
+            //Create Order
             const order = await Order.create({
                 store_id: product.store_id,
                 client_id,
@@ -246,8 +289,32 @@ module.exports = {
                 quantity,
             })
 
+            //Resumo do pedido
             const resume = await Order.findByPk(order.id, { include: includes })
 
+            const shippingInfos = await shipCompany(shipping)
+            //registrar envio
+            const shippig = await Shipping.create({
+                order_id: order.id,
+                store_id: product.store_id,
+                client_id,
+                product_id,
+                code: shippingTicket.id,
+                companyName: shippingInfos.name,
+                companyCode: shippingInfos.number,
+                price: shippingTicket.price,
+                deliveryRangeMin: shippingTicket.delivery_min,
+                deliveryRangeMax: shippingTicket.delivery_max,
+                dimensionsHeight: parseFloat(shippingTicket.volumes[0].height),
+                dimensionsWidth: parseFloat(shippingTicket.volumes[0].width),
+                dimensionsLength: parseFloat(shippingTicket.volumes[0].length),
+                dimensionsWeight: parseFloat(shippingTicket.volumes[0].weight),
+                insuranceValue: shippingTicket.insurance_value,
+                format: shippingTicket.format,
+                variation_id,
+            })
+
+            //WIRECARD
             //idWirecard da Loja
             const { wirecardId } = resume.store
             const { wireId, ownId } = resume.client
@@ -264,8 +331,6 @@ module.exports = {
                 moipId: wirecardId,
             }
 
-            console.log(`Object moip`, objetoWire)
-
             const orderWire = await createOrder(objetoWire)
 
             const wireorder = orderWire.id
@@ -274,7 +339,7 @@ module.exports = {
 
             const newOrder = await Order.findByPk(order.id, { include: includes })
 
-            return res.json({ order: newOrder, wirecard: orderWire })
+            return res.json({ order: newOrder, wirecard: orderWire, shippingTicket, shippig })
         } catch (error) {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
@@ -283,7 +348,8 @@ module.exports = {
             if (
                 error.name == `SequelizeValidationError` ||
                 error.name == `SequelizeUniqueConstraintError` ||
-                error.name == `wireOrderError`
+                error.name == `wireOrderError` ||
+                error.name == `bestSubmissionError`
             )
                 return res.status(400).send({ error: error.message })
 
