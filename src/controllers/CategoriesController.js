@@ -13,20 +13,26 @@ module.exports = {
         if (slug) {
             const categories = await Categories.findAll({
                 where: { slug },
-                include: {
-                    association: `products_category`,
-                    include: { association: `product` },
-                },
+                include: [
+                    {
+                        association: `products_category`,
+                        include: { association: `product` },
+                    },
+                    { association: `image` },
+                ],
             })
 
             return res.json(categories)
         }
 
         const categories = await Categories.findAll({
-            include: {
-                association: `products_category`,
-                include: { association: `product` },
-            },
+            include: [
+                {
+                    association: `products_category`,
+                    include: { association: `product` },
+                },
+                { association: `image` },
+            ],
         })
 
         return res.json(categories)

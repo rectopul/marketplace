@@ -63,7 +63,7 @@ routes.get('/moipclientlist', (req, res) => {
 routes.get('/product/:product_id', ProductController.index)
 routes.get('/products', ProductController.allstore)
 //Listagem de produtos por categoria
-routes.get('/categories/:slug?', CategoriesController.index)
+routes.get('/category/:slug?', CategoriesController.index)
 routes.get('/envio', envio.authorize)
 routes.get('/melhorenvio', envio.token)
 
@@ -182,7 +182,7 @@ routes.delete('/variation/:variation_id', VariationController.delete)
 routes.post('/variation/:store_id/:variation_id', VariationController.update)
 
 /* Categories */
-routes.post('/insert/:store_id/category', CategoriesController.store)
+routes.post('/category/:store_id', CategoriesController.store)
 routes.put('/category/:caregory_id/:product_id?', CategoriesController.update)
 routes.delete('/category/:caregory_id/:product_id?', CategoriesController.delete)
 
