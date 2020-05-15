@@ -210,7 +210,7 @@ module.exports = {
 
     async delete(req, res) {
         try {
-            const { caregory_id, product_id } = req.params
+            const { caregory_id } = req.params
 
             //Get user id by token
             const authHeader = req.headers.authorization
@@ -225,26 +225,8 @@ module.exports = {
                 return item.id
             })
 
-            //adm
-            if (product_id) {
-                //Check is product exist in store
-                const checkproduct = await CategoryMap.findOne({
-                    where: {
-                        product_id,
-                        store_id: {
-                            [Op.in]: storesId,
-                        },
-                    },
-                })
-
-                if (!checkproduct) return res.status(400).send({ error: `This product does not belong to your store` })
-
-                const unmap = await CategoryMap.destroy({ where: { product_id, caregory_id } })
-
-                if (!unmap) return res.status(400).send({ error: `This category does not exist in your store` })
-
-                return res.status(200).send()
-            }
+            //Remove o mapeamento
+            await CategoryMap.destroy({ where: { caregory_id } })
 
             const category = await Categories.destroy({
                 where: {

@@ -11,7 +11,7 @@ module.exports = {
     },
 
     async delete(req, res) {
-        const image = await ImgProducts.findByPk(req.params.id)
+        const image = await Image.findByPk(req.params.id)
 
         if (!image) {
             return res.status(200).json({ message: 'Image not exist ' })

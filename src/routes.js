@@ -103,6 +103,7 @@ routes.put(`/client`, ClientController.update)
 
 //Images
 routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
+routes.delete(`/image/:id`, ImageController.delete)
 //Image client
 routes.post(`/client/image`, multer(multerConfig).single('file'), ClientController.image)
 
@@ -184,7 +185,7 @@ routes.post('/variation/:store_id/:variation_id', VariationController.update)
 /* Categories */
 routes.post('/category/:store_id', CategoriesController.store)
 routes.put('/category/:caregory_id/:product_id?', CategoriesController.update)
-routes.delete('/category/:caregory_id/:product_id?', CategoriesController.delete)
+routes.delete('/category/:caregory_id', CategoriesController.delete)
 
 /* Somente Administrador e super user */
 routes.use(StoreAdministrator)

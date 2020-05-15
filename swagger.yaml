@@ -1,0 +1,2069 @@
+openapi: 3.0.0
+info:
+  description: API de integração wecheckout
+  version: "1.0.0-oas3"
+  title: Wecheckout
+  termsOfService: Private
+  contact:
+    name: DeveloperServices
+    email: rogeriomateus@icloud.com
+  license:
+    name: MIT
+    url: "https://opensource.org/licenses/MIT"
+tags:
+  - name: address
+    description: "Endereços de entrega"
+  - name: Banners
+    description: "Cadastro e listagem de banners"
+  - name: Wecheckout
+    description: ""
+  - name: Image
+    description: "Upload e listagem de imagens"
+  - name: manager
+    description: "Cadastro e listagem de administradores de lojas"
+  - name: Coupons
+    description: "Cupons de desconto"
+  - name: variações
+    description: "Cadastro de variações no sistema"
+  - name: Shipping
+    description: "Entregas"
+  - name: products
+    description: "Cadastro de produtos no sistema"
+  - name: wirecard
+    description: ""
+  - name: Cart
+    description: ""
+  - name: Stores
+    description: "Cadastro e informações de lojas"
+  - name: pedidos
+    description: "Cadastro de informações de pedidos"
+  - name: variation
+    description: ""
+  - name: Login
+    description: "Login de administradores no sistema"
+  - name: Categories
+    description: ""
+  - name: Images
+    description: ""
+  - name: Clients
+    description: "Rotas para iformações e ações de clientes"
+paths:
+  #Endereços de entrega
+  /delivery:
+    post:
+      tags:
+        - address
+      summary: Adicionar endereço de entrega a um cliente
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/deliveryCreate"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/delivery_addresses"
+    get:
+      tags:
+        - address
+      summary: Listar endereços de entrega do cliente
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/delivery_addresses"
+  /delivery/{deliver_id}:
+    put:
+      tags:
+        - address
+      summary: Atualizar ou desativar/ativar endereço de entrega (Caso informe o parametro "active" o sistema entenderá que pretente ativar ou desativar um endereço de entrega)
+      parameters:
+        - name: deliver_id
+          in: path
+          required: true
+          description: ID do endereço de entrega que deseja atualizar
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/deliveryCreate"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/delivery_addresses"
+    delete:
+      tags:
+        - address
+      summary: Deletar um endereço de entrega
+      parameters:
+        - name: deliver_id
+          in: path
+          required: true
+          description: ID do endereço de entrega que deseja deletar
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+  /manager/{store_id}:
+    post:
+      tags:
+        - manager
+      summary: update
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          description: Id da loja ao qual o administrador pertence
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/manager"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/managerData"
+    get:
+      tags:
+        - manager
+      summary: Listar administradores da loja
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          description: Id da loja ao qual o administrador pertence
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/managerList"
+  /order/10:
+    post:
+      tags:
+        - Coupons
+      summary: create
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: user
+          description: The user to create.
+      responses:
+        "200":
+          description: successful operation
+  /8/product/create/variation:
+    post:
+      tags:
+        - variações
+      summary: create no mapping
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /shipping/7:
+    post:
+      tags:
+        - Shipping
+      summary: store
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /product/8/create:
+    post:
+      tags:
+        - products
+      summary: product width variation
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /product/delete/16:
+    delete:
+      tags:
+        - products
+      summary: delete
+      responses:
+        "200":
+          description: successful operation
+  /product/update/4:
+    put:
+      tags:
+        - products
+      summary: update
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /products:
+    get:
+      tags:
+        - products
+      summary: list
+      responses:
+        "200":
+          description: successful operation
+    post:
+      tags:
+        - wirecard
+      summary: autentication
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  "https://connect-sandbox.moip.com.br/oauth/authorize":
+    get:
+      tags:
+        - wirecard
+      summary: authorize
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  "https://sandbox.moip.com.br/v2/accounts/MPA-E49A5C47E390":
+    get:
+      tags:
+        - wirecard
+      summary: consult
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  "https://sandbox.moip.com.br/v2/accounts/exists?tax_document=418.910.348-98":
+    get:
+      tags:
+        - wirecard
+      summary: check email
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  "https://sandbox.moip.com.br/v2/channels":
+    post:
+      tags:
+        - wirecard
+      summary: criar app
+      consumes:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  /moipclientlist:
+    get:
+      tags:
+        - wirecard
+      summary: listClients
+      responses:
+        "200":
+          description: successful operation
+  /cart/add/9:
+    put:
+      tags:
+        - Cart
+      summary: add product
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /cart/consult/1:
+    get:
+      tags:
+        - Cart
+      summary: consult
+      responses:
+        "200":
+          description: successful operation
+  /cart/list:
+    get:
+      tags:
+        - Cart
+      summary: list
+      responses:
+        "200":
+          description: successful operation
+  /cart/listall:
+    get:
+      tags:
+        - Cart
+      summary: list all
+      responses:
+        "200":
+          description: successful operation
+  /cart/remove/1:
+    delete:
+      tags:
+        - Cart
+      summary: delete product
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /store:
+    post:
+      tags:
+        - Stores
+      summary: Criar nova loja
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/store"
+      responses:
+        "200":
+          description: Sucesso!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/storeData"
+    get:
+      tags:
+        - Stores
+      summary: Listar loja
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Sucesso!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/storeData"
+  /store/{store_id}:
+    delete:
+      tags:
+        - Stores
+      summary: Excluir Loja
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: ID da loja que deseja excluir
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+    put:
+      tags:
+        - Stores
+      summary: Atualizar dados da loja (Nenhum campo é obrigatório)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: ID da loja que deseja excluir
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/store"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/storeData"
+  /order/36:
+    delete:
+      tags:
+        - pedidos
+      summary: destroy
+      responses:
+        "200":
+          description: successful operation
+  /order/cancel/38:
+    put:
+      tags:
+        - pedidos
+      summary: cancel
+      parameters:
+        - name: "resource  "
+          in: path
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  /order:
+    post:
+      tags:
+        - pedidos
+      summary: Criar pedido
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+                - quantity
+                - shipping
+              properties:
+                product_id:
+                  type: integer
+                  description: ID do produto que deseja fazer o pedido
+                  example: 10
+                product_variation:
+                  type: integer
+                  description: (Opcional) caso o produto tenha variação deve informar qual variação do produto deseja comprar
+                  example: 2
+                quantity:
+                  type: integer
+                  description: Quantidade do produto que deseja comprar
+                  example: 8
+                shipping:
+                  type: string
+                  description: Tipo de frete (PAC, SEDEX)
+                  example: SEDEX
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/orderData"
+  /order/35:
+    get:
+      tags:
+        - pedidos
+      summary: view
+      parameters:
+        - name: resource
+          in: path
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  /adm/11:
+    get:
+      tags:
+        - pedidos
+      summary: adm filter
+      parameters:
+        - name: resource
+          in: path
+          type: string
+          description: ""
+          required: true
+      responses:
+        "200":
+          description: successful operation
+  /forgot:
+    post:
+      tags:
+        - Login
+      summary: forgot
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /reset_password:
+    post:
+      tags:
+        - Login
+      summary: reset
+      consumes:
+        - application/json
+      parameters: null
+      responses:
+        "200":
+          description: successful operation
+  /sessions:
+    post:
+      tags:
+        - Login
+      summary: Login
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: |
+            Parameters in body request
+          required: true
+          schema:
+            $ref: "#/definitions/bodyCategory"
+      responses:
+        "200":
+          description: successful operation
+  #Categorias
+  "/category/{caregory_id}/{product_id}":
+    put:
+      tags:
+        - Categories
+      summary: Cadastrar produto na Categoria
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caregory_id
+          in: path
+          required: true
+          description: ID da categoria ao qual pretende inserir o produto
+          schema:
+            type: integer
+        - name: product_id
+          in: path
+          required: true
+          description: ID do produto ao qual a categoria pertence
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/bodyCategory"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application-json:
+              schema:
+                $ref: "#/components/schemas/responseCategory"
+  "/category/{store_id}":
+    post:
+      tags:
+        - Categories
+      summary: Criar nova Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: ID da loja ao qual a categoria pertence
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/bodyCategory"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application-json:
+              schema:
+                $ref: "#/components/schemas/responseCategory"
+  "/category/{slug}":
+    get:
+      tags:
+        - Categories
+      summary: Listar todas as categorias a partir do Slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: slug da categoria
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application-json:
+              schema:
+                $ref: "#/components/schemas/responseCategory"
+  /category:
+    get:
+      tags:
+        - Categories
+      summary: Listar todas as categorias
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application-json:
+              schema:
+                $ref: "#/components/schemas/responseCategory"
+  /image/upload:
+    post:
+      tags:
+        - Images
+      operationId: uploadNewFile
+      summary: "Upload de imagens"
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+        required: true
+      responses:
+        "201":
+          description: "File uploaded."
+          content:
+            application-json:
+              schema:
+                $ref: "#/components/schemas/imageData"
+  /image/{id}:
+    delete:
+      tags:
+        - Images
+      summary: Deleta uma imagem do
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: id da imagem
+      responses:
+        "200":
+          description: successful operation
+  /client:
+    post:
+      tags:
+        - Clients
+      summary: Criar um novo cliente
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/clientCreateData"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/clientCreate"
+    get:
+      tags:
+        - Clients
+      summary: Lista informações do cliente referente ao token
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/findClient"
+  /client/disable/{client_id}:
+    put:
+      tags:
+        - Clients
+      summary: desabilitar um cliente
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: id do cliente
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: successful operation
+  /client/enable/{client_id}:
+    put:
+      tags:
+        - Clients
+      summary: habilitar um cliente
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: id do cliente
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: successful operation
+  /client/forgot:
+    post:
+      tags:
+        - Clients
+      summary: Requisitar troca de senha (O cliente recebe um e-mail com um token para recuperação de senha)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/forgot"
+      responses:
+        "200":
+          description: successful operation
+        "400":
+          description: e-mail ou cliente não encontrado
+  /client/image:
+    post:
+      tags:
+        - Clients
+      summary: Inserir avatar no cliente
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data: # Media type
+            schema: # Request payload
+              type: object
+              properties: # Request parts
+                file: # Part 3 (an image)
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: successful operation
+  /fb-login:
+    post:
+      tags:
+        - Clients
+      summary: login-fb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                  description: Token de acesso fornecido pelo facebook
+                  example: EAALBJ2llJQEBAHCdFsno8ulMkcDUg0ZBkCYCsh87k4NVE48PsnkCB4hNUWpcZAwpNnXVSnKqnl98eESH51BOW6oZAgMhAJpvchnAA6y0VcfnNM0PZAZAPH0v4Hm9ZCbQuteiv47ftCcVe2aR6XcfToCR4lQ5cZBQb6XMQfSrKsBCFNHK2a9DLSqGWhOrTLlD3yZAL3aFGoQImwZDZD
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client:
+                    $ref: "#/components/schemas/clientCreateData"
+                  token:
+                    $ref: "#/components/schemas/token"
+  /sessions/client:
+    post:
+      tags:
+        - Clients
+      summary: Login de cliente
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/clientLogin"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client:
+                    $ref: "#/components/schemas/clientCreateData"
+                  token:
+                    $ref: "#/components/schemas/token"
+
+components:
+  schemas:
+    orderResume:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID do pedido no sistema
+          example: 109
+        value:
+          type: integer
+          description: Valor do pedido no sistema
+          example: 1927.6
+        discount:
+          type: integer
+          description: Valor de desconto do pedido no sistema
+          example: 0
+        status:
+          type: string
+          description: Status do pedido no sistema
+          example: pagamento_pendente
+        total:
+          type: integer
+          description: Valor total do pedido no sistema
+          example: 1927.6
+        order:
+          type: string
+          description: ID do pedido no wirecad
+          example: ORD-QPC4H0TYL9S4
+        createdAt:
+          type: string
+          description: Data de criação do pedido no sistema
+          example: "2020-05-14T02:37:55.398Z"
+        updatedAt:
+          type: string
+          description: Data de edição do pedido no sistema
+          example: "2020-05-14T02:37:56.279Z"
+        store_id:
+          type: integer
+          description: ID da loja ao qual o produto pertence
+          example: 23
+        coupon_id:
+          type: integer
+          description: ID do cupom de desconto usado no pedido no sistema
+          example: null
+        client_id:
+          type: integer
+          description: ID do cliente que fez o pedido no sistema
+          example: 47
+        cart_id:
+          type: integer
+          description: ID do carrinho para futura implementação no sistema
+          example: null
+    itenswirecard:
+      type: object
+      properties:
+        product:
+          type: string
+          description: Nome do produto comprado
+          example: "Primeiro produto de testes"
+        detail:
+          type: string
+          description: Descrição do produto comprado
+          example: "Este é meu primeiro produto de testes"
+        quantity:
+          type: integer
+          description: Quantidade comprada do produto comprado
+          example: 8
+        price:
+          type: integer
+          description: Valor unitário do produto comprado
+          example: 24095
+    wirecard:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID do pedido no wirecard
+          example: "ORD-QPC4H0TYL9S4"
+        ownId:
+          type: string
+          description: ownId do pedido no wirecard
+          example: "MPA-6B8E3EC8BF92"
+        status:
+          type: string
+          description: status do pedido no wirecard
+          example: "CREATED"
+        platform:
+          type: string
+          description: platforma em que o pedido foi criado no wirecard
+          example: "V2"
+        createdAt:
+          type: string
+          description: Data de criação do pedido no wirecard
+          example: "2020-05-13T23:37:56.030-03"
+        updatedAt:
+          type: string
+          description: Data de modificação do pedido no wirecard
+          example: "2020-05-13T23:37:56.030-03"
+        amount:
+          type: object
+          description: Valores do pedido no wirecard
+          properties:
+            paid:
+              type: integer
+              description: "Valor total do pedido, em centavos. Ex: R$10,32 deve ser informado 1032."
+              example: 0
+            total:
+              type: integer
+              description: "Valor total do pedido, em centavos. Ex: R$10,32 deve ser informado 1032."
+              example: 194260
+            fees:
+              type: integer
+              description: "Valor total de tarifa Wirecard."
+              example: 0
+            refunds:
+              type: integer
+              description: "Valor total de reembolsos."
+              example: 0
+            liquid:
+              type: integer
+              description: "Valor total liquido."
+              example: 0
+            otherReceivers:
+              type: integer
+              description: "Soma de valores recebidos por outros recebedores. Usado em Marketplaces."
+              example: 0
+            currency":
+              type: string
+              description: "Valor total do pedido, em centavos. Ex: R$10,32 deve ser informado 1032."
+              example: BRL
+            subtotals:
+              type: object
+              description: Estrutura de valores adicionais do pedido.
+              properties:
+                shipping:
+                  type: integer
+                  description: Valor do frete
+                  example: 1500
+                addition:
+                  type: integer
+                  example: 0
+                  description: Valores adicionais
+                discount:
+                  type: integer
+                  example: 0
+                  description: Valor de desconto
+                items:
+                  type: integer
+                  example: 192760
+                  description: Valor dos itens
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/itenswirecard"
+    shippig:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID do pedido de frete criado no pedido
+          example: 1
+        order_id:
+          type: integer
+          description: ID do pedito ao qual este frete pertence
+          example: 2
+        store_id:
+          type: integer
+          description: ID da loja ao qual o pedido está relacionado
+          example: 2
+        client_id:
+          type: integer
+          description: ID do cliente ao qual o pedido está relacionado
+          example: 2
+        product_id:
+          type: integer
+          description: ID do produto ao qual o pedido está relacionado
+          example: 2
+        code:
+          type: string
+          description: ID do pedido na plataforma Melhor envio
+          example: "e9d27fd9-86b8-4a1f-ad11-99e6d8c15bf7"
+        companyName:
+          type: string
+          description: Empresa que realizará o frete
+          example: "Correios"
+        companyCode:
+          type: string
+          description: ID da empresa que realizará o frete
+          example: "2"
+        price:
+          type: string
+          description: Valor do frete
+          example: "84.13"
+        deliveryRangeMin:
+          type: string
+          description: Prazo minimo para entrega á partir da data de postagem
+          example: "4"
+        deliveryRangeMax:
+          type: string
+          description: Prazo maximo para entrega á partir da data de postagem
+          example: "6"
+        dimensionsHeight:
+          type: string
+          description: Altura do produto que será enviado
+          example: "8"
+        dimensionsWidth:
+          type: string
+          description: Largura do produto que será enviado
+          example: "13"
+        dimensionsLength:
+          type: string
+          description: Comprimento do produto que será enviado
+          example: "29"
+        dimensionsWeight:
+          type: string
+          description: Peso do produto que será enviado
+          example: "20"
+        insuranceValue:
+          type: string
+          description: Valor de seguro de extravio do produto que será enviado
+          example: "2047.2"
+        format:
+          type: string
+          description: Formato do pacote que será enviado
+          example: "box"
+        variation_id:
+          type: integer
+          description: ID de variação caso compre uma variação de um produto
+          example: 2,
+        updatedAt:
+          type: string
+          description: Formato do pacote que será enviado
+          example: "2020-05-14T02:37:55.428Z"
+        createdAt:
+          type: string
+          description: Formato do pacote que será enviado
+          example: "2020-05-14T02:37:55.428Z"
+    orderData:
+      type: object
+      properties:
+        order:
+          $ref: "#/components/schemas/orderResume"
+        wirecad:
+          $ref: "#/components/schemas/wirecard"
+        shippig:
+          $ref: "#/components/schemas/shippig"
+    managerList:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID da loja criada
+          example: 1
+        user_id:
+          type: integer
+          description: ID da loja criada
+          example: 1
+        storeName:
+          type: string
+          description: Nome da loja
+          example: Store Example
+        name:
+          type: string
+          description: Nome do proprietário da loja
+          example: Carlos
+        last_name:
+          type: string
+          description: Sobrenome do proprierário da loja
+          example: Paula Souza
+        email:
+          type: string
+          description: E-mail da loja
+          example: example@mydomain.com
+        phone:
+          type: string
+          description: Telefone da loja
+          example: (99) 9999-9999
+        cell:
+          type: string
+          description: Número do celular
+          example: (99) 99999-9999
+        url:
+          type: string
+          description: URL da loja
+          example: http://www.mystore.com.br
+        street:
+          type: string
+          description: Nome da Rua
+          example: Rua da Paz
+        number:
+          type: integer
+          description: Numero da residencia do proprierário da loja criada
+          example: 25
+        district:
+          type: string
+          description: Bairro
+          example: Santa efigenia
+        city:
+          type: string
+          description: Cidade
+          example: São Paulo
+        state:
+          type: string
+          description: Estado
+          example: SP
+        country:
+          type: string
+          description: Sigla do país
+          example: BRL
+        country_code:
+          type: string
+          description: Código do país
+          example: "99"
+        zipcode:
+          type: string
+          description: CEP do proprierário da loja
+          example: 99999-999
+        cpf:
+          type: string
+          description: CPF do proprietário da loja
+          example: 999.999.999-99
+        rg:
+          type: string
+          description: Número do RG do proprietário da loja
+          example: "999999999"
+        issuer:
+          type: string
+          description: Orgão emissor
+          example: SSP
+        issueDate:
+          type: string
+          description: Data de expedição do RG do proprietário da loja
+          example: "2019-09-04"
+        birthDate:
+          type: string
+          description: Data de nascimento do proprietário da loja
+          example: "1992-09-02"
+        wirecardId:
+          type: string
+          description: ID da conta Wirecard pertencente a loja
+          example: MPA-6B8E3EC8BF92"
+        createdAt:
+          type: string
+          description: Data de criação da loja
+          example: "2020-05-13T21:25:14.512Z"
+        updatedAt:
+          type: string
+          description: Data de edição da loja
+          example: "2020-05-13T21:25:14.512Z"
+        managers:
+          type: array
+          items:
+            $ref: "#/components/schemas/managerData"
+    store:
+      type: object
+      required:
+        - storeName
+        - name
+        - last_name
+        - email
+        - phone
+        - cell
+        - url
+        - street
+        - number
+        - district
+        - city
+        - state
+        - country
+        - country_code
+        - zipcode
+        - cpf
+        - rg
+        - issuer
+        - issueDate
+        - birthDate
+      properties:
+        storeName:
+          type: string
+          description: Nome da loja
+          example: Store Example
+        name:
+          type: string
+          description: Nome do proprietário da loja
+          example: Carlos
+        last_name:
+          type: string
+          description: Sobrenome do proprierário da loja
+          example: Paula Souza
+        email:
+          type: string
+          description: E-mail da loja
+          example: example@mydomain.com
+        phone:
+          type: string
+          description: Telefone da loja
+          example: (99) 9999-9999
+        cell:
+          type: string
+          description: Número do celular
+          example: (99) 99999-9999
+        url:
+          type: string
+          description: URL da loja
+          example: http://www.mystore.com.br
+        street:
+          type: string
+          description: Nome da Rua
+          example: Rua da Paz
+        number:
+          type: integer
+          description: Numero da residencia do proprierário da loja criada
+          example: 25
+        district:
+          type: string
+          description: Bairro
+          example: Santa efigenia
+        city:
+          type: string
+          description: Cidade
+          example: São Paulo
+        state:
+          type: string
+          description: Estado
+          example: SP
+        country:
+          type: string
+          description: Sigla do país
+          example: BRL
+        country_code:
+          type: string
+          description: Código do país
+          example: "99"
+        zipcode:
+          type: string
+          description: CEP do proprierário da loja
+          example: 99999-999
+        cpf:
+          type: string
+          description: CPF do proprietário da loja
+          example: 999.999.999-99
+        rg:
+          type: string
+          description: Número do RG do proprietário da loja
+          example: "999999999"
+        issuer:
+          type: string
+          description: Orgão emissor
+          example: SSP
+        issueDate:
+          type: string
+          description: Data de expedição do RG do proprietário da loja
+          example: "2019-09-04"
+        birthDate:
+          type: string
+          description: Data de nascimento do proprietário da loja
+          example: "1992-09-02"
+    storeData:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID da loja criada
+          example: 1
+        user_id:
+          type: integer
+          description: ID da loja criada
+          example: 1
+        storeName:
+          type: string
+          description: Nome da loja
+          example: Store Example
+        name:
+          type: string
+          description: Nome do proprietário da loja
+          example: Carlos
+        last_name:
+          type: string
+          description: Sobrenome do proprierário da loja
+          example: Paula Souza
+        email:
+          type: string
+          description: E-mail da loja
+          example: example@mydomain.com
+        phone:
+          type: string
+          description: Telefone da loja
+          example: (99) 9999-9999
+        cell:
+          type: string
+          description: Número do celular
+          example: (99) 99999-9999
+        url:
+          type: string
+          description: URL da loja
+          example: http://www.mystore.com.br
+        street:
+          type: string
+          description: Nome da Rua
+          example: Rua da Paz
+        number:
+          type: integer
+          description: Numero da residencia do proprierário da loja criada
+          example: 25
+        district:
+          type: string
+          description: Bairro
+          example: Santa efigenia
+        city:
+          type: string
+          description: Cidade
+          example: São Paulo
+        state:
+          type: string
+          description: Estado
+          example: SP
+        country:
+          type: string
+          description: Sigla do país
+          example: BRL
+        country_code:
+          type: string
+          description: Código do país
+          example: "99"
+        zipcode:
+          type: string
+          description: CEP do proprierário da loja
+          example: 99999-999
+        cpf:
+          type: string
+          description: CPF do proprietário da loja
+          example: 999.999.999-99
+        rg:
+          type: string
+          description: Número do RG do proprietário da loja
+          example: "999999999"
+        issuer:
+          type: string
+          description: Orgão emissor
+          example: SSP
+        issueDate:
+          type: string
+          description: Data de expedição do RG do proprietário da loja
+          example: "2019-09-04"
+        birthDate:
+          type: string
+          description: Data de nascimento do proprietário da loja
+          example: "1992-09-02"
+        wirecardId:
+          type: string
+          description: ID da conta Wirecard pertencente a loja
+          example: MPA-6B8E3EC8BF92"
+        createdAt:
+          type: string
+          description: Data de criação da loja
+          example: "2020-05-13T21:25:14.512Z"
+        updatedAt:
+          type: string
+          description: Data de edição da loja
+          example: "2020-05-13T21:25:14.512Z"
+    managerData:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Id do Administrador criado
+          example: 10
+        store_id:
+          type: integer
+          description: ID da loja ao qual o administrador se cadastrou
+          example: 10
+        email:
+          type: string
+          description: e-mail do administrador criado
+          example: example@email.com
+        name:
+          type: string
+          description: Nome do administrador criado
+          example: José de abreu
+        phone:
+          type: string
+          description: Telefone do administrador criado
+          example: (14) 9999-9999
+        cell:
+          type: string
+          description: Celular do administrador criado
+          example: (99) 99999-9999
+        cpf:
+          type: string
+          description: CPF do administrador criado
+          example: 000.000.000-00
+        address:
+          type: string
+          description: Endereço do administrador criado
+          example: Rua example de almeida, 99
+        zipcode:
+          type: string
+          description: CEP do administrador criado
+          example: 00000-000
+        city:
+          type: string
+          description: Cidade do administrador criado
+          example: São Paulo
+        state:
+          type: string
+          description: Estado do administrador criado
+          example: SP
+        createdAt:
+          type: string
+          description: Data de criação do administrador
+          example: "2020-05-01T17:06:28.584Z"
+        updatedAt:
+          type: string
+          description: Data de edição do administrador
+          example: "2020-05-01T17:06:28.584Z"
+    manager:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nome do administrador de lojas
+          example: "Rogerio santos"
+        cpf:
+          type: number
+          description: CPF do administrador de lojas
+          example: 41891034898
+        phone:
+          type: string
+          description: Telefone do administrador de lojas
+          example: "(14) 99731-6860"
+        address:
+          type: string
+          description: Endereço do administrador de lojas
+          example: "Conjunto Habitacional Nossa Senhora A.P 3"
+        zipcode:
+          type: string
+          description: CEP do administrador de lojas
+          example: 16480100
+        city:
+          type: string
+          description: Cidade do administrador de lojas
+          example: "Guaimbê"
+        state:
+          type: string
+          description: Estado do administrador de lojas
+          example: "São Paulo"
+        type:
+          type: string
+          description: Tipo de administrador
+          example: "Valores possíveis (storeManager, storeAdmin)"
+    clientLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          description: e-mail de login do cliente
+          example: email@example.com
+        password:
+          type: string
+          description: senha do cliente
+          example: "$#MyPassword"
+    token:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Bearer Token de acesso
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzEsIm5hbWUiOiJSb2dlcmlvIiwiaWF0IjoxNTg5Mzc4MzQ3fQ.SYQGK4ugZ1R6-jAJRQ3PIWvgeFs0MdNDViD7tyzpur4"
+    forgot:
+      type: object
+      properties:
+        email:
+          description: e-mail do cliente que perdeu a senha
+          type: string
+          example: example@email.com
+    findClient:
+      type: object
+      properties:
+        id:
+          description: "id do cliente"
+          type: integer
+          example: 10
+        email:
+          description: "e-mail do cliente"
+          type: string
+          example: example@email.com
+        name:
+          description: "Nome do cliente"
+          type: string
+          example: serfati
+        surname:
+          description: "Sobrenome do cliente"
+          type: string
+          example: abreu de matos
+        birthDate:
+          description: "Data de aniverssário do cliente"
+          type: string
+          example: "2019-09-02"
+        cpf:
+          description: "CPF do cliente"
+          type: string
+          example: "41891034898"
+        countryCode:
+          description: "Código do país"
+          type: string
+          example: "55"
+        phoneNumber:
+          description: "Número de telefone"
+          type: string
+          example: "(14) 99731-6860"
+        street:
+          description: "Nome da rua"
+          type: string
+          example: "Joaquin Fernandez Meira"
+        streetNumber:
+          description: "Numero da casa"
+          type: string
+          example: "14"
+        complement:
+          description: "Complemento"
+          type: string
+          example: null
+        district:
+          description: "Bairro"
+          type: string
+          example: "Conjunto Habitacional Nossa Senhora Aparecida"
+        city:
+          description: "Cidade"
+          type: string
+          example: "Guaimbê"
+        state:
+          description: "Estado"
+          type: string
+          example: "SP"
+        country:
+          description: "Siglas do país"
+          type: string
+          example: "BRA"
+        zipCode:
+          description: "Código postal"
+          type: string
+          example: "16480100"
+        active:
+          description: "Se o cliente se encontra ativo"
+          type: boolean
+          example: true
+        wireId:
+          description: "Id da conta wirecad"
+          type: string
+          example: "CUS-MN1AHLQAZ4RZ"
+        ownId:
+          description: "ownId da conta Wirecard"
+          type: string
+          example: "WEC-31"
+        createdAt:
+          description: "Data de criação do cliente"
+          type: string
+          example: "2020-05-13T13:59:07.412Z"
+        updatedAt:
+          description: "Data de edição do cliente"
+          type: string
+          example: "2020-05-13T13:59:07.592Z"
+        image_id:
+          description: "Id da imagem de avatar do cliente"
+          type: integer
+          example: 11
+        delivery_addresses:
+          description: "Endereços de entrega cadastrados neste cliente"
+          type: array
+          items:
+            $ref: "#/components/schemas/delivery_addresses"
+    deliveryCreate:
+      type: object
+      properties:
+        name:
+          description: "Nome do cliente"
+          type: string
+          example: "Amarildo santos"
+        cpf:
+          description: "Número do cpf"
+          type: string
+          example: "041.892.570-44"
+        phone:
+          description: "Número de telefone para contato"
+          type: string
+          example: "(14) 99731-6860"
+        street:
+          description: "Nome da rua"
+          type: string
+          example: "Joaquin Fernandez Meira"
+        number:
+          description: "número da casa"
+          type: integer
+          example: 14
+        address:
+          description: "Nome do bairro"
+          type: string
+          example: "Conjunto Habitacional Nossa Senhora A.P 3"
+        zipcode:
+          description: "Código postal"
+          type: string
+          example: "16480100"
+        city:
+          description: "Nome da cidade"
+          type: string
+          example: "Guaimbê"
+        state:
+          description: "Siglas do Estado"
+          type: string
+          example: "SP"
+        receiver_name:
+          description: "Nome de quem receberá a entrega"
+          type: string
+          example: "Rogério Bonfim"
+        address_type:
+          description: "Tipo de endereço"
+          type: string
+          example: "Residencial"
+        additional_information:
+          description: "Informação adicional"
+          type: string
+          example: "Endereço de testes"
+        delivery_instructions:
+          description: "Instruções de entrega"
+          type: string
+          example: "Pular o muro para entrar"
+        delivery_number:
+          description: "numero do apartamento (Caso seja prédio)"
+          type: integer
+          example: 14
+    delivery_addresses:
+      type: object
+      properties:
+        id:
+          description: "id do Endereço de entrega"
+          type: integer
+          example: 22
+        name:
+          description: "Nome do cliente"
+          type: string
+          example: "Amarildo santos"
+        cpf:
+          description: "Número do cpf"
+          type: string
+          example: "041.892.570-44"
+        phone:
+          description: "Número de telefone para contato"
+          type: string
+          example: "(14) 99731-6860"
+        street:
+          description: "Nome da rua"
+          type: string
+          example: "Joaquin Fernandez Meira"
+        number:
+          description: "número da casa"
+          type: integer
+          example: 14
+        address:
+          description: "Nome do bairro"
+          type: string
+          example: "Conjunto Habitacional Nossa Senhora A.P 3"
+        zipcode:
+          description: "Código postal"
+          type: string
+          example: "16480100"
+        city:
+          description: "Nome da cidade"
+          type: string
+          example: "Guaimbê"
+        state:
+          description: "Siglas do Estado"
+          type: string
+          example: "SP"
+        receiver_name:
+          description: "Nome de quem receberá a entrega"
+          type: string
+          example: "Rogério Bonfim"
+        address_type:
+          description: "Tipo de endereço"
+          type: string
+          example: "Residencial"
+        additional_information:
+          description: "Informação adicional"
+          type: string
+          example: "Endereço de testes"
+        delivery_instructions:
+          description: "Instruções de entrega"
+          type: string
+          example: "Pular o muro para entrar"
+        delivery_number:
+          description: "numero do apartamento (Caso seja prédio)"
+          type: integer
+          example: 14
+        active:
+          description: "O endereço é o padrão"
+          type: boolean
+          example: true
+        createdAt:
+          description: "Data de criação do endereço"
+          type: string
+          example: "2020-05-13T02:40:42.085Z"
+        updatedAt:
+          description: "Data de modificação do endereço"
+          type: string
+          example: "2020-05-13T02:40:42.085Z"
+        client_id:
+          description: "id do cliente ao qual o endereço de entrega pertence"
+          type: integer
+          example: 47
+    clientFullData:
+      type: object
+      properties:
+        id:
+          description: "id do cliente"
+          type: integer
+          example: 10
+        email:
+          description: "e-mail do cliente"
+          type: string
+          example: example@email.com
+        name:
+          description: "Nome do cliente"
+          type: string
+          example: serfati
+        surname:
+          description: "Nome do cliente"
+          type: string
+          example: abreu de matos
+        birthDate:
+          description: "Nome do cliente"
+          type: string
+          example: abreu de matos
+        cpf:
+          description: "Nome do cliente"
+          type: string
+          example: "41891034898"
+        countryCode:
+          description: "Nome do cliente"
+          type: string
+          example: "55"
+        phoneNumber:
+          description: "Nome do cliente"
+          type: string
+          example: "(14) 99731-6860"
+        street:
+          description: "Nome do cliente"
+          type: string
+          example: "Joaquin Fernandez Meira"
+        streetNumber:
+          description: "Nome do cliente"
+          type: string
+          example: "14"
+        complement:
+          description: "Nome do cliente"
+          type: string
+          example: null
+        district:
+          description: "Nome do cliente"
+          type: string
+          example: "Conjunto Habitacional Nossa Senhora Aparecida"
+        city:
+          description: "Nome do cliente"
+          type: string
+          example: "Guaimbê"
+        state:
+          description: "Nome do cliente"
+          type: string
+          example: "SP"
+        country:
+          description: "Nome do cliente"
+          type: string
+          example: "BRA"
+        zipCode:
+          description: "Nome do cliente"
+          type: string
+          example: "16480100"
+        active:
+          description: "Nome do cliente"
+          type: string
+          example: true
+        passwordResetToken:
+          description: "Nome do cliente"
+          type: string
+          example: null
+        passwordResetExpires:
+          description: "Nome do cliente"
+          type: string
+          example: null
+        wireId:
+          description: "Nome do cliente"
+          type: string
+          example: "CUS-MN1AHLQAZ4RZ"
+        ownId:
+          description: "Nome do cliente"
+          type: string
+          example: "WEC-31"
+        createdAt:
+          description: "Nome do cliente"
+          type: string
+          example: "2020-05-13T13:59:07.412Z"
+        updatedAt:
+          description: "Nome do cliente"
+          type: string
+          example: "2020-05-13T13:59:07.592Z"
+        image_id:
+          description: "Nome do cliente"
+          type: integer
+          example: 11
+    clientCreateData:
+      type: object
+      properties:
+        id:
+          description: "id do cliente"
+          type: integer
+          example: 10
+        email:
+          description: "e-mail do cliente"
+          type: string
+          example: example@email.com
+        name:
+          description: "Nome do cliente"
+          type: string
+          example: serfati
+        surname:
+          description: "Nome do cliente"
+          type: string
+          example: abreu de matos
+        active:
+          description: "Nome do cliente"
+          type: string
+          example: true
+        createdAt:
+          description: "Nome do cliente"
+          type: string
+          example: "2020-05-13T13:59:07.412Z"
+        updatedAt:
+          description: "Nome do cliente"
+          type: string
+          example: "2020-05-13T13:59:07.592Z"
+        image_id:
+          description: "Nome do cliente"
+          type: integer
+          example: 11
+        image:
+          $ref: "#/components/schemas/imageData"
+    clientCreate:
+      type: object
+      required:
+        - name
+        - surname
+        - email
+        - password
+      properties:
+        name:
+          description: "Nome do cliente"
+          type: string
+          example: serfati
+        surname:
+          description: "Sobrenome do cliente"
+          type: string
+          example: abreu de matos
+        email:
+          description: "E-mail do cliente"
+          type: string
+          example: example@email.com
+        password:
+          description: "Senha do cliente"
+          type: string
+          example: $#MyPassword
+        image_id:
+          description: "Id da imagem de avatar do cliente"
+          type: integer
+          example: 10
+    bodyCategory:
+      required:
+        - name
+        - description
+        - accountCity
+        - slug
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        parent:
+          type: integer
+        slug:
+          type: string
+        characteristics:
+          type: string
+        address:
+          type: string
+        product_id:
+          type: integer
+        image_id:
+          type: integer
+    productData:
+      type: object
+      properties:
+        id:
+          type: integer
+        sku:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        except:
+          type: string
+        stock:
+          type: integer
+        weight:
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+        length:
+          type: number
+        price:
+          type: number
+        promotional_price:
+          type: number
+        cust_price:
+          type: number
+        brand:
+          type: string
+        model:
+          type: string
+        frete_class:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        store_id:
+          type: integer
+    imageData:
+      type: object
+      properties:
+        id:
+          description: "id da imagem"
+          type: integer
+          example: 10
+        name:
+          description: "profile.jpeg"
+          type: string
+          example: 10
+        size:
+          description: "tamanho da imagem"
+          type: string
+          example: "140859"
+        key:
+          description: "key da imagem"
+          type: string
+          example: "cb1cc7193d544d66745b201bde542a58-profile.jpeg"
+        url:
+          description: "url da imagem"
+          type: string
+          example: "https://uploadwecheckout.s3.amazonaws.com/cb1cc7193d544d66745b201bde542a58-profile.jpeg"
+        updatedAt:
+          description: "Data de edição da imagem"
+          type: string
+          example: "2020-05-01T17:06:28.584Z"
+        createdAt:
+          description: "Data de criação da imagem"
+          type: string
+          example: "2020-05-01T17:06:28.584Z"
+        image_id:
+          description: "indefinido no momento"
+          type: integer
+          example: null
+    categoryData:
+      type: object
+      properties:
+        id:
+          type: integer
+        store_id:
+          format: int32
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        parent:
+          type: integer
+        slug:
+          type: string
+        characteristics:
+          type: string
+        address:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        image_id:
+          type: integer
+        image:
+          $ref: "#/components/schemas/imageData"
+        products_category:
+          $ref: "#/components/schemas/productData"
+    responseCategory:
+      $ref: "#/components/schemas/categoryData"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
