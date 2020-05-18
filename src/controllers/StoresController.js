@@ -3,7 +3,7 @@ const User = require('../models/User')
 const Store = require('../models/Stores')
 const jwt = require('jsonwebtoken')
 const UserByToken = require('../middlewares/userByToken')
-const { createAccount, checkAccount, consultAccount } = require('../modules/payment')
+const { createAccount, checkAccount, consultAccount, getPublicKey } = require('../modules/payment')
 
 module.exports = {
     async index(req, res) {
@@ -92,6 +92,8 @@ module.exports = {
                     country,
                 })
 
+                const pKey = await getPublicKey(createWireAccount.accessToken)
+
                 const store = await Store.create({
                     nameStore,
                     name,
@@ -114,6 +116,8 @@ module.exports = {
                     country,
                     number,
                     wirecardId: createWireAccount.id,
+                    acess_token: createWireAccount.accessToken,
+                    public_key: JSON.parse(pKey).keys.encryption,
                     user_id,
                 })
                 return res.json(store)

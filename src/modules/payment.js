@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const accessToken = `8597790d032a4146b4832f49f6ff477d_v2`
+var request = require('request')
 const token = `OJTJZAMDPYN8VG4W8QVNM9TV4E33D8WA`
 const chave = `XN653LFP0Y5ZCGPMA2S3ZPQRKGPINCFGCJUPIR6X`
 const secWonId = `MPA-7900077268CA`
@@ -27,6 +28,20 @@ const axios = require('axios')
 module.exports = {
     async redirectUri(req, res) {
         res.json(req.query)
+    },
+    getPublicKey(token) {
+        return new Promise((resolve, reject) => {
+            const options = {
+                method: 'GET',
+                url: 'https://sandbox.moip.com.br/v2/keys',
+                headers: { authorization: `OAuth ${token}` },
+            }
+            request(options, function (error, response, body) {
+                if (error) return reject(error)
+
+                return resolve(response.body)
+            })
+        })
     },
     async createPayment(method, order, paymentinfos) {
         return new Promise((resolve, reject) => {
@@ -381,7 +396,7 @@ module.exports = {
 
                 const areaCode = phone.substr(1, 2)
 
-                const account = await moip.account.create({
+                const paramsC = {
                     email: {
                         address: email,
                     },
@@ -416,9 +431,11 @@ module.exports = {
                     },
                     type: 'MERCHANT',
                     transparentAccount: true,
-                })
+                }
 
-                resolve(account.body)
+                const account = await moip.account.create(paramsC)
+
+                return resolve(account.body)
             } catch (error) {
                 return reject(error)
             }

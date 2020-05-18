@@ -235,6 +235,18 @@ class Stores extends Model {
                     },
                     type: DataTypes.STRING,
                 },
+                acess_token: {
+                    type: DataTypes.STRING,
+                    unique: {
+                        msg: `This acess Token already exist`,
+                    },
+                },
+                public_key: {
+                    type: DataTypes.TEXT,
+                    unique: {
+                        msg: `This public_key already exist`,
+                    },
+                },
             },
             {
                 sequelize,

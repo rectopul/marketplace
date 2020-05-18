@@ -214,6 +214,7 @@ class Client extends Model {
         this.hasMany(models.Cart, { foreignKey: `client_id`, as: `cart` })
         this.hasMany(models.ProductsOrder, { foreignKey: 'client_id', as: 'order_map' })
         this.hasMany(models.Order, { foreignKey: 'client_id', as: 'order' })
+        this.hasMany(models.ClientCard, { foreignKey: 'client_id', as: 'cards' })
     }
 }
 

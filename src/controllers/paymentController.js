@@ -1,6 +1,7 @@
 const userByToken = require('../middlewares/userByToken')
 const Order = require('../models/Order')
 const { createPayment } = require('../modules/payment')
+const ClientCard = require('../models/ClientCard')
 
 module.exports = {
     async orderPayment(req, res) {
@@ -19,7 +20,6 @@ module.exports = {
             const orderPay = await Order.findOne({ where: { id: order, client_id }, include: { association: `store` } })
 
             if (!orderPay) return res.status(400).send({ error: `This order not exist` })
-
             //credit card
             if (method == `CREDIT_CARD`) {
                 //get order
@@ -64,11 +64,27 @@ module.exports = {
                     zipCode,
                 })
 
-                await Order.update({ status: pay.status }, { where: orderPay.id })
+                //Check se irá salvar os dados do cartão
+                if (state) {
+                    const { brand, first6, last4 } = pay.fundingInstrument.creditCard
+                    await ClientCard.create({
+                        client_id,
+                        brand,
+                        first: first6,
+                        last: last4,
+                        hash,
+                        card_id: pay.fundingInstrument.creditCard.id,
+                    })
+                }
+
+                await Order.update({ status: pay.status }, { where: { id: orderPay.id } })
 
                 const orderSend = await Order.findByPk(orderPay.id)
 
-                return res.json(orderSend)
+                return res.json({
+                    order: orderSend,
+                    payment: pay,
+                })
             }
         } catch (error) {
             //Validação de erros

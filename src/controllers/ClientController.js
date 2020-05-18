@@ -21,7 +21,7 @@ module.exports = {
                 attributes: {
                     exclude: [`password_hash`, `createdAt`, `updatedAt`],
                 },
-                include: [{ association: `image` }, { association: `delivery_addresses` }],
+                include: [{ association: `image` }, { association: `delivery_addresses` }, { association: `cards` }],
             })
 
             return res.json(client)
