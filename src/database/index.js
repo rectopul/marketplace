@@ -28,6 +28,7 @@ const CartProduct = require('../models/CartProduct')
 
 //Wirecard
 const ClientCard = require('../models/ClientCard')
+const Payment = require('../models/Payment')
 
 //Melhor envio
 const MelhorEnvio = require('../models/MelhorEnvio')
@@ -66,6 +67,7 @@ Shipping.init(connection)
 
 //Wirecard
 ClientCard.init(connection)
+Payment.init(connection)
 
 User.associate(connection.models)
 Manager.associate(connection.models)
@@ -95,5 +97,6 @@ Shipping.associate(connection.models)
 
 //Wirecard
 ClientCard.associate(connection.models)
+Payment.associate(connection.models)
 
 module.exports = connection

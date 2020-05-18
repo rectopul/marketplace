@@ -37,10 +37,22 @@ module.exports = {
                 headers: { authorization: `OAuth ${token}` },
             }
             request(options, function (error, response, body) {
-                if (error) return reject(error)
+                if (error) return reject({ name: `weCheckoutError`, message: error.message })
 
                 return resolve(response.body)
             })
+        })
+    },
+    async cancelPayment(paymentId) {
+        return new Promise((resolve, reject) => {
+            moip.payment
+                .preAuthorizationCancel(paymentId)
+                .then((response) => {
+                    return resolve(response)
+                })
+                .catch((err) => {
+                    return reject({ name: `weCheckoutError`, message: err.message })
+                })
         })
     },
     async createPayment(method, order, paymentinfos) {

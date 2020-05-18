@@ -104,6 +104,7 @@ routes.put(`/client`, ClientController.update)
 
 //pagamento
 routes.post(`/payment/:method`, paymentController.orderPayment)
+routes.delete(`/payment/:order_id`, paymentController.cancel)
 
 //Images
 routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)

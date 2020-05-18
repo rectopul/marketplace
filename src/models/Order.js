@@ -63,6 +63,7 @@ class Order extends Model {
         this.belongsTo(models.Cart, { foreignKey: 'cart_id', as: 'cart' })
         this.hasMany(models.ProductsOrder, { foreignKey: 'order_id', as: 'products_order' })
         this.hasMany(models.OrderDelivery, { foreignKey: 'order_id', as: 'order_delivery' })
+        this.hasMany(models.Payment, { foreignKey: 'order_id', as: 'payment' })
     }
 }
 
