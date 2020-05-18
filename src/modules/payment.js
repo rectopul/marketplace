@@ -31,10 +31,10 @@ module.exports = {
     async createPayment(method, order, paymentinfos) {
         return new Promise((resolve, reject) => {
             let params = {}
-            const { order } = paymentinfos
             if (method == `CREDIT_CARD`) {
                 const {
                     installmentCount,
+                    statementDescriptor,
                     hash,
                     store,
                     fullname,
@@ -54,7 +54,7 @@ module.exports = {
 
                 params = {
                     installmentCount,
-                    statementDescriptor,
+                    statementDescriptor: statementDescriptor.substr(0, 12),
                     fundingInstrument: {
                         method: method,
                         creditCard: {
@@ -70,7 +70,7 @@ module.exports = {
                                 phone: {
                                     countryCode,
                                     areaCode: phone.substr(1, 2),
-                                    number: phone.substr(5, 15),
+                                    number: phone.replace('-', '').substr(5, 15),
                                 },
                                 billingAddress: {
                                     street,
@@ -86,10 +86,12 @@ module.exports = {
                         },
                     },
                 }
+
+                console.log(`Dados do cartao`, order)
             } else {
                 const { expirationDate, firstLine, secondLine, thirdLine } = paymentinfos
                 params = {
-                    statementDescriptor,
+                    statementDescriptor: statementDescriptor.substr(0, 12),
                     fundingInstrument: {
                         method,
                         boleto: {
@@ -111,7 +113,7 @@ module.exports = {
                     return resolve(response.body)
                 })
                 .catch((err) => {
-                    return reject(err)
+                    return reject({ name: `weCheckoutError`, message: err.message })
                 })
         })
     },

@@ -172,12 +172,6 @@ paths:
       tags:
         - Coupons
       summary: create
-      consumes:
-        - application/json
-      parameters:
-        - in: body
-          name: user
-          description: The user to create.
       responses:
         "200":
           description: successful operation
@@ -186,9 +180,6 @@ paths:
       tags:
         - variações
       summary: create no mapping
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -197,9 +188,6 @@ paths:
       tags:
         - Shipping
       summary: store
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -208,9 +196,6 @@ paths:
       tags:
         - products
       summary: product width variation
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -227,9 +212,6 @@ paths:
       tags:
         - products
       summary: update
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -245,70 +227,6 @@ paths:
       tags:
         - wirecard
       summary: autentication
-      parameters:
-        - name: Authorization
-          in: header
-          type: string
-          description: ""
-          required: true
-      responses:
-        "200":
-          description: successful operation
-  "https://connect-sandbox.moip.com.br/oauth/authorize":
-    get:
-      tags:
-        - wirecard
-      summary: authorize
-      parameters:
-        - name: Authorization
-          in: header
-          type: string
-          description: ""
-          required: true
-      responses:
-        "200":
-          description: successful operation
-  "https://sandbox.moip.com.br/v2/accounts/MPA-E49A5C47E390":
-    get:
-      tags:
-        - wirecard
-      summary: consult
-      parameters:
-        - name: Authorization
-          in: header
-          type: string
-          description: ""
-          required: true
-      responses:
-        "200":
-          description: successful operation
-  "https://sandbox.moip.com.br/v2/accounts/exists?tax_document=418.910.348-98":
-    get:
-      tags:
-        - wirecard
-      summary: check email
-      parameters:
-        - name: Authorization
-          in: header
-          type: string
-          description: ""
-          required: true
-      responses:
-        "200":
-          description: successful operation
-  "https://sandbox.moip.com.br/v2/channels":
-    post:
-      tags:
-        - wirecard
-      summary: criar app
-      consumes:
-        - application/json
-      parameters:
-        - name: Authorization
-          in: header
-          type: string
-          description: ""
-          required: true
       responses:
         "200":
           description: successful operation
@@ -325,9 +243,6 @@ paths:
       tags:
         - Cart
       summary: add product
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -360,9 +275,6 @@ paths:
       tags:
         - Cart
       summary: delete product
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -455,12 +367,6 @@ paths:
       tags:
         - pedidos
       summary: cancel
-      parameters:
-        - name: "resource  "
-          in: path
-          type: string
-          description: ""
-          required: true
       responses:
         "200":
           description: successful operation
@@ -507,12 +413,6 @@ paths:
       tags:
         - pedidos
       summary: view
-      parameters:
-        - name: resource
-          in: path
-          type: string
-          description: ""
-          required: true
       responses:
         "200":
           description: successful operation
@@ -521,12 +421,6 @@ paths:
       tags:
         - pedidos
       summary: adm filter
-      parameters:
-        - name: resource
-          in: path
-          type: string
-          description: ""
-          required: true
       responses:
         "200":
           description: successful operation
@@ -535,9 +429,6 @@ paths:
       tags:
         - Login
       summary: forgot
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -546,9 +437,6 @@ paths:
       tags:
         - Login
       summary: reset
-      consumes:
-        - application/json
-      parameters: null
       responses:
         "200":
           description: successful operation
@@ -557,19 +445,30 @@ paths:
       tags:
         - Login
       summary: Login
-      consumes:
-        - application/json
-      parameters:
-        - name: body
-          in: body
-          description: |
-            Parameters in body request
-          required: true
-          schema:
-            $ref: "#/definitions/bodyCategory"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  description: email de login
+                  example: example@mydomain.com
+                password:
+                  type: string
+                  description: Senha
+                  example: "$#MyPawwsor"
       responses:
         "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/token"
   #Categorias
   "/category/{caregory_id}/{product_id}":
     put:
@@ -909,6 +808,8 @@ components:
           type: integer
           description: ID do carrinho para futura implementação no sistema
           example: null
+        client:
+          $ref: "#/components/schemas/clientFullData"
     itenswirecard:
       type: object
       properties:

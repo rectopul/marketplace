@@ -41,6 +41,7 @@ const CartProduct = require('./controllers/CartProductController')
 const payment = require('./modules/payment')
 const paymentAccount = require('./controllers/WireCardController')
 const envio = require('./modules/melhorenvio')
+const paymentController = require('./controllers/paymentController')
 
 //Test de rota
 routes.get(`/`, (req, res) => {
@@ -101,6 +102,9 @@ routes.use(ClientCredentials)
 //Atualizar client
 routes.put(`/client`, ClientController.update)
 
+//pagamento
+routes.post(`/payment/:method`, paymentController.orderPayment)
+
 //Images
 routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
 routes.delete(`/image/:id`, ImageController.delete)
@@ -160,9 +164,9 @@ routes.put('/banners/:banner_id', BannersController.update)
 routes.get('/banners/:store_id/:location', BannersController.location)
 
 /* Products */
-routes.post('/product/:store_id/create', ProductController.create)
-routes.delete(`/product/delete/:product_id`, ProductController.productDelete)
-routes.put(`/product/update/:product_id`, ProductController.productUpdate)
+routes.post('/product/:store_id', ProductController.create)
+routes.delete(`/product/:product_id`, ProductController.productDelete)
+routes.put(`/product/:product_id`, ProductController.productUpdate)
 
 /* Images Products */
 routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)
