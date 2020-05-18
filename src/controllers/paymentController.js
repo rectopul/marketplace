@@ -102,6 +102,21 @@ module.exports = {
                     payment: pay,
                 })
             }
+
+            if (method == `BOLETO`) {
+                const pay = await createPayment(method, orderPay.order, {
+                    statementDescriptor: orderPay.store.nameStore,
+                })
+
+                await Order.update({ status: pay.status }, { where: { id: orderPay.id } })
+
+                const orderSend = await Order.findByPk(orderPay.id, { include: { association: `payment` } })
+
+                return res.json({
+                    order: orderSend,
+                    payment: pay,
+                })
+            }
         } catch (error) {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })

@@ -4,7 +4,7 @@ var request = require('request')
 const token = `OJTJZAMDPYN8VG4W8QVNM9TV4E33D8WA`
 const chave = `XN653LFP0Y5ZCGPMA2S3ZPQRKGPINCFGCJUPIR6X`
 const secWonId = `MPA-7900077268CA`
-const logoUri = `logoUri`
+const logoUri = `https://via.placeholder.com/200x90.png?text=Wechchout`
 const statementDescriptor = `Wecheckout - Marketplace`
 const appId = `APP-ZUEJ4DILMQHB`
 const redirectUri = `http://localhost:3333/moip`
@@ -115,18 +115,31 @@ module.exports = {
                 }
 
                 console.log(`Dados do cartao`, order)
-            } else {
-                const { expirationDate, firstLine, secondLine, thirdLine } = paymentinfos
+            } else if (method == `BOLETO`) {
+                const now = new Date()
+
+                now.setDate(now.getDate() + 10)
+                now.setMonth(now.getMonth() + 1)
+
+                console.log(`now`, now.getMonth())
+
+                console.log(
+                    `${now.getFullYear()}-${
+                        now.getMonth() < 10 ? '0' + now.getMonth() : now.getMonth()
+                    }-${now.getDate()}`
+                )
                 params = {
                     statementDescriptor: statementDescriptor.substr(0, 12),
                     fundingInstrument: {
                         method,
                         boleto: {
-                            expirationDate: expirationDate,
+                            expirationDate: `${now.getFullYear()}-${
+                                now.getMonth() < 10 ? '0' + now.getMonth() : now.getMonth()
+                            }-${now.getDate()}`,
                             instructionLines: {
-                                first: firstLine,
-                                second: secondLine,
-                                third: thirdLine,
+                                first: `Atenção,`,
+                                second: `fique atento à data de vencimento do boleto.`,
+                                third: `Pague em qualquer casa lotérica.`,
                             },
                             logoUri,
                         },
