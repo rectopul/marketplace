@@ -103,7 +103,24 @@ module.exports = {
                 })
             }
 
+            //Pagamento com boleto
             if (method == `BOLETO`) {
+                const pay = await createPayment(method, orderPay.order, {
+                    statementDescriptor: orderPay.store.nameStore,
+                })
+
+                await Order.update({ status: pay.status }, { where: { id: orderPay.id } })
+
+                const orderSend = await Order.findByPk(orderPay.id, { include: { association: `payment` } })
+
+                return res.json({
+                    order: orderSend,
+                    payment: pay,
+                })
+            }
+
+            //Débito online Somente itau
+            if (method == `DEBIT`) {
                 const pay = await createPayment(method, orderPay.order, {
                     statementDescriptor: orderPay.store.nameStore,
                 })

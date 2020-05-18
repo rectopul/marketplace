@@ -7,6 +7,7 @@ const secWonId = `MPA-7900077268CA`
 const logoUri = `https://via.placeholder.com/200x90.png?text=Wechchout`
 const statementDescriptor = `Wecheckout - Marketplace`
 const appId = `APP-ZUEJ4DILMQHB`
+const uriApp = process.env.URLAPP
 const redirectUri = `http://localhost:3333/moip`
 const chavePublica = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlDd2mDvwvPM7L6kyZrVT
@@ -121,13 +122,6 @@ module.exports = {
                 now.setDate(now.getDate() + 10)
                 now.setMonth(now.getMonth() + 1)
 
-                console.log(`now`, now.getMonth())
-
-                console.log(
-                    `${now.getFullYear()}-${
-                        now.getMonth() < 10 ? '0' + now.getMonth() : now.getMonth()
-                    }-${now.getDate()}`
-                )
                 params = {
                     statementDescriptor: statementDescriptor.substr(0, 12),
                     fundingInstrument: {
@@ -142,6 +136,24 @@ module.exports = {
                                 third: `Pague em qualquer casa lotérica.`,
                             },
                             logoUri,
+                        },
+                    },
+                }
+            } else if (method == `DEBIT`) {
+                const now = new Date()
+
+                now.setDate(now.getDate() + 10)
+                now.setMonth(now.getMonth() + 1)
+
+                params = {
+                    fundingInstrument: {
+                        method: 'ONLINE_BANK_DEBIT',
+                        onlineBankDebit: {
+                            bankNumber: '341',
+                            expirationDate: `${now.getFullYear()}-${
+                                now.getMonth() < 10 ? '0' + now.getMonth() : now.getMonth()
+                            }-${now.getDate()}`,
+                            returnUri: uriApp,
                         },
                     },
                 }
