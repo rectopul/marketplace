@@ -19,7 +19,15 @@ module.exports = {
 
             const client = await Client.findByPk(client_id, {
                 attributes: {
-                    exclude: [`password_hash`, `createdAt`, `updatedAt`],
+                    exclude: [
+                        `password_hash`,
+                        `createdAt`,
+                        `updatedAt`,
+                        `passwordResetToken`,
+                        `passwordResetExpires`,
+                        `wireId`,
+                        `ownId`,
+                    ],
                 },
                 include: [{ association: `image` }, { association: `delivery_addresses` }, { association: `cards` }],
             })
@@ -99,7 +107,7 @@ module.exports = {
 
             const getClient = await Client.findByPk(client.id, {
                 attributes: {
-                    exclude: [`password_hash`, `created_at`, `updated_at`],
+                    exclude: [`password_hash`, `passwordResetToken`, `passwordResetExpires`, `wireId`, `ownId`],
                 },
                 include: { association: `image` },
             })

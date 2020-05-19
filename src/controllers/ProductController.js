@@ -16,7 +16,7 @@ module.exports = {
                 { association: `images_product` },
                 { association: `stores` },
                 { association: `variations` },
-                { association: `product_categories_map` },
+                { association: `categories` },
             ],
         })
 
@@ -70,7 +70,7 @@ module.exports = {
                         association: `variations`,
                         include: { association: `variation_info` },
                     },
-                    { association: `product_categories_map` },
+                    { association: `categories` },
                 ],
             })
 

@@ -9,6 +9,7 @@ class Client extends Model {
             {
                 email: {
                     type: DataTypes.STRING,
+                    allowNull: false,
                     unique: {
                         msg: `This email already exist`,
                     },
@@ -23,6 +24,7 @@ class Client extends Model {
                 },
                 name: {
                     type: DataTypes.STRING,
+                    allowNull: false,
                     unique: {
                         msg: `This name already exist`,
                     },
@@ -34,6 +36,7 @@ class Client extends Model {
                 },
                 surname: {
                     type: DataTypes.STRING,
+                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The surname field cannot be empty`,
@@ -42,7 +45,6 @@ class Client extends Model {
                 },
                 birthDate: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The birthDate not empty`,
@@ -51,7 +53,6 @@ class Client extends Model {
                 },
                 cpf: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The birthDate not empty`,
@@ -64,7 +65,6 @@ class Client extends Model {
                 },
                 countryCode: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The countryCode not empty`,
@@ -77,7 +77,6 @@ class Client extends Model {
                 },
                 phoneNumber: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The phoneNumber not empty`,
@@ -90,7 +89,6 @@ class Client extends Model {
                 },
                 street: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The street not empty`,
@@ -99,7 +97,6 @@ class Client extends Model {
                 },
                 streetNumber: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The streetNumber not empty`,
@@ -111,7 +108,6 @@ class Client extends Model {
                 },
                 district: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The district not empty`,
@@ -120,7 +116,6 @@ class Client extends Model {
                 },
                 city: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The city not empty`,
@@ -129,7 +124,6 @@ class Client extends Model {
                 },
                 state: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The birthDate not empty`,
@@ -142,7 +136,6 @@ class Client extends Model {
                 },
                 country: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The birthDate not empty`,
@@ -155,7 +148,6 @@ class Client extends Model {
                 },
                 zipCode: {
                     type: DataTypes.STRING,
-                    allowNull: false,
                     validate: {
                         notEmpty: {
                             msg: `The birthDate not empty`,

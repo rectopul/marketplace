@@ -413,7 +413,8 @@ module.exports = {
                                 exclude: [
                                     `password_hash`,
                                     `passwordResetToken`,
-                                    `passwordResetExpires``wireId`,
+                                    `passwordResetExpires`,
+                                    `wireId`,
                                     `ownId`,
                                 ],
                             },
@@ -467,7 +468,8 @@ module.exports = {
                                     exclude: [
                                         `password_hash`,
                                         `passwordResetToken`,
-                                        `passwordResetExpires``wireId`,
+                                        `passwordResetExpires`,
+                                        `wireId`,
                                         `ownId`,
                                     ],
                                 },
@@ -490,7 +492,8 @@ module.exports = {
                                 exclude: [
                                     `password_hash`,
                                     `passwordResetToken`,
-                                    `passwordResetExpires``wireId`,
+                                    `passwordResetExpires`,
+                                    `wireId`,
                                     `ownId`,
                                 ],
                             },
@@ -526,7 +529,8 @@ module.exports = {
                                 exclude: [
                                     `password_hash`,
                                     `passwordResetToken`,
-                                    `passwordResetExpires``wireId`,
+                                    `passwordResetExpires`,
+                                    `wireId`,
                                     `ownId`,
                                 ],
                             },
