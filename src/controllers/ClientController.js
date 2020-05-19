@@ -68,7 +68,9 @@ module.exports = {
 
             const client = await Client.findByPk(client_id, {
                 include: { association: `image` },
-                attributes: { exclude: [`password_hash`] },
+                attributes: {
+                    exclude: [`password_hash`, `passwordResetToken`, `passwordResetExpires`, `wireId`, `ownId`, `cpf`],
+                },
             })
 
             return res.json(client)
