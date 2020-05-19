@@ -60,6 +60,9 @@ module.exports = {
                         include: [
                             {
                                 association: `client`,
+                                attributes: {
+                                    exclude: [`password_hash`, `passwordResetToken`, `passwordResetExpires`],
+                                },
                                 include: { association: `delivery_addresses` },
                             },
                             {
@@ -95,6 +98,9 @@ module.exports = {
                 include: [
                     {
                         association: `client`,
+                        attributes: {
+                            exclude: [`password_hash`, `passwordResetToken`, `passwordResetExpires`],
+                        },
                         include: { association: `delivery_addresses` },
                     },
                     {
@@ -312,6 +318,7 @@ module.exports = {
                 insuranceValue: shippingTicket.insurance_value,
                 format: shippingTicket.format,
                 variation_id,
+                status: shippingTicket.status,
             })
 
             //WIRECARD
@@ -402,7 +409,14 @@ module.exports = {
                     include: [
                         {
                             association: `client`,
-                            attributes: { exclude: [`password_hash`] },
+                            attributes: {
+                                exclude: [
+                                    `password_hash`,
+                                    `passwordResetToken`,
+                                    `passwordResetExpires``wireId`,
+                                    `ownId`,
+                                ],
+                            },
                             where: where,
                         },
                         includes,
@@ -449,7 +463,14 @@ module.exports = {
                         include: [
                             {
                                 association: `client`,
-                                attributes: { exclude: [`password_hash`] },
+                                attributes: {
+                                    exclude: [
+                                        `password_hash`,
+                                        `passwordResetToken`,
+                                        `passwordResetExpires``wireId`,
+                                        `ownId`,
+                                    ],
+                                },
                                 include: { association: `delivery_addresses` },
                             },
                             includes,
@@ -465,7 +486,14 @@ module.exports = {
                     include: [
                         {
                             association: `client`,
-                            attributes: { exclude: [`password_hash`] },
+                            attributes: {
+                                exclude: [
+                                    `password_hash`,
+                                    `passwordResetToken`,
+                                    `passwordResetExpires``wireId`,
+                                    `ownId`,
+                                ],
+                            },
                             include: { association: `delivery_addresses` },
                         },
                         includes,
@@ -494,7 +522,14 @@ module.exports = {
                     include: [
                         {
                             association: `client`,
-                            attributes: { exclude: [`password_hash`] },
+                            attributes: {
+                                exclude: [
+                                    `password_hash`,
+                                    `passwordResetToken`,
+                                    `passwordResetExpires``wireId`,
+                                    `ownId`,
+                                ],
+                            },
                             include: { association: `delivery_addresses` },
                         },
                         includes,
@@ -511,7 +546,9 @@ module.exports = {
                 include: [
                     {
                         association: `client`,
-                        attributes: { exclude: [`password_hash`] },
+                        attributes: {
+                            exclude: [`password_hash`, `passwordResetToken`, `passwordResetExpires`, `wireId`, `ownId`],
+                        },
                         include: { association: `delivery_addresses` },
                     },
                     includes,

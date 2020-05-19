@@ -4,6 +4,8 @@ const userByToken = require('../middlewares/userByToken')
 const Client = require('../models/Client')
 const Order = require('../models/Order')
 const OderDelivery = require('../models/OrderDelivery')
+const Shipping = require('../models/Shipping')
+const Store = require('../models/Stores')
 
 module.exports = {
     async index(req, res) {
@@ -29,7 +31,8 @@ module.exports = {
 
             //console.log(`Produto: `, client)
 
-            if (!client || !client.delivery_addresses) return res.status(400).send({ error: `Customer has no shipping address` })
+            if (!client || !client.delivery_addresses)
+                return res.status(400).send({ error: `Customer has no shipping address` })
 
             const sigep = await Sigep('calc')
 
@@ -62,6 +65,78 @@ module.exports = {
             console.log(`Erro ao criar novo cliente: `, error)
 
             return res.status(500).send({ error: `Erro de servidor` })
+        }
+    },
+
+    //Listar todos os envios Apemas adm e managers
+    async list(req, res) {
+        try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await userByToken(authHeader)
+
+            const { store_id } = req.params
+
+            const { order, orderby, status } = req.query
+            //busca a loja
+            const store = await Store.findOne({
+                where: { id: store_id, user_id },
+            })
+
+            if (!store) return res.status(400).send({ error: `Dont have authorization for this action` })
+
+            let filter = { store_id }
+
+            if (status) filter.status = status
+
+            const filters = [
+                `code`,
+                `companyName`,
+                `companyCode`,
+                `price`,
+                `deliveryRangeMin`,
+                `deliveryRangeMax`,
+                `dimensionsHeight`,
+                `dimensionsWidth`,
+                `dimensionsLength`,
+                `dimensionsWeight`,
+                `format`,
+                `insuranceValue`,
+                `status`,
+                `createdAt`,
+                `updatedAt`,
+                `product_id`,
+                `variation_id`,
+            ]
+
+            if (order && [`ASC`, `DESC`].indexOf(order) == -1)
+                return res.status(400).send({ error: `The order parameter accepts the 'ASC' or 'DESC' values` })
+
+            if (orderby && filters.indexOf(orderby) == -1)
+                return res.status(400).send({ error: `orderby parameter does not exist` })
+
+            const envio = await Shipping.findAll({
+                where: filter,
+                order: order ? (orderby ? [[orderby, order]] : [['createdAt', order]]) : null,
+                include: [
+                    {
+                        association: `client`,
+                        attributes: [`id`, `email`, `name`, `surname`, `active`],
+                    },
+                    {
+                        association: `product`,
+                        attributes: [`id`, `sku`, `title`, `description`, `except`, `stock`],
+                        include: { association: `images_product` },
+                    },
+                    { association: `variation`, include: { association: `image` } },
+                ],
+            })
+
+            return res.json(envio)
+        } catch (error) {
+            console.log(error)
+            return res.status(400).send({ error })
         }
     },
 
@@ -102,7 +177,8 @@ module.exports = {
 
             const client = order.client
 
-            if (!client || !client.delivery_addresses) return res.status(400).send({ error: `Customer has no shipping address` })
+            if (!client || !client.delivery_addresses)
+                return res.status(400).send({ error: `Customer has no shipping address` })
 
             const sigep = await Sigep('calc')
 

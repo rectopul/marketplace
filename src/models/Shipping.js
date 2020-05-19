@@ -163,8 +163,8 @@ class Shipping extends Model {
                         },
                     },
                 },
-                token_expires: {
-                    type: DataTypes.DATE,
+                status: {
+                    type: DataTypes.STRING,
                     validate: {
                         notEmpty: {
                             msg: `The active field cannot be empty`,

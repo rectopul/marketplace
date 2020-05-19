@@ -317,6 +317,12 @@ class Stores extends Model {
             onDelete: 'cascade',
             hooks: true,
         })
+        this.hasMany(models.Shipping, {
+            foreignKey: 'store_id',
+            as: 'shippings',
+            onDelete: 'cascade',
+            hooks: true,
+        })
     }
 }
 

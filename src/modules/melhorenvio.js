@@ -10,7 +10,10 @@ const mToken = process.env.MELHORENVIO_TOKEN
 const mRefeshToken = process.env.MELHORENVIO_RTOKEN
 
 const User = require('../models/User')
+const Store = require('../models/Stores')
+const Shipping = require('../models/Shipping')
 const Client = require('../models/Client')
+const Order = require('../models/Order')
 const Product = require('../models/Product')
 const userByToken = require('../middlewares/userByToken')
 const MelhorEnvio = require('../models/MelhorEnvio')
@@ -18,6 +21,193 @@ const MelhorEnvio = require('../models/MelhorEnvio')
 const mailer = require('./mailer')
 
 module.exports = {
+    //Gerar Etiquetas
+    generateShippings(user_id, order_id) {
+        return new Promise(async (resolve, reject) => {})
+    },
+    //comprar fretes
+    buyShippings(user_id, order_id) {
+        return new Promise(async (resolve, reject) => {
+            //Buscar etiqueta por pedido
+            const ticket = await Shipping.findOne({ where: { order_id } })
+
+            //Get token by store
+            const user = await User.findByPk(user_id, { include: { association: `melhorEnvio` } })
+
+            const { melhorEnvio } = user
+            //Validando integração
+            if (!melhorEnvio.length)
+                return reject({
+                    name: `bestSubmissionError`,
+                    message: `Usuário não integrado ao melhor envio`,
+                })
+
+            const { token } = melhorEnvio[0]
+
+            const { code } = ticket
+
+            var options = {
+                method: 'POST',
+                url: `${url}/api/v2/me/shipment/checkout`,
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ orders: [code] }),
+            }
+            request(options, (error, response) => {
+                if (error)
+                    return reject({
+                        name: `bestSubmissionError`,
+                        message: `Usuário não integrado ao melhor envio`,
+                    })
+                return resolve(response.body)
+            })
+        })
+    },
+    //Cancelar etiqueta
+    cancelTicket(user_id, order_id) {
+        return new Promise(async (resolve, reject) => {
+            //Buscar etiqueta por pedido
+            const ticket = await Shipping.findOne({ where: { order_id } })
+
+            //Get token by store
+            const user = await User.findByPk(user_id, { include: { association: `melhorEnvio` } })
+
+            const { melhorEnvio } = user
+            //Validando integração
+            if (!melhorEnvio.length)
+                return reject({
+                    name: `bestSubmissionError`,
+                    message: `Usuário não integrado ao melhor envio`,
+                })
+
+            const { token, order } = melhorEnvio[0]
+
+            //Verificar se pode ser cancelada
+            var options1 = {
+                method: 'GET',
+                url: `${url}/api/v2/me/shipment/cancellable`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({ orders: [`${order}`] }),
+            }
+
+            request(options1, function (error, response) {
+                if (error)
+                    return reject({
+                        name: `bestSubmissionError`,
+                        message: `Usuário não integrado ao melhor envio`,
+                    })
+                return resolve(response.body)
+            })
+
+            var options = {
+                method: 'POST',
+                url: `${url}/api/v2/me/shipment/cancel`,
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    order: {
+                        id: '9af0b6fd-9ce2-46fe-afa7-5ce4f3f31149',
+                        reason_id: '2',
+                        description: 'Descrição do cancelamento',
+                    },
+                }),
+            }
+            request(options, function (error, response) {
+                if (error)
+                    return reject({
+                        name: `bestSubmissionError`,
+                        message: `Usuário não integrado ao melhor envio`,
+                    })
+                return resolve(response.body)
+            })
+        })
+    },
+    //Consultar uma pedido de etiqueta
+    getTicket(ticket_id) {
+        return new Promise(async (resolve, reject) => {
+            const shipping = await Shipping.findByPk(ticket_id, { include: { association: `store` } })
+
+            //Check se a etiqueta existe
+            if (!shipping) return reject({ name: `bestSubmissionError`, message: `Ticket não existe` })
+
+            //Buscar token pela loja
+            const store = await Store.findByPk(shipping.store.id, {
+                include: { association: `user`, include: { association: `melhorEnvio` } },
+            })
+
+            //check integração
+            if (!store.user.melhorEnvio.length)
+                return reject({ name: `bestSubmissionError`, message: `Usuário não integrado` })
+
+            //Token de acesso
+            const { token } = store.user.melhorEnvio[0]
+
+            //Código da etiqueta
+            const { code } = shipping
+
+            var options = {
+                method: 'GET',
+                url: `${url}/api/v2/me/cart/${code}`,
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+
+            request(options, function (error, response) {
+                if (error)
+                    return reject({
+                        name: `bestSubmissionError`,
+                        message: `Usuário não integrado ao melhor envio`,
+                    })
+                return resolve(response.body)
+            })
+        })
+    },
+    //Listar todas as etiquetas
+    listTickets(user_id) {
+        return new Promise(async (resolve, reject) => {
+            //Get token by store
+            const user = await User.findByPk(user_id, { include: { association: `melhorEnvio` } })
+
+            const { melhorEnvio } = user
+
+            if (!melhorEnvio.length)
+                return reject({
+                    name: `bestSubmissionError`,
+                    message: `Usuário não integrado ao melhor envio`,
+                })
+
+            const { token } = melhorEnvio[0]
+
+            var options = {
+                method: 'GET',
+                url: `${url}/api/v2/me/cart`,
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+
+            request(options, function (error, response) {
+                if (error)
+                    return reject({
+                        name: `bestSubmissionError`,
+                        message: error,
+                    })
+                return resolve(JSON.parse(response.body))
+            })
+        })
+    },
     async authorize(req, res) {
         try {
             const authHeader = req.headers.authorization

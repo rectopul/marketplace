@@ -96,6 +96,7 @@ routes.post(`/sessions/client`, SessionClientController.store)
 
 /** Shipping */
 routes.get(`/shipping/:product_id/:quantity`, envio.calculateShipping)
+routes.get(`/adm/shipping/list/:store_id`, ShippingController.list)
 routes.post(`/shipping/:order_id`, ShippingController.store)
 
 routes.use(ClientCredentials)
