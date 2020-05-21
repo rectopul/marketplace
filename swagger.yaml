@@ -15,8 +15,8 @@ tags:
     description: "Endereços de entrega"
   - name: Banners
     description: "Cadastro e listagem de banners"
-  - name: Wecheckout
-    description: ""
+  - name: Fretes
+    description: Integração, consulta e compra de fretes
   - name: Image
     description: "Upload e listagem de imagens"
   - name: manager
@@ -25,8 +25,6 @@ tags:
     description: "Cupons de desconto"
   - name: variações
     description: "Cadastro de variações no sistema"
-  - name: Shipping
-    description: "Entregas"
   - name: products
     description: "Cadastro de produtos no sistema"
   - name: wirecard
@@ -37,6 +35,8 @@ tags:
     description: "Cadastro e informações de lojas"
   - name: pedidos
     description: "Cadastro de informações de pedidos"
+  - name: pagamento
+    description: "Pagamento de pedidos"
   - name: variation
     description: ""
   - name: Login
@@ -175,43 +175,207 @@ paths:
       responses:
         "200":
           description: successful operation
-  /8/product/create/variation:
-    post:
-      tags:
-        - variações
-      summary: create no mapping
-      responses:
-        "200":
-          description: successful operation
-  /shipping/7:
-    post:
-      tags:
-        - Shipping
-      summary: store
-      responses:
-        "200":
-          description: successful operation
-  /product/8/create:
+  /product/{store_id}:
     post:
       tags:
         - products
-      summary: product width variation
+      summary: Criar produto e variação
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: ID da loja em que o produto será criado
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/productsCreate"
       responses:
         "200":
           description: successful operation
-  /product/delete/16:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/productData"
+  /product/{product_id}:
     delete:
       tags:
         - products
-      summary: delete
+      summary: Deleta um produto e suas variações
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: ID do produto á ser deletado
       responses:
         "200":
-          description: successful operation
-  /product/update/4:
+          description: success!
     put:
       tags:
         - products
-      summary: update
+      summary: Atualizar informações de um produto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: ID do produto á ser deletado
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sku:
+                  type: string
+                  description: SKU do produto
+                  example: "PD001AES001"
+                title:
+                  type: string
+                  description: titulo do produto
+                  example: "Primeiro produto de testes"
+                description:
+                  type: string
+                  description: Descrição do produto
+                  example: "Este é meu primeiro produto de testes"
+                except:
+                  type: string
+                  description: Breve descrição do produto
+                  example: "O primeiro produto para testes"
+                stock:
+                  type: integer
+                  description: Estoque do produto
+                  example: 10
+                weight:
+                  type: number
+                  description: Peso do produto
+                  example: 2.5
+                width:
+                  type: number
+                  description: Larura do produto
+                  example: 1.65
+                height:
+                  type: number
+                  description: Altura do produto
+                  example: 1
+                length:
+                  type: number
+                  description: Comprimento do produto
+                  example: 3.63
+                price:
+                  type: number
+                  description: Preço do produto
+                  example: 255.90
+                promotional_price:
+                  type: number
+                  description: Valor promocional do produto
+                  example: 240.95
+                cust_price:
+                  type: number
+                  description: Valor de custo do produto
+                  example: 185
+                brand:
+                  type: string
+                  description: Marca do produto
+                  example: "Adidas"
+                model:
+                  type: string
+                  description: Modelo do produto
+                  example: "AES001"
+                frete_class:
+                  type: string
+                  description: Classe de frete do produto para futuras integrações
+                  example: ""
+      responses:
+        "200":
+          description: success!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/productData"
+  #Fretes
+  /melhorenvio:
+    post:
+      tags:
+        - Fretes
+      summary: Integração com melhor envio
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application-json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: Código obtido através do painel do Melhor envio
+                  example: def50200def4cba9026279c59e01eaa68d7be5c4109a2cd6e243db8664db733a04c42785a047ba3698e3343f70aac4cd6584f032bf898d2f3f1f7c5c6544d54a0977620880236af53f11df1313f73c999b6b59a221dc9e1249e33467de8cacdbd29
+                client_id:
+                  type: string
+                  description: client_id obtido através do painel do Melhor envio
+                  example: "999"
+                client_secret:
+                  type: string
+                  description: client_secret obtido através do painel do Melhor envio
+                  example: rXfCI1GO3Kt1DSed22LOfpbWpnJPxgWAVFBUh9t
+      responses:
+        "200":
+          description: Success!
+          content:
+            application-json:
+              schema:
+                $ref: "#/components/schemas/melhorenvioTokenData"
+  /shipping/{product_id}/{quantity}:
+    get:
+      tags:
+        - Fretes
+      summary: Calcular Frete de produtos
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          description: ID do produto a ser calculado
+          schema:
+            type: integer
+        - name: quantity
+          in: path
+          required: true
+          description: quantidade do produto a ser calculado
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+          content:
+            application-json:
+              schema:
+                $ref: "#/components/schemas/freteData"
+  /shipping/{order_id}:
+    get:
+      tags:
+        - Fretes
+      summary: Rastreio de entrega de um pedido
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          description: ID do pedido á ser rastreado
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: successful operation
@@ -354,19 +518,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/storeData"
-  /order/36:
+  /order/{order_id}:
     delete:
       tags:
         - pedidos
-      summary: destroy
+      summary: Deletar um pedido
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: order_id
+          required: true
+          in: path
+          description: Número do pedido a ser Deletado
+          schema:
+            type: integer
       responses:
         "200":
           description: successful operation
-  /order/cancel/38:
+  /order/cancel/{order_id}:
     put:
       tags:
         - pedidos
-      summary: cancel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: order_id
+          required: true
+          in: path
+          description: Número do pedido a ser cancelado
+          schema:
+            type: integer
+      summary: Cancelar um pedido
       responses:
         "200":
           description: successful operation
@@ -416,6 +598,28 @@ paths:
       responses:
         "200":
           description: successful operation
+  /payment/{method}:
+    post:
+      tags:
+        - pagamento
+      summary: Pagamentos de pedidos
+      parameters:
+        - name: method
+          in: path
+          required: true
+          description: Metodo de pagamento opções (CREDIT_CARD, BOLETO)
+          schema:
+            type: integer
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/payments"
+      responses:
+        "200":
+          description: Pagamento efetuado com sucesso!
   /adm/11:
     get:
       tags:
@@ -757,6 +961,538 @@ paths:
 
 components:
   schemas:
+    freteData:
+      type: object
+      properties:
+        melhorEnvio:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: ID do tipo de serviço de frete
+                example: 1
+              name:
+                type: string
+                description: Nome do serviço de frete
+                example: "PAC"
+              price:
+                type: string
+                description: Preço de cobrança do frete
+                example: R$
+              custom_price:
+                type: string
+                description: Preço de custo de cobrança do frete
+                example: R$
+              discount:
+                type: string
+                description: Preço de desconto de cobrança do frete
+                example: R$
+              currency:
+                type: string
+                description: Moeda utilizada na cobrança do frete
+                example: R$
+              delivery_time:
+                type: integer
+                description: Tempo estimado para entrega
+                example: 5
+              delivery_range:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    min:
+                      type: integer
+                    max:
+                      type: integer
+              custom_delivery_time:
+                type: integer
+                description: No Painel do Mercado envios é possível acrescentar dias ao prazo de entrega. Neste campo ele informa o prazo estimado pela empresa somado aos dias adicionais informados no painel
+                example: 6
+              custom_delivery_range:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    min:
+                      type: integer
+                      description: Prazo maximo para entrega
+                      example: 4
+                    max:
+                      type: integer
+                      description: Prazo maximo para entrega
+                      example: 5
+              packages:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    price:
+                      type: string
+                      description: Valor do pacote á ser postado
+                      example: "21.02"
+                    discount:
+                      type: string
+                      description: Valor de desconto do pacote á ser postado
+                      example: "10.90"
+                    format:
+                      type: string
+                      description: Formato do pacote á ser postado
+                      example: "box"
+                    dimensions:
+                      type: array
+                      description: Dimensões do pacote a ser postado
+                      items:
+                        type: object
+                        properties:
+                          height:
+                            type: string
+                            description: Altura do pacote
+                          width:
+                            type: string
+                            description: Largura do pacote
+                          length:
+                            type: string
+                            description: Comprimento do pacote
+                    weight:
+                      type: string
+                      description: Pedo do pacote
+                      example: "2.50"
+                    insurance_value:
+                      type: string
+                      description: Valor do seguro do pacote
+                      example: "2.50"
+              error:
+                type: integer
+                description: Erro caso o serviço esteja indisponível
+                example: "Serviço econômico indisponível para o trecho."
+              company:
+                type: object
+                default: Empresa prestadora do serviço
+                description: ID do tipo de serviço de frete
+                properties:
+                  id:
+                    type: integer
+                    description: ID da empresa prestadora de serviço
+                  name:
+                    type: string
+                    description: Nome da empresa prestadora do serviço
+                    example: Correios
+                  picture:
+                    type: integer
+                    description: Link para o logotipo da empresa prestadora do serviço
+                    example: https://sandbox.melhorenvio.com.br/images/shipping-companies/correios.png
+    melhorenvioTokenData:
+      type: object
+      properties:
+        code:
+          type: string
+          example: Code example
+        token:
+          type: string
+          description: Token de acesso
+          example: access_token
+        refreshToken:
+          type: string
+          description: Refresh Token
+          example: refresh_token
+        token_expires:
+          type: string
+          description: Data de expiração do token (Padrão 30 dias)
+          example: now
+        active:
+          type: string
+          description: Informa se a integração está ativa
+          example: true
+        user_id:
+          type: string
+          description: ID do usuário que está integrado
+          example: 1
+        createdAt:
+          type: string
+          description: "2020-05-21T17:42:47.918Z"
+        updatedAt:
+          type: string
+          description: Data de alteração do registro da integração
+          example: "2020-05-21T17:42:47.918Z"
+    variationData:
+      type: object
+      properties:
+        variable_sku:
+          type: string
+          description: SKU do produto da variação
+          example: "PROD1ADD"
+        attribute_name:
+          type: string
+          description: Nome da variação criada
+          example: "Cor"
+        variable_description:
+          type: string
+          description: Descrição da variação do produto
+          example: "Este é um produto de testes na cor azul"
+        upload_image_id:
+          type: integer
+          description: Id da imagem da variação
+          example: 1
+        attribute_value:
+          type: string
+          description: Valor da variação criada
+          example: "Azul"
+        variable_regular_price:
+          type: number
+          description: Preço da variação do produto
+          example: 255.90
+        variable_sale_price:
+          type: number
+          description: Preço promocional da variação do produto
+          example: 255.90
+        variable_sale_price_dates_from:
+          type: string
+          description: Data de inicio da validade da promoção do produto
+          example: "2020-05-18T15:14:23.734Z"
+        variable_sale_price_dates_to:
+          type: string
+          description: Data de termino da validade da promoção do produto
+          example: "2020-05-18T15:14:23.734Z"
+        variable_weight:
+          type: number
+          description: Peso da variação do produto em Kg
+          example: 1.20
+        variable_length:
+          type: number
+          description: comprimento da variação do produto em cm
+          example: 1.20
+        variable_width:
+          type: number
+          description: largura da variação do produto em cm
+          example: 10.20
+        variable_height:
+          type: number
+          description: altura da variação do produto em cm
+          example: 7.20
+        variable_stock:
+          type: integer
+          description: Estoque da variação criada
+          example: 10
+        variation_info:
+          $ref: "#/components/schemas/variation_info"
+    variationCreate:
+      type: object
+      required:
+        - attribute_name
+        - attribute_value
+        - variable_regular_price
+        - variable_stock
+      properties:
+        variable_sku:
+          type: string
+          description: SKU do produto da variação
+          example: "PROD1ADD"
+        attribute_name:
+          type: string
+          description: Nome da variação criada
+          example: "Cor"
+        variable_description:
+          type: string
+          description: Descrição da variação do produto
+          example: "Este é um produto de testes na cor azul"
+        upload_image_id:
+          type: integer
+          description: Id da imagem da variação
+          example: 1
+        attribute_value:
+          type: string
+          description: Valor da variação criada
+          example: "Azul"
+        variable_regular_price:
+          type: number
+          description: Preço da variação do produto
+          example: 255.90
+        variable_sale_price:
+          type: number
+          description: Preço promocional da variação do produto
+          example: 255.90
+        variable_sale_price_dates_from:
+          type: string
+          description: Data de inicio da validade da promoção do produto
+          example: "2020-05-18T15:14:23.734Z"
+        variable_sale_price_dates_to:
+          type: string
+          description: Data de termino da validade da promoção do produto
+          example: "2020-05-18T15:14:23.734Z"
+        variable_weight:
+          type: number
+          description: Peso da variação do produto em Kg
+          example: 1.20
+        variable_length:
+          type: number
+          description: comprimento da variação do produto em cm
+          example: 1.20
+        variable_width:
+          type: number
+          description: largura da variação do produto em cm
+          example: 10.20
+        variable_height:
+          type: number
+          description: altura da variação do produto em cm
+          example: 7.20
+        variable_stock:
+          type: integer
+          description: Estoque da variação criada
+          example: 10
+    productsCreate:
+      type: object
+      required:
+        - sku
+        - title
+        - description
+        - stock
+        - weight
+        - width
+        - height
+        - length
+        - price
+        - cust_price
+        - brand
+        - model
+      properties:
+        sku:
+          type: string
+          description: SKU do produto. Não pode ser repetido
+          example: "PDS11AES002"
+        title:
+          type: string
+          description: Nome do produto
+          example: "Primeiro produto de testes"
+        description:
+          type: string
+          description: Descrição do produto
+          example: "Este é meu primeiro produto de testes"
+        except:
+          type: string
+          description: Breve descrição do produto
+          example: "O primeiro produto para testes"
+        stock:
+          type: integer
+          description: quantidade do produto em estoque
+          example: 10
+        weight:
+          type: number
+          description: peso do produto
+          example: 2.5
+        width:
+          type: number
+          description: Largura do produto
+          example: 1.65
+        height:
+          type: number
+          description: Altura do produto
+          example: 1
+        length:
+          type: number
+          description: Comprimento do produto
+          example: 3.63
+        price:
+          type: number
+          description: Preço de venda do produto
+          example: 255.90
+        promotional_price:
+          type: string
+          description: preço promocional de venda do produto
+          example: "240.95"
+        cust_price:
+          type: string
+          description: preço de custo do produto
+          example: "185"
+        brand:
+          type: string
+          description: marca do produto
+          example: "Adidas"
+        model:
+          type: string
+          description: modelo do produto
+          example: "AES001"
+        frete_class:
+          type: string
+          description: Classe de frete do produto para futuras integrações
+          example: ""
+        variations:
+          type: array
+          items:
+            $ref: "#/components/schemas/variationCreate"
+    payments:
+      type: object
+      required:
+        - order
+        - installmentCount
+        - hash
+        - store
+        - fullname
+        - birthdate
+        - phone
+        - cpf
+        - countryCode
+        - street
+        - streetNumber
+        - district
+        - city
+        - state
+        - country
+      properties:
+        order:
+          type: integer
+          description: Número do pedido no sistema
+          example: 35
+        installmentCount:
+          type: integer
+          description: Caso o metodo seja cartão informar a quantidade de parcelas neste campo
+          example: 1
+        hash:
+          type: string
+          description: Hash gerado atravéz do sdk da wirecard para criptografia dos dados do cartão
+          example: "jqaWm9WA2gYCaaFfCMSOP+aa+rduSJnUT6Q2s4vvKFm+jYex/yl8noo+ueYjkMhlp4DC50jM0nJe3D1j5vk4f/0gkqiDRO6M9kDKKaqdof/Kh6SIYJpV5H7yf6tteoU8q7esMD+hHL73QICZLxftHZuZZr+2m3Qvmej+aGD3isAGRmVUpx6ZCsVsjH9iH5sIRDZvbfzdYNe8OTtZYxMuR3NpqN0euWq39cU5aORlYP/NFRB+xPNPu0uyeyHOgJjltFuJtHWshcu23lvEddqcsHHRvo81vgduZfO9qs4NsDSkku1Cz7xAb5CUKmv4OVsZ7ew/wQ6nLm7p+EItZTavEw=="
+        store:
+          type: boolean
+          description: Caso deseje salvar as informações do cartão para pagamento rápido
+          example: false
+        fullname:
+          type: string
+          description: Nome informado no cartão
+          example: "Rogério Mateus A Bonfim"
+        birthdate:
+          type: string
+          description: Data de nascimento
+          example: "1992-02-09"
+        phone:
+          type: string
+          description: Número do telefone com ddd
+          example: "(14) 99731-6860"
+        cpf:
+          type: string
+          description: número do cpf do proprietário do cartão
+          example: "41891034898"
+        countryCode:
+          type: string
+          description: código do país
+          example: "55"
+        street:
+          type: string
+          description: nome da rua que consta na fatura do cartão
+          example: "Joaquin Fernandez Meira"
+        streetNumber:
+          type: string
+          description: Número da residencia que consta na fatura do cartão
+          example: "14"
+        complement:
+          type: string
+          description: Complemento (Opcional)
+          example: ""
+        district:
+          type: string
+          description: Bairro que consta na fatura do cartão
+          example: "Conjunto Habitacional Nossa Senhora aparecida"
+        city:
+          type: string
+          description: Cidade que consta na fatura do cartão
+          example: "Guaimbê"
+        state:
+          type: string
+          description: Siglas do estado, referente ao estado informado na fatura do cartão
+          example: "SP"
+        country:
+          type: string
+          description: siglas do país referente ao país informado na fatura do cartão
+          example: "BRA"
+    _linksWirecard:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              description: Link
+              example: https://hostedaccount-sandbox.moip.com.br?token=58f4ee77-4703-4fcb-8ecb-bd67cb038d71&id=CUS-I6KF7FG633MM&mpa=MPA-7900077268CA
+            hostedAccount:
+              type: string
+              description: Link
+              example: https://hostedaccount-sandbox.moip.com.br?token=58f4ee77-4703-4fcb-8ecb-bd67cb038d71&id=CUS-I6KF7FG633MM&mpa=MPA-7900077268CA
+    customerWirecard:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID do cliente wirecard
+          example: CUS-I6KF7FG633MM
+        ownId:
+          type: string
+          description: ownId do Cliente wirecard
+          example: WEC-47
+        fullname:
+          type: string
+          description: Nome completo
+          example: Rogerio Mateus Aparecido Bonfim
+        createdAt:
+          type: string
+          description: Data de criação do cliente no wirecard
+          example: "2020-05-12T23:31:24.000-03"
+        updatedAt:
+          type: string
+          description: Data de modificação do cliente no wirecard
+          example: "2020-05-13T23:37:56.036-03"
+        birthDate:
+          type: string
+          description: Data de aniverssário do cliente no wirecard
+          example: "2019-09-02"
+        addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/addressWirecard"
+        shippingAddress:
+          $ref: "#/components/schemas/addressWirecard"
+        moipAccount:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Id da conta wirecard
+              example: MPA-E49A5C47E390
+    addressWirecard:
+      type: object
+      properties:
+        city:
+          type: string
+          description: Nome da cidade
+          example: Guaimbê
+        street:
+          type: string
+          description: Nome da rua
+          example: Joaquin Fernandez Meira
+        streetNumber:
+          type: string
+          description: Número da residencia
+          example: 14
+        zipCode:
+          type: string
+          description: CEP do endereço
+          example: 16480100
+        district:
+          type: string
+          description: Nome do bairro
+          example: Conjunto Habitacional Nossa Senhora Aparecida
+        state:
+          type: string
+          description: Siglas do Estado
+          example: SP
+        type:
+          type: string
+          description: Tipo de cobrança
+          example: SHIPPING
+        country:
+          type: string
+          description: Siglas do país
+          example: BRA
     orderResume:
       type: object
       properties:
@@ -1860,42 +2596,80 @@ components:
       properties:
         id:
           type: integer
+          description: id do produto
         sku:
           type: string
+          description: SKU único do produto
         title:
           type: string
+          description: Titulo do produto
         description:
           type: string
+          description: Descrição do produto
         except:
           type: string
+          description: Breve descrição do produto
         stock:
           type: integer
+          description: quantidade do produto em estoque
         weight:
           type: number
+          description: Peso do produto
         width:
           type: number
+          description: largura do produto
         height:
           type: number
+          description: altura do produto
         length:
           type: number
+          description: comprimento do produto
         price:
           type: number
+          description: Preço de venda do produto
         promotional_price:
           type: number
+          description: Preço promocional do produto
         cust_price:
           type: number
+          description: Preço de custo do produto
         brand:
           type: string
+          description: Marca do produto
         model:
           type: string
+          description: Modelo do produto
         frete_class:
           type: string
+          description: classe de frete do produto ( futuras integrações )
         createdAt:
           type: string
+          description: data de criação do produto
         updatedAt:
           type: string
+          description: data de edição do produto
         store_id:
           type: integer
+          description: id da loja ao qual o produto pertence
+        images_product:
+          type: array
+          items:
+            $ref: "#/components/schemas/imageData"
+        variations:
+          type: array
+          items:
+            $ref: "#/components/schemas/variationData"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/categoryData"
+    variation_info:
+      type: object
+      properties:
+        attribute_name:
+          type: string
+        attribute_value:
+          type: string
     imageData:
       type: object
       properties:
