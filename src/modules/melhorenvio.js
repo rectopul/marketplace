@@ -15,6 +15,7 @@ const Shipping = require('../models/Shipping')
 const Client = require('../models/Client')
 const Order = require('../models/Order')
 const Product = require('../models/Product')
+const Variation = require('../models/VariationMap')
 const userByToken = require('../middlewares/userByToken')
 const MelhorEnvio = require('../models/MelhorEnvio')
 
@@ -408,7 +409,7 @@ module.exports = {
     async addToCart(informations, agency) {
         return new Promise(async (resolve, reject) => {
             try {
-                const { product_id, client_id, store_note, client_note, quantity } = informations
+                const { product_id, variation_id, client_id, store_note, client_note, quantity } = informations
 
                 //pegar produto, loja, e melhor envios
                 const product = await Product.findByPk(product_id, {
@@ -418,10 +419,21 @@ module.exports = {
                     },
                 })
 
+                //check variation and get
+                const variation = await Variation.findByPk(variation_id)
+
                 let productPrice = product.price
 
                 //Pegar preço promocional do produto
                 if (product.promotional_price) productPrice = product.promotional_price
+
+                //Se tiver em promoção
+                if (variation && variation.variable_sale_price) productPrice = variation.variable_sale_price
+                //Check se tem data para promoção
+                if (variation && variation.variable_sale_price_dates_to) {
+                    const { variable_sale_price_dates_to, variable_sale_price } = variation
+                    if (new Date(variable_sale_price_dates_to) < new Date()) productPrice = variable_sale_price
+                }
 
                 //check se existe integração
                 const { melhorEnvio } = product.stores.user
@@ -496,14 +508,14 @@ module.exports = {
                         products: [{ name: product.title, quantity, unitary_value: productPrice }],
                         volumes: [
                             {
-                                height: product.height * quantity,
-                                width: product.width * quantity,
-                                length: product.length * quantity,
-                                weight: product.weight * quantity,
+                                height: variation.variable_height || product.height * quantity,
+                                width: variation.variable_width || product.width * quantity,
+                                length: variation.variable_length || product.length * quantity,
+                                weight: variation.variable_weight || product.weight * quantity,
                             },
                         ],
                         options: {
-                            insurance_value: `${parseFloat(parseFloat(product.price) * quantity)}`,
+                            insurance_value: `${parseFloat(parseFloat(productPrice) * quantity)}`,
                             receipt: false,
                             own_hand: false,
                             reverse: false,

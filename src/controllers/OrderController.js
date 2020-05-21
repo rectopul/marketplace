@@ -206,21 +206,37 @@ module.exports = {
                     variable_sale_price,
                     variable_sale_price_dates_to,
                     variable_regular_price,
-                } = variation.variations
+                    variable_description,
+                } = variation.variations[0]
 
-                let value, unitValue
+                let value = parseFloat(variable_regular_price) * quantity,
+                    unitValue = parseFloat(variable_regular_price)
 
-                if (variable_sale_price && variable_sale_price_dates_to && variable_sale_price_dates_to >= new Date()) {
+                //Se tiver em promoção
+                if (variable_sale_price) {
                     value = parseFloat(variable_sale_price) * quantity
                     unitValue = parseFloat(variable_sale_price)
-                } else {
-                    value = parseFloat(variable_sale_price) * quantity || parseFloat(variable_regular_price) * quantity
-                    unitValue = parseFloat(variable_sale_price) || parseFloat(variable_regular_price)
+                }
+
+                //Se a promoção tiver data
+                if (variable_sale_price_dates_to < new Date()) {
+                    value = parseFloat(variable_regular_price) * quantity
+                    unitValue = parseFloat(variable_regular_price)
                 }
 
                 const discount = 0
 
                 const total = value
+
+                //MELHOR ENVIO
+                //adicionar etiqueta de envio ao carrinho
+                const shippingTicket = await addToCart({
+                    client_id,
+                    product_id,
+                    variation_id,
+                    store_id: product.store_id,
+                    quantity,
+                })
 
                 //create order
                 const order = await Order.create({
@@ -245,23 +261,56 @@ module.exports = {
 
                 const resume = await Order.findByPk(order.id, { include: includes })
 
+                const shippingInfos = await shipCompany(shipping)
+
+                //registrar envio
+                const shippig = await Shipping.create({
+                    order_id: order.id,
+                    store_id: product.store_id,
+                    client_id,
+                    product_id,
+                    code: shippingTicket.id,
+                    companyName: shippingInfos.name,
+                    companyCode: shippingInfos.number,
+                    price: shippingTicket.price,
+                    deliveryRangeMin: shippingTicket.delivery_min,
+                    deliveryRangeMax: shippingTicket.delivery_max,
+                    dimensionsHeight: parseFloat(shippingTicket.volumes[0].height),
+                    dimensionsWidth: parseFloat(shippingTicket.volumes[0].width),
+                    dimensionsLength: parseFloat(shippingTicket.volumes[0].length),
+                    dimensionsWeight: parseFloat(shippingTicket.volumes[0].weight),
+                    insuranceValue: shippingTicket.insurance_value,
+                    format: shippingTicket.format,
+                    variation_id,
+                    status: shippingTicket.status,
+                })
+
                 //Wirecard
                 //idWirecard da Loja
-                const { wirecard_id } = resume.store
-                const { wire_id } = resume.client
+                const { wirecardId } = resume.store
+                const { wireId, ownId } = resume.client
 
-                const orderWire = await createOrder({
+                let objetoWire = {
                     orderID: order.id,
-                    customerId: wire_id,
+                    customerId: wireId,
+                    own_id: ownId,
                     shipping: 1500,
                     productTitle: product.title,
                     quantity,
-                    detail: product.description,
-                    productPrice: parseInt(unitValue.toString().replace('.', '')),
-                    moipId: wirecard_id,
-                })
+                    detail: variable_description,
+                    productPrice: parseInt((unitValue / 100).toString().replace('.', '')),
+                    moipId: wirecardId,
+                }
 
-                return res.json(resume)
+                const orderWire = await createOrder(objetoWire)
+
+                const wireorder = orderWire.id
+
+                await Order.update({ order: wireorder }, { where: { id: order.id } })
+
+                const newOrder = await Order.findByPk(order.id, { include: includes })
+
+                return res.json({ order: newOrder, wirecard: orderWire, shippingTicket, shippig })
             }
 
             const { promotional_price, price } = product
