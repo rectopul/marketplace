@@ -66,7 +66,7 @@ routes.get('/products', ProductController.allstore)
 //Listagem de produtos por categoria
 routes.get('/category/:slug?', CategoriesController.index)
 routes.get('/envio', envio.authorize)
-routes.get('/melhorenvio', envio.token)
+routes.post('/melhorenvio', envio.token)
 
 //Carrinho de compras
 routes.post(`/cart/create`, CartController.create)
