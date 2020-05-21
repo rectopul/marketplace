@@ -296,14 +296,29 @@ module.exports = {
                     }
                 })
 
+                // eslint-disable-next-line no-unused-vars
                 const resulveVariations = await Promise.all(mapVariations)
 
-                let jsonProduct = product.toJSON()
-                jsonProduct.variations = resulveVariations
                 //Validar se a variação já existe
-                return res.json(jsonProduct)
+                const resProduto = await Product.findByPk(product.id, {
+                    include: [
+                        { association: `images_product` },
+                        { association: `variations`, include: { association: `variation_info` } },
+                        { association: `categories` },
+                    ],
+                })
+
+                return res.json(resProduto)
             } else {
-                return res.json(product)
+                const resProduto = await Product.findByPk(product.id, {
+                    include: [
+                        { association: `images_product` },
+                        { association: `variations`, include: { association: `variation_info` } },
+                        { association: `categories` },
+                    ],
+                })
+
+                return res.json(resProduto)
             }
         } catch (error) {
             //Validação de erros
