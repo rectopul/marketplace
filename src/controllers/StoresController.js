@@ -168,7 +168,7 @@ module.exports = {
                 const resume = store.toJSON()
 
                 resume.user = {
-                    name,
+                    name: `${name} ${lastName}`,
                     email,
                     token,
                 }
