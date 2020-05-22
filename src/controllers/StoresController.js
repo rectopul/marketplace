@@ -159,7 +159,7 @@ module.exports = {
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
-                return res.status(400).send({ error: error.message })
+                return res.status(400).send({ error: error })
 
             console.log(`Erro ao criar nova loja: `, error.message)
 
