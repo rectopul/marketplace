@@ -18,6 +18,9 @@ class User extends Model {
                 },
                 email: {
                     type: DataTypes.STRING,
+                    unique: {
+                        msg: `This email of user aready exist`,
+                    },
                     validate: {
                         notEmpty: {
                             msg: `The email field cannot be empty`,
