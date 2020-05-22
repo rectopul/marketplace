@@ -34,6 +34,7 @@ module.exports = {
         try {
             const {
                 nameStore,
+                password,
                 name,
                 lastName,
                 email,
@@ -60,6 +61,7 @@ module.exports = {
                 name: `${name} ${lastName}`,
                 email,
                 type: `storeAdministrator`,
+                password,
                 phone,
                 cell,
             })
