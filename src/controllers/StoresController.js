@@ -68,6 +68,8 @@ module.exports = {
 
             const user_id = user.id
 
+            const token = user.generateToken()
+
             const account = await checkAccount(cpf)
 
             if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
@@ -122,7 +124,15 @@ module.exports = {
                     public_key: JSON.parse(pKey).keys.encryption,
                     user_id,
                 })
-                return res.json(store)
+
+                const resume = store.toJSON()
+
+                resume.user = {
+                    name,
+                    email,
+                    token,
+                }
+                return res.json(resume)
             } else {
                 if (!wirecardId)
                     return res
@@ -154,7 +164,15 @@ module.exports = {
                     wirecardId,
                     user_id,
                 })
-                return res.json(store)
+
+                const resume = store.toJSON()
+
+                resume.user = {
+                    name,
+                    email,
+                    token,
+                }
+                return res.json(resume)
             }
         } catch (error) {
             //Validação de erros
