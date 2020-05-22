@@ -87,6 +87,9 @@ routes.post('/client/reset_password', ClientController.reset)
 routes.post('/forgot', UserController.forgot)
 routes.post('/reset_password', UserController.reset)
 
+/* Create store */
+routes.post('/store/create', StoresController.store)
+
 /* Session */
 routes.post(`/sessions`, SessionController.store)
 /* Facebook */
@@ -153,7 +156,6 @@ routes.put(`/client/disable/:client_id`, ClientController.clientDisable)
 
 /* Stores */
 routes.get('/store', StoresController.index)
-routes.post('/store/create', StoresController.store)
 routes.delete('/store/:store_id', StoresController.delete)
 routes.put(`/store/:store_id`, StoresController.storeUpdate)
 

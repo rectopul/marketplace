@@ -56,15 +56,15 @@ module.exports = {
                 wirecardId,
             } = req.body
 
-            const authHeader = req.headers.authorization
+            const user = await User.create({
+                name: `${name} ${lastName}`,
+                email,
+                type: `storeAdministrator`,
+                phone,
+                cell,
+            })
 
-            if (!authHeader) return res.status(401).send({ error: 'No token provided' })
-
-            const { user_id } = await UserByToken(authHeader)
-
-            const user = await User.findByPk(user_id)
-
-            if (!user) return res.status(400).send({ error: 'User not found' })
+            const user_id = user.id
 
             const account = await checkAccount(cpf)
 
