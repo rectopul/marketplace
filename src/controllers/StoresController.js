@@ -161,7 +161,7 @@ module.exports = {
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error })
 
-            console.log(`Erro ao criar nova loja: `, error.message)
+            console.log(`Erro ao criar nova loja: `, error)
 
             return res.status(500).send({ error: `Erro de servidor` })
         }
