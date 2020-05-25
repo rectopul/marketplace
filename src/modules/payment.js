@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+const validate = require('./validator')
 const accessToken = `8597790d032a4146b4832f49f6ff477d_v2`
 var request = require('request')
 const token = `OJTJZAMDPYN8VG4W8QVNM9TV4E33D8WA`
@@ -430,6 +431,8 @@ module.exports = {
                     state,
                     country,
                 } = informations
+
+                await validate(cpf)
 
                 const areaCode = phone.substr(1, 2)
 

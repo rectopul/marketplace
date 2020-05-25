@@ -400,14 +400,16 @@ module.exports = {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            console.log(`Erro ao criar pedido: `, error)
             if (
                 error.name == `SequelizeValidationError` ||
                 error.name == `SequelizeUniqueConstraintError` ||
                 error.name == `wireOrderError` ||
-                error.name == `bestSubmissionError`
+                error.name == `bestSubmissionError` ||
+                error.name == `StatusCodeError`
             )
                 return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar pedido: `, error)
 
             return res.status(500).send({ error: `Erro de servidor` })
         }

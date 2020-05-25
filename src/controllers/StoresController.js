@@ -57,19 +57,6 @@ module.exports = {
                 wirecardId,
             } = req.body
 
-            const user = await User.create({
-                name: `${name} ${lastName}`,
-                email,
-                type: `storeAdministrator`,
-                password,
-                phone,
-                cell,
-            })
-
-            const user_id = user.id
-
-            const token = user.generateToken()
-
             const account = await checkAccount(cpf)
 
             if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
@@ -95,6 +82,19 @@ module.exports = {
                     state,
                     country,
                 })
+
+                const user = await User.create({
+                    name: `${name} ${lastName}`,
+                    email,
+                    type: `storeAdministrator`,
+                    password,
+                    phone,
+                    cell,
+                })
+
+                const user_id = user.id
+
+                const token = user.generateToken()
 
                 const pKey = await getPublicKey(createWireAccount.accessToken)
 
@@ -141,6 +141,19 @@ module.exports = {
 
                 await consultAccount(wirecardId)
 
+                const user = await User.create({
+                    name: `${name} ${lastName}`,
+                    email,
+                    type: `storeAdministrator`,
+                    password,
+                    phone,
+                    cell,
+                })
+
+                const user_id = user.id
+
+                const token = user.generateToken()
+
                 const store = await Store.create({
                     nameStore,
                     name,
@@ -182,7 +195,8 @@ module.exports = {
                 error.name == `SequelizeValidationError` ||
                 error.name == `SequelizeUniqueConstraintError` ||
                 error.name == `wireOrderError` ||
-                error.name == `bestSubmissionError`
+                error.name == `bestSubmissionError` ||
+                error.name == `StatusCodeError`
             )
                 return res.status(400).send({ error: error.message })
 
