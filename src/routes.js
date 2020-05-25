@@ -88,7 +88,7 @@ routes.post('/forgot', UserController.forgot)
 routes.post('/reset_password', UserController.reset)
 
 /* Create store */
-routes.post('/store/create', StoresController.store)
+routes.post('/store', StoresController.store)
 
 /* Session */
 routes.post(`/sessions`, SessionController.store)
