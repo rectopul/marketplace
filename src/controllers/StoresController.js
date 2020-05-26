@@ -59,6 +59,16 @@ module.exports = {
 
             const account = await checkAccount(cpf)
 
+            //check user already exist use cpf
+            const cpfcheck = await User.findOne({ where: { cpf } })
+
+            if (cpfcheck) return res.status(400).send({ error: `There is already a user with this cpf` })
+
+            //check user already exist use email
+            const mailcheck = await User.findOne({ where: { email } })
+
+            if (mailcheck) return res.status(400).send({ error: `There is already a user with this email` })
+
             if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
 
             if (account.status == 404) {
