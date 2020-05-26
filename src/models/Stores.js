@@ -283,7 +283,7 @@ class Stores extends Model {
         })
         this.hasMany(models.Variation, {
             foreignKey: 'store_id',
-            as: 'variable',
+            as: 'variations',
             onDelete: 'cascade',
             hooks: true,
         })

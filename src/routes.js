@@ -183,12 +183,15 @@ routes.get('/image/banner/:image_id', ImagesBannersController.index)
 routes.delete('/image/banner/:image_id', ImagesBannersController.delete)
 
 /* Variations */
-routes.post('/product/maping/variation', VariableMapController.store)
-routes.post('/:store_id/product/create/variation', VariationController.store)
-routes.get('/product/:store_id/:product_id/variation', VariationController.index)
+routes.post('/variation/:store_id', VariationController.store)
+routes.put('/variation/:variation_id', VariationController.update)
+routes.get('/variation', VariationController.index)
+routes.get('/variation/:variation_id', VariationController.show)
 routes.delete('/variation/:variation_id', VariationController.delete)
+/* Variation map */
+routes.post('/product/variation/:variation_id/:product_id', VariableMapController.store)
 /* UPDATE */
-routes.post('/variation/:store_id/:variation_id', VariationController.update)
+routes.post('/variation/:variation_id', VariationController.update)
 
 /* Categories */
 routes.post('/category/:store_id', CategoriesController.store)

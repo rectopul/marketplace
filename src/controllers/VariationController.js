@@ -10,29 +10,76 @@ const UserByToken = require('../middlewares/userByToken')
 
 module.exports = {
     async index(req, res) {
-        const { product_id } = req.params
+        try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
 
-        const prodvariationmap = await Product.findByPk(product_id, {
-            include: { association: 'variations' },
-        })
+            const { user_id } = await UserByToken(authHeader)
 
-        let variations_id = []
+            const variations = await Store.findOne({
+                where: { user_id },
+                include: { association: `variations` },
+                attributes: [`id`, `nameStore`, `name`, `lastName`, `email`, `url`],
+            })
 
-        for (const i in prodvariationmap.variations) {
-            if (prodvariationmap.variations.i) {
-                const variationmap = prodvariationmap.variations[i]
-                const { variation_id } = variationmap
-                variations_id.push(variation_id)
-            }
+            return res.json(variations)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `wireOrderError` ||
+                error.name == `bestSubmissionError` ||
+                error.name == `StatusCodeError`
+            )
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar pedido: `, error)
+
+            return res.status(500).send({ error: `Erro de servidor` })
         }
+    },
 
-        const variation = await Variation.findAll({
-            where: {
-                id: variations_id,
-            },
-        }).then((result) => {
-            return res.json(result)
-        })
+    async show(req, res) {
+        try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await UserByToken(authHeader)
+
+            const { variation_id } = req.params
+
+            const variation = await Variation.findByPk(variation_id, {
+                include: [
+                    { association: `store`, attributes: [`id`, `nameStore`, `name`, `lastName`, `email`, `url`] },
+                    { association: `image` },
+                ],
+            })
+            //get store by variation
+            const store = await Store.findOne({ where: { id: variation.store_id, user_id } })
+
+            if (!store) return res.status(400).send({ error: `This variation does not belong to your store` })
+
+            return res.json(variation)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `wireOrderError` ||
+                error.name == `bestSubmissionError` ||
+                error.name == `StatusCodeError`
+            )
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao selecionar variação: `, error)
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
     },
 
     async mult(req, res) {
@@ -56,39 +103,58 @@ module.exports = {
     },
 
     async update(req, res) {
-        const { store_id, variation_id } = req.params
-        const { name, options } = req.body
+        try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
 
-        const store = await Store.findByPk(store_id)
+            const { user_id } = await UserByToken(authHeader)
 
-        if (!store) {
-            return res.status(400).json({ error: 'Store informed not exists' })
+            const { variation_id } = req.params
+
+            const variation = await Variation.findByPk(variation_id)
+            //get store by variation
+            const store = await Store.findOne({ where: { id: variation.store_id, user_id } })
+
+            if (!store) return res.status(400).send({ error: `This variation does not belong to your store` })
+
+            const { attribute_name, attribute_value, variable_description, variable_enabled } = req.body
+
+            await Variation.update(
+                {
+                    attribute_name,
+                    attribute_value,
+                    variable_description,
+                    variable_enabled,
+                },
+                { where: { id: variation_id } }
+            )
+
+            const response = await Variation.findByPk(variation_id)
+
+            return res.json(response)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `wireOrderError` ||
+                error.name == `bestSubmissionError` ||
+                error.name == `StatusCodeError`
+            )
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao criar pedido: `, error)
+
+            return res.status(500).send({ error: `Erro de servidor` })
         }
-
-        const variation = await Variation.update(
-            {
-                name,
-                options,
-            },
-            {
-                where: { id: variation_id },
-            }
-        )
-            .then((result) => {
-                Variation.findByPk(variation_id).then((response) => {
-                    return res.json(response)
-                })
-            })
-            .catch((err) => {
-                res.status(400).json({ error: err })
-                console.log(err)
-            })
     },
 
     async store(req, res) {
         const { store_id } = req.params
+
         const {
-            product_id,
             attribute_name,
             attribute_value,
             variation_menu_order,
@@ -110,21 +176,17 @@ module.exports = {
             variable_description,
         } = req.body
 
-        const store = await Store.findByPk(store_id)
+        //Get user id by token
+        const authHeader = req.headers.authorization
+
+        const { user_id } = await UserByToken(authHeader, store_id)
+
+        const store = await Store.findByPk(store_id, {
+            include: { association: `user`, where: { id: user_id } },
+        })
 
         if (!store) {
             return res.status(400).json({ error: 'Store informed not exists' })
-        }
-
-        /**
-         * Check product Exists
-         */
-        if (product_id) {
-            var product = await Product.findByPk(product_id)
-
-            if (!product) {
-                return res.status(400).json({ error: 'Product ID informed not exists' })
-            }
         }
 
         //Check Name and Value Variation
@@ -136,29 +198,12 @@ module.exports = {
                 return res.status(400).json({
                     error: `The ${attribute_value} variation option already exists in the ${attribute_name} variation`,
                 })
-
-            //SKU
-            if (variable_sku) {
-                const variationSku = await VariationMap.findOne({
-                    where: {
-                        variable_sku,
-                        store_id,
-                    },
-                })
-
-                if (variationSku) return res.status(400).json({ error: 'Variation SKU informed already exists' })
-            }
         } catch (error) {
             console.log(`Error in consult sku and name: `, error)
             return res.status(400).json({ error: 'problems consulting sku or name' })
         }
 
         try {
-            //Get user id by token
-            const authHeader = req.headers.authorization
-
-            const { user_id } = await UserByToken(authHeader, store_id)
-
             //Create variation and mapping
             const variation = await Variation.create({
                 attribute_name,
@@ -170,32 +215,8 @@ module.exports = {
                 store_id,
             })
 
-            if (product_id) {
-                const variationmap = await VariationMap.create({
-                    user_id,
-                    store_id,
-                    product_id,
-                    variation_id: variation.id,
-                    variable_sku,
-                    upload_image_id,
-                    variable_regular_price,
-                    variable_sale_price,
-                    variable_sale_price_dates_from,
-                    variable_sale_price_dates_to,
-                    variable_stock,
-                    variable_stock_status,
-                    variable_original_stock,
-                    variable_weight,
-                    variable_length,
-                    variable_width,
-                    variable_height,
-                    variable_shipping_class,
-                    variable_description,
-                })
-            }
-
             const infoVariation = await Variation.findByPk(variation.id, {
-                include: { association: 'productVariation' },
+                include: { association: 'store', attributes: [`nameStore`, `email`, `url`] },
             })
 
             return res.json(infoVariation)
@@ -343,7 +364,7 @@ module.exports = {
 
             //super
             if (user.type == `super`) {
-                const productVariationDestroy = await VariationMap.destroy({ where: { variation_id } })
+                const destroyMap = await VariationMap.destroy({ where: { variation_id } })
                 const variationDestroy = await Variation.destroy({ where: { id: variation_id } })
 
                 return res.status(200).send()
@@ -359,7 +380,7 @@ module.exports = {
 
             if (!variation) return res.status(400).send({ error: `this variation does not belong to your store` })
 
-            const productVariationDestroy = await VariationMap.destroy({ where: { variation_id } })
+            const destroyMap = await VariationMap.destroy({ where: { variation_id } })
             const variationDestroy = await Variation.destroy({ where: { id: variation_id } })
 
             return res.status(200).send()
