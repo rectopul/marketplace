@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-redeclare */
 const cpfvalidate = (cpf) => {
     return new Promise((resolve, reject) => {
         if (validaCPF(cpf)) return resolve(cpf)
@@ -6,7 +8,7 @@ const cpfvalidate = (cpf) => {
 }
 
 function validaCPF(cpf) {
-    cpf = cpf.replace(/[^\d]+/g, '')
+    var cpf = cpf.replace(/[^\d]+/g, '')
     if (cpf == '') return false
     // Elimina CPFs invalidos conhecidos
     if (
@@ -24,9 +26,9 @@ function validaCPF(cpf) {
     )
         return false
     // Valida 1o digito
-    add = 0
+    var add = 0
     for (i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i)
-    rev = 11 - (add % 11)
+    var rev = 11 - (add % 11)
     if (rev == 10 || rev == 11) rev = 0
     if (rev != parseInt(cpf.charAt(9))) return false
     // Valida 2o digito
