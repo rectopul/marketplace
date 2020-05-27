@@ -420,7 +420,7 @@ module.exports = {
                 })
 
                 //check variation and get
-                const variation = await Variation.findByPk(variation_id)
+                const variation = await Variation.findOne({ where: { product_id, variation_id } })
 
                 let productPrice = product.price
 

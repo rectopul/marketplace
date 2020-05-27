@@ -196,7 +196,7 @@ module.exports = {
                 const variation = await Product.findByPk(product_id, {
                     include: {
                         association: `variations`,
-                        where: { variation_id: variation_id },
+                        where: { variation_id },
                     },
                 })
 
@@ -255,7 +255,7 @@ module.exports = {
                     order_id: order.id,
                     client_id,
                     product_id,
-                    variation_id,
+                    variation_id: variation.variations[0].id,
                     quantity,
                 })
 
@@ -281,7 +281,7 @@ module.exports = {
                     dimensionsWeight: parseFloat(shippingTicket.volumes[0].weight),
                     insuranceValue: shippingTicket.insurance_value,
                     format: shippingTicket.format,
-                    variation_id,
+                    variation_id: variation.variations[0].id,
                     status: shippingTicket.status,
                 })
 
