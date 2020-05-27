@@ -39,7 +39,7 @@ module.exports = {
 
     async allstore(req, res) {
         try {
-            const { limit, order, orderby, offset } = req.query
+            const { order, orderby, paginate, page } = req.query
 
             const filters = [
                 `title`,
@@ -61,8 +61,8 @@ module.exports = {
 
             const products = await Product.findAll({
                 order: order ? (orderby ? [[orderby, order]] : [['createdAt', order]]) : null,
-                limit: parseInt(limit) || null,
-                offset: parseInt(offset) || null,
+                limit: paginate || null,
+                offset: paginate * (page - 1) || null,
                 include: [
                     { association: `images_product` },
                     { association: `stores` },
@@ -73,6 +73,8 @@ module.exports = {
                     { association: `categories` },
                 ],
             })
+
+            const pageCount = products.length
 
             return res.json(products)
         } catch (error) {
