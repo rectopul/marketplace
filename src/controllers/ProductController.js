@@ -94,6 +94,44 @@ module.exports = {
         return res.json(products)
     },
 
+    async admShow(req, res) {
+        try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await userByToken(authHeader)
+
+            const { product_id } = req.params
+
+            const product = await Product.findByPk(product_id, {
+                include: [
+                    { association: `images_product` },
+                    { association: `stores`, where: { user_id } },
+                    { association: `variations` },
+                    { association: `categories` },
+                ],
+            })
+
+            return res.json(product)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `wireOrderError` ||
+                error.name == `bestSubmissionError` ||
+                error.name == `StatusCodeError`
+            )
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao selecionar produto: `, error)
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
+    },
+
     async allstore(req, res) {
         try {
             //Get user id by token
