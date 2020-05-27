@@ -196,7 +196,7 @@ module.exports = {
                 const variation = await Product.findByPk(product_id, {
                     include: {
                         association: `variations`,
-                        where: { id: variation_id },
+                        where: { variation_id: variation_id },
                     },
                 })
 
