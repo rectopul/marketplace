@@ -9,18 +9,75 @@ const userByToken = require('../middlewares/userByToken')
 
 module.exports = {
     async index(req, res) {
-        const { product_id } = req.params
+        const { order, orderby, paginate, page } = req.query
 
-        const product = await Product.findByPk(product_id, {
+        const filters = [
+            `title`,
+            `sku`,
+            `description`,
+            `stock`,
+            `weight`,
+            `price`,
+            `promotional_price`,
+            `brand`,
+            `model`,
+        ]
+
+        if (order && [`ASC`, `DESC`].indexOf(order) == -1)
+            return res.status(400).send({ error: `The order parameter accepts the 'ASC' or 'DESC' values` })
+
+        if (orderby && filters.indexOf(orderby) == -1)
+            return res.status(400).send({ error: `orderby parameter does not exist` })
+
+        const products = await Product.findAll({
+            order: order ? (orderby ? [[orderby, order]] : [['createdAt', order]]) : null,
+            limit: paginate || null,
+            offset: paginate * (page - 1) || null,
             include: [
                 { association: `images_product` },
                 { association: `stores` },
-                { association: `variations` },
+                {
+                    association: `variations`,
+                    include: { association: `variation_info` },
+                },
                 { association: `categories` },
             ],
         })
 
-        return res.json(product)
+        return res.json(products)
+    },
+
+    async show(req, res) {
+        try {
+            const { product_id } = req.params
+
+            const product = await Product.findByPk(product_id, {
+                include: [
+                    { association: `images_product` },
+                    { association: `stores` },
+                    { association: `variations` },
+                    { association: `categories` },
+                ],
+            })
+
+            return res.json(product)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
+
+            if (
+                error.name == `SequelizeValidationError` ||
+                error.name == `SequelizeUniqueConstraintError` ||
+                error.name == `wireOrderError` ||
+                error.name == `bestSubmissionError` ||
+                error.name == `StatusCodeError`
+            )
+                return res.status(400).send({ error: error.message })
+
+            console.log(`Erro ao selecionar produto: `, error)
+
+            return res.status(500).send({ error: `Erro de servidor` })
+        }
     },
 
     async store(req, res) {
@@ -39,6 +96,13 @@ module.exports = {
 
     async allstore(req, res) {
         try {
+            //Get user id by token
+            const authHeader = req.headers.authorization
+
+            const { user_id } = await userByToken(authHeader)
+
+            //get user
+
             const { order, orderby, paginate, page } = req.query
 
             const filters = [
@@ -65,7 +129,7 @@ module.exports = {
                 offset: paginate * (page - 1) || null,
                 include: [
                     { association: `images_product` },
-                    { association: `stores` },
+                    { association: `stores`, where: { user_id } },
                     {
                         association: `variations`,
                         include: { association: `variation_info` },
@@ -73,8 +137,6 @@ module.exports = {
                     { association: `categories` },
                 ],
             })
-
-            const pageCount = products.length
 
             return res.json(products)
         } catch (error) {

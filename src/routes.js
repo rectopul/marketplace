@@ -61,8 +61,8 @@ routes.get('/moipclientlist', (req, res) => {
 })
 
 //Listagem de produtos
-routes.get('/product/:product_id', ProductController.index)
-routes.get('/products', ProductController.allstore)
+routes.get('/product/:product_id', ProductController.show)
+routes.get('/products', ProductController.index)
 //Listagem de produtos por categoria
 routes.get('/category/:slug?', CategoriesController.index)
 routes.get('/envio', envio.authorize)
@@ -171,6 +171,8 @@ routes.get('/banners/:store_id/:location', BannersController.location)
 routes.post('/product/:store_id', ProductController.create)
 routes.delete(`/product/:product_id`, ProductController.productDelete)
 routes.put(`/product/:product_id`, ProductController.productUpdate)
+/* ADM products */
+routes.get('/adm/product', ProductController.allstore)
 
 /* Images Products */
 routes.post('/image/:id_product/product', multer(multerConfig).single('file'), ImageProductController.store)
