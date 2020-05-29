@@ -191,9 +191,8 @@ module.exports = {
 
     async create(req, res) {
         try {
-            const { store_id } = req.params
-
             const authHeader = req.headers.authorization
+
             const {
                 sku,
                 title,
@@ -214,13 +213,15 @@ module.exports = {
 
             const { user_id } = await userByToken(authHeader)
 
-            const store = await Stores.findOne({ where: { id: store_id, user_id } })
+            const store = await Stores.findOne({ where: { id: user_id } })
 
             if (!store) {
                 return res.status(400).json({ error: 'Store not exist' })
             }
 
-            const productSku = await Product.findOne({ where: { sku } })
+            const store_id = store.id
+
+            const productSku = await Product.findOne({ where: { sku, store_id: store.id } })
 
             if (productSku) return res.status(400).json({ error: 'Product SKU informed already exists' })
 
@@ -487,44 +488,70 @@ module.exports = {
             const { product_id } = req.params
 
             //Campos não editáveis
-            //delete fields not updated
-            if (req.body.store_id) return res.status(400).send({ error: `Cannot change the product store` })
 
             //Pegar id do usuário a partir do token
             const authHeader = req.headers.authorization
-            const [, token] = authHeader.split(' ')
 
-            let decoded = jwt.verify(token, process.env.APP_SECRET)
-
-            const user_id = decoded.id
+            const { user_id } = await userByToken(authHeader)
 
             //Check store of product
             const productStore = await Product.findByPk(product_id)
 
-            //console.log(`Produto: `, productStore);
+            if (!productStore) return res.status(400).send({ error: `product not exist` })
+
+            console.log(`Produto: `, productStore.toJSON())
 
             const store_id = productStore.store_id
 
-            const store = await Stores.findOne({
-                where: { id: store_id, user_id },
-            })
+            const store = await Stores.findOne({ where: { id: store_id, user_id } })
 
             if (!store)
                 return res.status(400).send({
                     error: `This product does not belong to this user`,
                 })
 
-            let updateValues = {}
+            const {
+                sku,
+                title,
+                description,
+                except,
+                stock,
+                weight,
+                width,
+                height,
+                length,
+                price,
+                promotional_price,
+                cust_price,
+                brand,
+                model,
+                frete_class,
+            } = req.body
 
-            Object.keys(req.body).map((item) => {
-                if (req.body[item] != undefined && item != `id`) return (updateValues[item] = req.body[item])
-            })
-
-            const product = await Product.update(updateValues, {
-                where: { id: product_id },
-                returning: true,
-                plain: true,
-            })
+            const product = await Product.update(
+                {
+                    sku,
+                    title,
+                    description,
+                    except,
+                    stock,
+                    weight,
+                    width,
+                    height,
+                    length,
+                    price,
+                    promotional_price,
+                    cust_price,
+                    brand,
+                    model,
+                    frete_class,
+                },
+                {
+                    where: { id: product_id },
+                    returning: true,
+                    plain: true,
+                }
+            )
 
             return res.status(200).send(product[1])
         } catch (error) {

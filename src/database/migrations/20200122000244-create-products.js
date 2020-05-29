@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    /*
+    up: (queryInterface, Sequelize) => {
+        /*
       Add altering commands here.
       Return a promise to correctly handle asynchronicity.
       campos do produto{
@@ -24,91 +24,89 @@ module.exports = {
         model
         frete_class
       }*/
-      return queryInterface.createTable("products", {
-        id: {
-            type: Sequelize.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
-        },
-        store_id: {
-            type: Sequelize.INTEGER,
-            allowNull: false,
-            references: { model: "stores", key: "id" },
-            onUpdate: "CASCADE",
-            onDelete: "CASCADE"
-        },
-        sku: {
-            type: Sequelize.STRING,
-            unique: true
-        },
-        title: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        description: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        except: {
-            type: Sequelize.STRING,
-        },
-        stock: {
-            type: Sequelize.INTEGER,
-            allowNull: false
-        },
-        weight: {
-            type: Sequelize.STRING
-        },
-        width: {
-            type: Sequelize.STRING
-        },
-        height: {
-            type: Sequelize.STRING
-        },
-        length: {
-            type: Sequelize.STRING
-        },
-        price: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        promotional_price: {
-            type: Sequelize.STRING
-        },
-        cust_price: {
-            type: Sequelize.STRING
-        },
-        brand: {
-            type: Sequelize.STRING
-        },
-        model: {
-            type: Sequelize.STRING
-        },
-        frete_class: {
-            type: Sequelize.STRING,
-            allowNull: false
-        },
-        created_at: {
-            type: Sequelize.DATE,
-            allowNull: false
-        },
-        updated_at: {
-            type: Sequelize.DATE,
-            allowNull: false
-        }
-    });
-    
-  },
+        return queryInterface.createTable('products', {
+            id: {
+                type: Sequelize.INTEGER,
+                primaryKey: true,
+                autoIncrement: true,
+                allowNull: false,
+            },
+            store_id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                references: { model: 'stores', key: 'id' },
+                onUpdate: 'CASCADE',
+                onDelete: 'CASCADE',
+            },
+            sku: {
+                type: Sequelize.STRING,
+            },
+            title: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            description: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            except: {
+                type: Sequelize.STRING,
+            },
+            stock: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+            },
+            weight: {
+                type: Sequelize.STRING,
+            },
+            width: {
+                type: Sequelize.STRING,
+            },
+            height: {
+                type: Sequelize.STRING,
+            },
+            length: {
+                type: Sequelize.STRING,
+            },
+            price: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            promotional_price: {
+                type: Sequelize.STRING,
+            },
+            cust_price: {
+                type: Sequelize.STRING,
+            },
+            brand: {
+                type: Sequelize.STRING,
+            },
+            model: {
+                type: Sequelize.STRING,
+            },
+            frete_class: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            created_at: {
+                type: Sequelize.DATE,
+                allowNull: false,
+            },
+            updated_at: {
+                type: Sequelize.DATE,
+                allowNull: false,
+            },
+        })
+    },
 
-  down: (queryInterface, Sequelize) => {
-    /*
+    down: (queryInterface) => {
+        /*
       Add reverting commands here.
       Return a promise to correctly handle asynchronicity.
 
       Example:
       return queryInterface.dropTable('users');
     */
-    return queryInterface.dropTable('products');
-  }
-};
+        return queryInterface.dropTable('products')
+    },
+}
