@@ -44,6 +44,30 @@ module.exports = {
             ],
         })
 
+        //paginate infos
+        const count = await Product.count()
+
+        if (paginate) {
+            console.log('page = ', page, `paginate = `, paginate)
+            const url = `${process.env.URL}/products?${order ? 'order=' + order : ``}${
+                orderby ? '&orderby=' + orderby : ''
+            }&paginate=${paginate}&page=`
+            const intCount =
+                count / paginate > parseInt(count / paginate)
+                    ? parseInt(count / paginate) + 1
+                    : parseInt(count / paginate)
+            const pageInfo = {
+                total: intCount,
+                current_page: `${url}${parseInt(page)}`,
+                next_page: parseInt(page) + 1 >= intCount ? null : parseInt(page) + 1,
+                next_page_url: parseInt(page) + 1 >= intCount ? null : `${url}${parseInt(page) + 1}`,
+                prev_page: page && page > 1 ? parseInt(page - 1) : null,
+                prev_page_url: page && page > 1 ? `${url}${parseInt(page - 1)}` : null,
+            }
+
+            return res.json({ paginate: pageInfo, products })
+        }
+
         return res.json(products)
     },
 
