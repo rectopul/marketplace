@@ -48,10 +48,9 @@ module.exports = {
         const count = await Product.count()
 
         if (paginate) {
-            console.log('page = ', page, `paginate = `, paginate)
-            const url = `${process.env.URL}/products?${order ? 'order=' + order : ``}${
+            const url = `${process.env.URL}/products?paginate=${paginate}${order ? '&order=' + order : ``}${
                 orderby ? '&orderby=' + orderby : ''
-            }&paginate=${paginate}&page=`
+            }&page=`
             const intCount =
                 count / paginate > parseInt(count / paginate)
                     ? parseInt(count / paginate) + 1
@@ -59,8 +58,12 @@ module.exports = {
             const pageInfo = {
                 total: intCount,
                 current_page: `${url}${parseInt(page)}`,
-                next_page: parseInt(page) + 1 >= intCount ? null : parseInt(page) + 1,
-                next_page_url: parseInt(page) + 1 >= intCount ? null : `${url}${parseInt(page) + 1}`,
+                first_page: 1,
+                first_page_url: `${url}${1}`,
+                last_page: intCount,
+                last_page_url: `${url}${intCount}`,
+                next_page: parseInt(page) + 1 > intCount ? null : parseInt(page) + 1,
+                next_page_url: parseInt(page) + 1 > intCount ? null : `${url}${parseInt(page) + 1}`,
                 prev_page: page && page > 1 ? parseInt(page - 1) : null,
                 prev_page_url: page && page > 1 ? `${url}${parseInt(page - 1)}` : null,
             }
@@ -522,8 +525,6 @@ module.exports = {
             const productStore = await Product.findByPk(product_id)
 
             if (!productStore) return res.status(400).send({ error: `product not exist` })
-
-            console.log(`Produto: `, productStore.toJSON())
 
             const store_id = productStore.store_id
 
