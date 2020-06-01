@@ -57,6 +57,8 @@ module.exports = {
                 },
             })
 
+            console.log(user_id)
+
             if (!user) return res.status(400).send({ error: `This store does not exist for this user` })
 
             if (product_id) {
@@ -137,9 +139,10 @@ module.exports = {
             //Validação de erros
             if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-            console.log(`Erro listar pedidos`, error)
             if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
                 return res.status(400).send({ error: error.message })
+
+            console.log(`Erro listar pedidos`, error)
 
             return res.status(500).send({ error: error })
         }

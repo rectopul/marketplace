@@ -6,6 +6,8 @@ const Variation = require('../models/Variation')
 const User = require('../models/User')
 const Image = require('../models/Image')
 const userByToken = require('../middlewares/userByToken')
+const ProductCategori = require('../models/CategoryMap')
+const Category = require('../models/Categories')
 
 module.exports = {
     async index(req, res) {
@@ -236,11 +238,12 @@ module.exports = {
                 brand,
                 model,
                 frete_class,
+                categories_id,
             } = req.body
 
             const { user_id } = await userByToken(authHeader)
 
-            const store = await Stores.findOne({ where: { id: user_id } })
+            const store = await Stores.findOne({ where: { user_id } })
 
             if (!store) {
                 return res.status(400).json({ error: 'Store not exist' })
@@ -251,6 +254,9 @@ module.exports = {
             const productSku = await Product.findOne({ where: { sku, store_id: store.id } })
 
             if (productSku) return res.status(400).json({ error: 'Product SKU informed already exists' })
+
+            if (!categories_id || !categories_id.length)
+                return res.status(400).send({ error: `Please enter at least one category` })
 
             let product = await Product.create({
                 sku,
@@ -270,6 +276,23 @@ module.exports = {
                 frete_class,
                 store_id,
             })
+
+            //mapeando categoria
+
+            await Promise.all(
+                categories_id.map(async (category_id) => {
+                    const category = await Category.findOne({ where: { id: category_id } })
+
+                    if (category) {
+                        return await ProductCategori.create({
+                            category_id,
+                            user_id,
+                            store_id,
+                            product_id: product.id,
+                        })
+                    }
+                })
+            )
 
             if (req.body.variations) {
                 const { variations } = req.body
@@ -432,19 +455,30 @@ module.exports = {
                 //Validar se a variação já existe
                 const resProduto = await Product.findByPk(product.id, {
                     include: [
+                        { association: `stores`, attributes: [`nameStore`, `email`, `url`] },
                         { association: `images_product` },
                         { association: `variations`, include: { association: `variation_info` } },
-                        { association: `categories` },
+                        {
+                            association: `categories`,
+                            attributes: [`category_id`],
+                            include: { association: `category` },
+                        },
                     ],
                 })
 
                 return res.json(resProduto)
             } else {
+                //retorno de produto
                 const resProduto = await Product.findByPk(product.id, {
                     include: [
+                        { association: `stores`, attributes: [`nameStore`, `email`, `url`] },
                         { association: `images_product` },
                         { association: `variations`, include: { association: `variation_info` } },
-                        { association: `categories` },
+                        {
+                            association: `categories`,
+                            attributes: [`category_id`],
+                            include: { association: `category` },
+                        },
                     ],
                 })
 
@@ -551,9 +585,10 @@ module.exports = {
                 brand,
                 model,
                 frete_class,
+                categories_id,
             } = req.body
 
-            const product = await Product.update(
+            await Product.update(
                 {
                     sku,
                     title,
@@ -578,7 +613,40 @@ module.exports = {
                 }
             )
 
-            return res.status(200).send(product[1])
+            if (categories_id) {
+                await Promise.all(
+                    categories_id.map(async (category_id) => {
+                        const category = await Category.findOne({ where: { id: category_id } })
+
+                        await ProductCategori.destroy({ where: { category_id, product_id } })
+
+                        if (category) {
+                            return await ProductCategori.create({
+                                category_id,
+                                user_id,
+                                store_id,
+                                product_id,
+                            })
+                        }
+                    })
+                )
+            }
+
+            //retorno de produto
+            const resProduto = await Product.findByPk(product_id, {
+                include: [
+                    { association: `stores`, attributes: [`nameStore`, `email`, `url`] },
+                    { association: `images_product` },
+                    { association: `variations`, include: { association: `variation_info` } },
+                    {
+                        association: `categories`,
+                        attributes: [`category_id`],
+                        include: { association: `category` },
+                    },
+                ],
+            })
+
+            return res.status(200).send(resProduto)
         } catch (error) {
             console.log(`Erro ao Atualizar Produto`, error)
             return res.status(400).send({ error })
