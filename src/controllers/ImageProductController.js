@@ -1,41 +1,43 @@
-const ImgProducts = require("../models/ImageProduct");
+const ImgProducts = require('../models/ImageProduct')
 const Product = require('../models/Product')
 
 module.exports = {
     async index(req, res) {
         const { id_product: product_id } = req.params
         console.log(product_id)
-        const images = await ImgProducts.findAll({ where: { product_id }})
-        
+        const images = await ImgProducts.findAll({ where: { product_id } })
+
         return res.json(images)
     },
 
-    async delete(req, res){
+    async delete(req, res) {
         const image = await ImgProducts.findByPk(req.params.id)
 
-        if(!image){
-            return res.status(200).json({ message: 'Image not exist '} )
+        if (!image) {
+            return res.status(200).json({ message: 'Image not exist ' })
         }
 
-        const imagedel = await ImgProducts.destroy({
+        await ImgProducts.destroy({
             where: {
-                id: req.params.id
+                id: req.params.id,
             },
-            individualHooks: true
-        }).then((ev) => {
-            return res.send()
-        }).catch((err) => {
-            console.log(err)
+            individualHooks: true,
         })
+            .then(() => {
+                return res.send()
+            })
+            .catch((err) => {
+                console.log(err)
+            })
     },
 
     async store(req, res) {
-        const { id_product: product_id } = req.params;
+        const { id_product: product_id } = req.params
         let { originalname: name, size, key, location: url = '' } = req.file
-        const product = await Product.findByPk( product_id )
+        const product = await Product.findByPk(product_id)
 
-        if(!product){
-            res.status(400).json({ error: 'Product not found '} )
+        if (!product) {
+            res.status(400).json({ error: 'Product not found ' })
         }
 
         const image = await ImgProducts.create({
@@ -43,9 +45,9 @@ module.exports = {
             size,
             key,
             url,
-            product_id
+            product_id,
         })
 
         return res.json(image)
-    }
-};
+    },
+}
