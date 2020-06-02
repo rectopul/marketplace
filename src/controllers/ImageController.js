@@ -3,7 +3,7 @@ const ImgProducts = require('../models/ImageProduct')
 
 module.exports = {
     async index(req, res) {
-        const images = await ImgProducts.findAll()
+        const images = await Image.findAll()
 
         return res.json(images)
     },
