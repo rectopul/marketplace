@@ -112,6 +112,7 @@ routes.delete(`/payment/:order_id`, paymentController.cancel)
 
 //Images
 routes.post(`/image/upload`, multer(multerConfig).single('file'), ImageController.store)
+routes.get(`/images`, ImageController.index)
 routes.delete(`/image/:id`, ImageController.delete)
 //Image client
 routes.post(`/client/image`, multer(multerConfig).single('file'), ClientController.image)
