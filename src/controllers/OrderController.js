@@ -6,6 +6,7 @@ const ProdutctOrder = require('../models/ProductOrder')
 const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
 const Product = require('../models/Product')
+const ProductVariation = require('../models/VariationMap')
 const { createOrder, getOrder } = require('../modules/payment')
 const { Op } = require('sequelize')
 const { addToCart } = require('../modules/melhorenvio')
@@ -207,6 +208,7 @@ module.exports = {
                     variable_sale_price_dates_to,
                     variable_regular_price,
                     variable_description,
+                    variable_stock,
                 } = variation.variations[0]
 
                 let value = parseFloat(variable_regular_price) * quantity,
@@ -257,6 +259,20 @@ module.exports = {
                     product_id,
                     variation_id: variation.variations[0].id,
                     quantity,
+                })
+
+                //Baixa em estoque
+                //pegar stock do produto
+                const stock = await Product.findByPk(product_id, { attributes: [stock] })
+
+                //Atualizar estoque do produto
+                await Product.update({
+                    stock: stock - quantity,
+                })
+
+                //atualizar estoque da variação
+                await ProductVariation.update({
+                    variable_stock: variable_stock - quantity,
                 })
 
                 const resume = await Order.findByPk(order.id, { include: includes })
@@ -342,6 +358,15 @@ module.exports = {
                 client_id,
                 product_id,
                 quantity,
+            })
+
+            //Baixa em estoque
+            //pegar stock do produto
+            const stock = await Product.findByPk(product_id, { attributes: [stock] })
+
+            //Atualizar estoque do produto
+            await Product.update({
+                stock: stock - quantity,
             })
 
             //Resumo do pedido

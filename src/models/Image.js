@@ -47,6 +47,7 @@ class Image extends Model {
         this.hasMany(models.VariablesMap, { foreignKey: 'user_id', as: 'product_variation' })
         this.hasMany(models.Client, { foreignKey: 'image_id', as: 'client' })
         this.hasMany(models.Categories, { foreignKey: 'image_id', as: 'category' })
+        this.hasOne(models.Stores, { foreignKey: 'image_id', as: 'store' })
     }
 }
 

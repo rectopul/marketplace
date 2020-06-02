@@ -55,14 +55,10 @@ module.exports = {
                 country,
                 number,
                 wirecardId,
+                image_id,
             } = req.body
 
             const account = await checkAccount(cpf)
-
-            //check user already exist use cpf
-            const cpfcheck = await User.findOne({ where: { cpf } })
-
-            if (cpfcheck) return res.status(400).send({ error: `There is already a user with this cpf` })
 
             //check user already exist use email
             const mailcheck = await User.findOne({ where: { email } })
@@ -133,9 +129,12 @@ module.exports = {
                     acess_token: createWireAccount.accessToken,
                     public_key: JSON.parse(pKey).keys.encryption,
                     user_id,
+                    image_id,
                 })
 
-                const resume = store.toJSON()
+                //get store resume
+                const storeRes = await Store.findByPk(store.id, { include: { association: `avatar` } })
+                const resume = storeRes.toJSON()
 
                 resume.user = {
                     name: `${name} ${lastName}`,
@@ -188,7 +187,9 @@ module.exports = {
                     user_id,
                 })
 
-                const resume = store.toJSON()
+                //get store resume
+                const storeRes = await Store.findByPk(store.id, { include: { association: `avatar` } })
+                const resume = storeRes.toJSON()
 
                 resume.user = {
                     name: `${name} ${lastName}`,
