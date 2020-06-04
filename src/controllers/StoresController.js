@@ -63,47 +63,36 @@ module.exports = {
             //check user already exist use email
             const mailcheck = await User.findOne({ where: { email } })
 
-            if (mailcheck) return res.status(400).send({ error: `There is already a user with this email` })
+            //check with user already store
+            const checkStore = await Store.findOne({ where: { user_id: mailcheck.id } })
+
+            if (mailcheck && checkStore)
+                return res.status(400).send({ error: `There is already a user with this email` })
 
             if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
 
             if (account.status == 404) {
-                // eslint-disable-next-line no-unused-vars
-                const createWireAccount = await createAccount({
-                    name,
-                    lastName,
-                    email,
-                    cpf,
-                    rg,
-                    issuer,
-                    issueDate,
-                    birthDate,
-                    phone,
-                    countryCode,
-                    street,
-                    streetNumber: number,
-                    district,
-                    zipCode: zipcode,
-                    city,
-                    state,
-                    country,
-                })
+                //SISTEMA INTERNO
+                let user
 
-                const user = await User.create({
-                    name: `${name} ${lastName}`,
-                    email,
-                    type: `storeAdministrator`,
-                    password,
-                    phone,
-                    cell,
-                })
+                if (!mailcheck) {
+                    user = await User.create({
+                        name: `${name} ${lastName}`,
+                        email,
+                        type: `storeAdministrator`,
+                        password,
+                        phone,
+                        cell,
+                    })
+                } else {
+                    user = mailcheck
+                }
 
                 const user_id = user.id
 
                 const token = user.generateToken()
 
-                const pKey = await getPublicKey(createWireAccount.accessToken)
-
+                //criar loja
                 const store = await Store.create({
                     nameStore,
                     name,
@@ -125,12 +114,42 @@ module.exports = {
                     city,
                     country,
                     number,
-                    wirecardId: createWireAccount.id,
-                    acess_token: createWireAccount.accessToken,
-                    public_key: JSON.parse(pKey).keys.encryption,
                     user_id,
                     image_id,
                 })
+
+                // eslint-disable-next-line no-unused-vars
+                const createWireAccount = await createAccount({
+                    name,
+                    lastName,
+                    email,
+                    cpf,
+                    rg,
+                    issuer,
+                    issueDate,
+                    birthDate,
+                    phone,
+                    countryCode,
+                    street,
+                    streetNumber: number,
+                    district,
+                    zipCode: zipcode,
+                    city,
+                    state,
+                    country,
+                })
+
+                const pKey = await getPublicKey(createWireAccount.accessToken)
+
+                //update store with informations wirecard
+                await Store.update(
+                    {
+                        wirecardId: createWireAccount.id,
+                        acess_token: createWireAccount.accessToken,
+                        public_key: JSON.parse(pKey).keys.encryption,
+                    },
+                    { where: { id: store.id } }
+                )
 
                 //get store resume
                 const storeRes = await Store.findByPk(store.id, { include: { association: `avatar` } })
@@ -207,7 +226,8 @@ module.exports = {
                 error.name == `SequelizeUniqueConstraintError` ||
                 error.name == `wireOrderError` ||
                 error.name == `bestSubmissionError` ||
-                error.name == `StatusCodeError`
+                error.name == `StatusCodeError` ||
+                error.name == `SequelizeForeignKeyConstraintError`
             )
                 return res.status(400).send({ error: error.message })
 
