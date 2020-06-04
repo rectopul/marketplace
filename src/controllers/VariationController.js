@@ -7,6 +7,7 @@ const Variation = require('../models/Variation')
 const VariationMap = require('../models/VariationMap')
 const VariableMapConstroller = require('./VariableMapController')
 const UserByToken = require('../middlewares/userByToken')
+const { Op } = require('sequelize')
 
 module.exports = {
     async index(req, res) {
@@ -18,7 +19,11 @@ module.exports = {
 
             const variations = await Store.findOne({
                 where: { user_id },
-                include: { association: `variations` },
+                include: {
+                    association: `variations`,
+                    include: { association: `variation` },
+                    where: { variable_enabled: `true`, variation_id: { [Op.eq]: null } },
+                },
                 attributes: [`id`, `nameStore`, `name`, `lastName`, `email`, `url`],
             })
 
@@ -52,7 +57,9 @@ module.exports = {
             const { variation_id } = req.params
 
             const variation = await Variation.findByPk(variation_id, {
+                where: { variable_enabled: `true` },
                 include: [
+                    { association: `variation`, where: { variable_enabled: `true` } },
                     { association: `store`, attributes: [`id`, `nameStore`, `name`, `lastName`, `email`, `url`] },
                     { association: `image` },
                 ],
@@ -174,6 +181,7 @@ module.exports = {
             variable_height,
             variable_shipping_class,
             variable_description,
+            variation_id,
         } = req.body
 
         //Get user id by token
@@ -192,7 +200,9 @@ module.exports = {
         //Check Name and Value Variation
         try {
             //Name
-            const variablename = await Variation.findOne({ where: { attribute_name, attribute_value, store_id } })
+            const variablename = await Variation.findOne({
+                where: { attribute_name, attribute_value, store_id, variation_id: null },
+            })
 
             if (variablename)
                 return res.status(400).json({
@@ -212,6 +222,7 @@ module.exports = {
                 upload_image_id,
                 variation_menu_order,
                 variable_enabled,
+                variation_id,
                 store_id,
             })
 
