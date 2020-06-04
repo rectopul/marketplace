@@ -63,11 +63,12 @@ module.exports = {
             //check user already exist use email
             const mailcheck = await User.findOne({ where: { email } })
 
-            //check with user already store
-            const checkStore = await Store.findOne({ where: { user_id: mailcheck.id } })
+            if (mailcheck) {
+                //check with user already store
+                const checkStore = await Store.findOne({ where: { user_id: mailcheck.id } })
 
-            if (mailcheck && checkStore)
-                return res.status(400).send({ error: `There is already a user with this email` })
+                if (checkStore) return res.status(400).send({ error: `There is already a user with this email` })
+            }
 
             if (account.status == 400) return res.status(400).send({ error: `cpf invalid` })
 
