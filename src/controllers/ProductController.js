@@ -8,6 +8,7 @@ const Image = require('../models/Image')
 const userByToken = require('../middlewares/userByToken')
 const ProductCategori = require('../models/CategoryMap')
 const Category = require('../models/Categories')
+const ProductImages = require('../models/ImageProduct')
 
 module.exports = {
     async index(req, res) {
@@ -40,7 +41,7 @@ module.exports = {
                 { association: `stores` },
                 {
                     association: `variations`,
-                    include: { association: `variation_info` },
+                    include: { association: `variation_info`, include: { association: `variations` } },
                 },
                 { association: `categories` },
             ],
@@ -239,6 +240,7 @@ module.exports = {
                 model,
                 frete_class,
                 categories_id,
+                images,
             } = req.body
 
             const { user_id } = await userByToken(authHeader)
@@ -293,6 +295,15 @@ module.exports = {
                     }
                 })
             )
+
+            //Imagens
+            if (images && images.length) {
+                await Promise.all(
+                    images.map(async (image_id) => {
+                        await ProductImages.update({ product_id: product.id }, { where: { id: image_id } })
+                    })
+                )
+            }
 
             if (req.body.variations) {
                 const { variations } = req.body
@@ -457,7 +468,10 @@ module.exports = {
                     include: [
                         { association: `stores`, attributes: [`nameStore`, `email`, `url`] },
                         { association: `images_product` },
-                        { association: `variations`, include: { association: `variation_info` } },
+                        {
+                            association: `variations`,
+                            include: { association: `variation_info`, include: { association: `variation` } },
+                        },
                         {
                             association: `categories`,
                             attributes: [`category_id`],
@@ -465,6 +479,16 @@ module.exports = {
                         },
                     ],
                 })
+
+                /* const { variations: variationsMap } = resProduto
+
+                //mapear variações
+                const mapingVariations = variationsMap.map(async variation => {
+                    const { variation_id } = variation.variation_info
+                    const variation = await Variation.findByPk(variation_id)
+                })
+
+                await Promise.all(mapingVariations) */
 
                 return res.json(resProduto)
             } else {
@@ -586,9 +610,10 @@ module.exports = {
                 model,
                 frete_class,
                 categories_id,
+                images,
             } = req.body
 
-            await Product.update(
+            const product = await Product.update(
                 {
                     sku,
                     title,
@@ -628,6 +653,15 @@ module.exports = {
                                 product_id,
                             })
                         }
+                    })
+                )
+            }
+
+            //Imagens
+            if (images && images.length) {
+                await Promise.all(
+                    images.map(async (image_id) => {
+                        await ProductImages.update({ product_id: product.id }, { where: { id: image_id } })
                     })
                 )
             }

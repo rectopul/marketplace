@@ -10,10 +10,38 @@ class Image extends Model {
     static init(sequelize) {
         super.init(
             {
-                name: DataTypes.STRING,
-                size: DataTypes.STRING,
-                key: DataTypes.STRING,
-                url: DataTypes.STRING,
+                name: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `please inform the name of image`,
+                        },
+                    },
+                },
+                size: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `please inform the name of image`,
+                        },
+                    },
+                },
+                key: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `please inform the name of image`,
+                        },
+                    },
+                },
+                url: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `please inform the name of image`,
+                        },
+                    },
+                },
             },
             {
                 hooks: {

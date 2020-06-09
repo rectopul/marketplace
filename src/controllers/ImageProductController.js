@@ -1,5 +1,4 @@
 const ImgProducts = require('../models/ImageProduct')
-const Product = require('../models/Product')
 
 module.exports = {
     async index(req, res) {
@@ -32,20 +31,13 @@ module.exports = {
     },
 
     async store(req, res) {
-        const { id_product: product_id } = req.params
         let { originalname: name, size, key, location: url = '' } = req.file
-        const product = await Product.findByPk(product_id)
-
-        if (!product) {
-            res.status(400).json({ error: 'Product not found ' })
-        }
 
         const image = await ImgProducts.create({
             name,
             size,
             key,
             url,
-            product_id,
         })
 
         return res.json(image)

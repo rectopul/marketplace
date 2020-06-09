@@ -177,7 +177,7 @@ routes.get('/adm/product', ProductController.allstore)
 routes.get('/adm/product/:product_id', ProductController.admShow)
 
 /* Images Products */
-routes.post('/image/product/:id_product', multer(multerConfig).single('file'), ImageProductController.store)
+routes.post('/image/product', multer(multerConfig).single('file'), ImageProductController.store)
 routes.get('/image/product/:id_product', ImageProductController.index)
 routes.delete('/image/product/:id', ImageProductController.delete)
 

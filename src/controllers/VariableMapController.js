@@ -103,6 +103,7 @@ module.exports = {
                 store_id: variation.store_id,
                 product_id,
                 user_id,
+                variation_id,
             })
 
             return res.json(mapping)
