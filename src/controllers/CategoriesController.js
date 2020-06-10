@@ -96,7 +96,7 @@ module.exports = {
                     prev_page_url: page && page > 1 ? `${url}${parseInt(page - 1)}` : null,
                 }
 
-                return res.json({ paginate: pageInfo, response })
+                response.paginate = pageInfo
             }
 
             return res.json(response)
