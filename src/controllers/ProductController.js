@@ -284,7 +284,7 @@ module.exports = {
                 store_id,
                 reference,
                 included_items,
-                availability,
+                availability: stock ? `in_stock` : null,
                 stock_alert,
                 video,
             })
