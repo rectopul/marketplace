@@ -257,16 +257,67 @@ module.exports = {
 
             if (!store) return res.status(400).send({ error: `This store does not belong to this user` })
 
-            let updateValues = {}
-            await Object.keys(req.body).map((item) => {
-                if (req.body[item] != undefined && item != `id`) return (updateValues[item] = req.body[item])
-            })
+            const {
+                nameStore,
+                name,
+                lastName,
+                email,
+                cpf,
+                rg,
+                issuer,
+                issueDate,
+                birthDate,
+                phone,
+                countryCode,
+                url,
+                street,
+                district,
+                zipcode,
+                state,
+                city,
+                country,
+                number,
+                image_id,
+            } = req.body
 
-            const storeupdate = await Store.update(updateValues, {
-                where: { id: store_id },
-                returning: true,
-                plain: true,
-            })
+            if (image_id) {
+                const image = await Image.findByPk(image_id)
+
+                if (!image) {
+                    return res.status(200).json({ message: 'Image not exist ' })
+                }
+
+                await Image.destroy({ where: { id: image_id }, individualHooks: true })
+            }
+
+            const storeupdate = await Store.update(
+                {
+                    nameStore,
+                    name,
+                    lastName,
+                    email,
+                    cpf,
+                    rg,
+                    issuer,
+                    issueDate,
+                    birthDate,
+                    phone,
+                    countryCode,
+                    url,
+                    street,
+                    district,
+                    zipcode,
+                    state,
+                    city,
+                    country,
+                    number,
+                },
+                {
+                    where: { id: store_id },
+                    returning: true,
+                    plain: true,
+                }
+            )
 
             return res.status(200).send(storeupdate[1])
         } catch (error) {

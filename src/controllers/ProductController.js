@@ -241,6 +241,11 @@ module.exports = {
                 frete_class,
                 categories_id,
                 images,
+                reference,
+                included_items,
+                availability,
+                stock_alert,
+                video,
             } = req.body
 
             const { user_id } = await userByToken(authHeader)
@@ -277,6 +282,11 @@ module.exports = {
                 model,
                 frete_class,
                 store_id,
+                reference,
+                included_items,
+                availability,
+                stock_alert,
+                video,
             })
 
             //mapeando categoria
@@ -611,6 +621,11 @@ module.exports = {
                 frete_class,
                 categories_id,
                 images,
+                reference,
+                included_items,
+                availability,
+                stock_alert,
+                video,
             } = req.body
 
             const product = await Product.update(
@@ -630,6 +645,11 @@ module.exports = {
                     brand,
                     model,
                     frete_class,
+                    reference,
+                    included_items,
+                    availability,
+                    stock_alert,
+                    video,
                 },
                 {
                     where: { id: product_id },

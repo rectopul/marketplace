@@ -102,6 +102,49 @@ class Product extends Model {
                 brand: DataTypes.STRING,
                 model: DataTypes.STRING,
                 frete_class: DataTypes.STRING,
+                reference: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `The reference field cannot be empty`,
+                        },
+                    },
+                },
+                included_items: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `The included_items field cannot be empty`,
+                        },
+                    },
+                },
+                availability: {
+                    type: DataTypes.STRING,
+                    validate: {
+                        notEmpty: {
+                            msg: `The availability field cannot be empty`,
+                        },
+                    },
+                },
+                stock_alert: {
+                    type: DataTypes.BOOLEAN,
+                    validate: {
+                        notEmpty: {
+                            msg: `The stock_alert field cannot be empty`,
+                        },
+                        isBoolean: function (val) {
+                            return typeof val == 'boolean'
+                        },
+                    },
+                },
+                video: {
+                    type: DataTypes.BOOLEAN,
+                    validate: {
+                        notEmpty: {
+                            msg: `The video field cannot be empty`,
+                        },
+                    },
+                },
             },
             {
                 sequelize,

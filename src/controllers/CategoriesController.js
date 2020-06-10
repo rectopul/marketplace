@@ -5,34 +5,105 @@ const UserByToken = require('../middlewares/userByToken')
 const User = require('../models/User')
 
 const { Op } = require('sequelize')
+const Product = require('../models/Product')
 
 module.exports = {
     async index(req, res) {
         const { slug } = req.params
 
         if (slug) {
-            const categories = await Categories.findAll({
+            //FILTROS
+            const { order, orderby, paginate, page } = req.query
+
+            const filters = [
+                `title`,
+                `sku`,
+                `description`,
+                `stock`,
+                `weight`,
+                `price`,
+                `promotional_price`,
+                `brand`,
+                `model`,
+            ]
+
+            if (order && [`ASC`, `DESC`].indexOf(order) == -1)
+                return res.status(400).send({ error: `The order parameter accepts the 'ASC' or 'DESC' values` })
+
+            if (orderby && filters.indexOf(orderby) == -1)
+                return res.status(400).send({ error: `orderby parameter does not exist` })
+
+            //Get all products
+            const productsCategory = await Categories.findOne({
+                where: { slug },
+                include: {
+                    association: `products_category`,
+                    include: { association: `product` },
+                },
+            })
+
+            const products = await productsCategory.products_category.map((product) => {
+                return product.product_id
+            })
+
+            const count = products.length
+
+            //find all products
+            const productFind = await Product.findAll({
+                where: {
+                    id: products,
+                },
+                order: order ? (orderby ? [[orderby, order]] : [['createdAt', order]]) : null,
+                limit: paginate || null,
+                offset: paginate * (page - 1) || null,
+                include: { association: `images_product` },
+            })
+
+            //FIND
+            const categories = await Categories.findOne({
                 where: { slug },
                 include: [
                     {
                         association: `products_category`,
-                        include: { association: `product` },
                     },
                     { association: `image` },
                 ],
             })
 
-            return res.json(categories)
+            //prepara o retorno
+            const response = categories.toJSON()
+
+            response.products_category = productFind
+
+            if (paginate) {
+                const url = `${process.env.URL}/products?paginate=${paginate}${order ? '&order=' + order : ``}${
+                    orderby ? '&orderby=' + orderby : ''
+                }&page=`
+                const intCount =
+                    count / paginate > parseInt(count / paginate)
+                        ? parseInt(count / paginate) + 1
+                        : parseInt(count / paginate)
+                const pageInfo = {
+                    total: intCount,
+                    current_page: `${url}${parseInt(page)}`,
+                    first_page: 1,
+                    first_page_url: `${url}${1}`,
+                    last_page: intCount,
+                    last_page_url: `${url}${intCount}`,
+                    next_page: parseInt(page) + 1 > intCount ? null : parseInt(page) + 1,
+                    next_page_url: parseInt(page) + 1 > intCount ? null : `${url}${parseInt(page) + 1}`,
+                    prev_page: page && page > 1 ? parseInt(page - 1) : null,
+                    prev_page_url: page && page > 1 ? `${url}${parseInt(page - 1)}` : null,
+                }
+
+                return res.json({ paginate: pageInfo, response })
+            }
+
+            return res.json(response)
         }
 
         const categories = await Categories.findAll({
-            include: [
-                {
-                    association: `products_category`,
-                    include: { association: `product` },
-                },
-                { association: `image` },
-            ],
+            include: { association: `image` },
         })
 
         return res.json(categories)

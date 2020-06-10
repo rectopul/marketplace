@@ -1,5 +1,4 @@
 const Image = require('../models/Image')
-const ImgProducts = require('../models/ImageProduct')
 
 module.exports = {
     async index(req, res) {
@@ -15,7 +14,7 @@ module.exports = {
             return res.status(200).json({ message: 'Image not exist ' })
         }
 
-        await ImgProducts.destroy({
+        await Image.destroy({
             where: {
                 id: req.params.id,
             },
