@@ -243,7 +243,6 @@ module.exports = {
                 images,
                 reference,
                 included_items,
-                availability,
                 stock_alert,
                 video,
             } = req.body
@@ -628,7 +627,7 @@ module.exports = {
                 video,
             } = req.body
 
-            const product = await Product.update(
+            await Product.update(
                 {
                     sku,
                     title,
@@ -681,7 +680,7 @@ module.exports = {
             if (images && images.length) {
                 await Promise.all(
                     images.map(async (image_id) => {
-                        await ProductImages.update({ product_id: product.id }, { where: { id: image_id } })
+                        await ProductImages.update({ product_id }, { where: { id: image_id } })
                     })
                 )
             }
