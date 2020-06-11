@@ -264,6 +264,13 @@ module.exports = {
             if (!categories_id || !categories_id.length)
                 return res.status(400).send({ error: `Please enter at least one category` })
 
+            //check if categories exist
+            await categories_id.map(async (category) => {
+                const cat = await Category.findByPk(category)
+
+                if (!cat) return res.status(400).send({ error: `Category by id ${category} not exist` })
+            })
+
             let product = await Product.create({
                 sku,
                 title,
