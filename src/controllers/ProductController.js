@@ -309,6 +309,16 @@ module.exports = {
             if (images && images.length) {
                 await Promise.all(
                     images.map(async (image_id) => {
+                        //check images is other product
+                        const checkImage = await ProductImages.findOne({ where: { id: image_id } })
+
+                        //check if image exist
+                        if (!checkImage) return res.status(400).send({ error: `This image not exist` })
+
+                        //check images is other product
+                        if (checkImage.product_id)
+                            return res.status(400).send({ error: `This image already belongs to another product` })
+
                         await ProductImages.update({ product_id: product.id }, { where: { id: image_id } })
                     })
                 )
@@ -488,16 +498,6 @@ module.exports = {
                         },
                     ],
                 })
-
-                /* const { variations: variationsMap } = resProduto
-
-                //mapear variações
-                const mapingVariations = variationsMap.map(async variation => {
-                    const { variation_id } = variation.variation_info
-                    const variation = await Variation.findByPk(variation_id)
-                })
-
-                await Promise.all(mapingVariations) */
 
                 return res.json(resProduto)
             } else {
