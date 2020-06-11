@@ -265,7 +265,7 @@ module.exports = {
                 return res.status(400).send({ error: `Please enter at least one category` })
 
             //check if categories exist
-            await categories_id.foreach(async (category) => {
+            await categories_id.forEach(async (category) => {
                 const cat = await Category.findByPk(category)
 
                 if (!cat) return res.status(400).send({ error: `Category by id ${category} not exist` })
