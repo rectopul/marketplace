@@ -67,10 +67,10 @@ module.exports = {
             if (!storeProduct) return res.status(400).send({ error: `This product does not belong to your store` })
 
             const variation = await Variation.findByPk(variation_id)
-            //get store by variation
-            const store = await Store.findOne({ where: { id: variation.store_id, user_id } })
 
-            if (!store) return res.status(400).send({ error: `This variation does not belong to your store` })
+            if (!variation) return res.status(400).send({ error: `This variation not exist` })
+            //get store by variation
+            const store = await Store.findOne({ where: { user_id } })
 
             //check if already exist variablemap
             const map = await VariableMap.findOne({ where: { store_id: variation.store_id, product_id } })
@@ -110,7 +110,7 @@ module.exports = {
                 variable_stock,
                 variable_shipping_class,
                 variable_description,
-                store_id: checkProduct.store_id,
+                store_id: store.id,
                 product_id,
                 user_id,
                 variation_id,
