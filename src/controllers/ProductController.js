@@ -265,11 +265,18 @@ module.exports = {
                 return res.status(400).send({ error: `Please enter at least one category` })
 
             //check if categories exist
-            await categories_id.forEach(async (category) => {
+            const noCat = categories_id.map(async (category) => {
                 const cat = await Category.findByPk(category)
 
-                if (!cat) return res.status(400).send({ error: `Category by id ${category} not exist` })
+                if (!cat) return category
             })
+
+            let categorysends = await Promise.all(noCat)
+
+            categorysends = categorysends.filter((el) => el != null)
+
+            if (categorysends.length)
+                return res.status(400).send({ error: `This categories not exists ${JSON.stringify(categorysends)}` })
 
             let product = await Product.create({
                 sku,
