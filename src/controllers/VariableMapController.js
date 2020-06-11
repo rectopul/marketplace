@@ -56,6 +56,16 @@ module.exports = {
 
             const { user_id } = await UserByToken(authHeader)
 
+            const checkProduct = await Product.findByPk(product_id)
+
+            if (!checkProduct) return res.status(400).send({ error: `This product not exist` })
+
+            const storeProduct = await Product.findByPk(product_id, {
+                include: { association: `stores`, where: { user_id } },
+            })
+
+            if (!storeProduct) return res.status(400).send({ error: `This product does not belong to your store` })
+
             const variation = await Variation.findByPk(variation_id)
             //get store by variation
             const store = await Store.findOne({ where: { id: variation.store_id, user_id } })
@@ -100,7 +110,7 @@ module.exports = {
                 variable_stock,
                 variable_shipping_class,
                 variable_description,
-                store_id: variation.store_id,
+                store_id: checkProduct.store_id,
                 product_id,
                 user_id,
                 variation_id,
