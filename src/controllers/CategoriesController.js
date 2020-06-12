@@ -144,7 +144,7 @@ module.exports = {
             }
 
             //check image id exist
-            if (image_id) {
+            if (image_id || image_id == 0) {
                 const checkimage = await Image.findByPk(image_id)
 
                 if (!checkimage) return res.status(400).send({ error: `This image ID not exist` })
