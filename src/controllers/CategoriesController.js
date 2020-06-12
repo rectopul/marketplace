@@ -6,6 +6,7 @@ const User = require('../models/User')
 
 const { Op } = require('sequelize')
 const Product = require('../models/Product')
+const Image = require('../models/Image')
 
 module.exports = {
     async index(req, res) {
@@ -128,8 +129,6 @@ module.exports = {
                 },
             })
 
-            console.log(user_id)
-
             if (!user) return res.status(400).send({ error: `This store does not exist for this user` })
 
             if (product_id) {
@@ -142,6 +141,13 @@ module.exports = {
                 })
 
                 if (!productStore) return res.status(400).send({ error: `This product does not exist in this store` })
+            }
+
+            //check image id exist
+            if (image_id) {
+                const checkimage = await Image.findByPk(image_id)
+
+                if (!checkimage) return res.status(400).send({ error: `This image ID not exist` })
             }
 
             //Mapeat categoria
