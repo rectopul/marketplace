@@ -52,7 +52,7 @@ module.exports = {
 
             const variation = await Variation.findByPk(variation_id, {
                 where: { variable_enabled: `true` },
-                include: [{ association: `variation`, where: { variable_enabled: `true` } }, { association: `image` }],
+                include: [{ association: `variation` }, { association: `image` }],
             })
 
             return res.json(variation)
