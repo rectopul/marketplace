@@ -17,7 +17,9 @@ module.exports = {
 
             const { user_id } = await UserByToken(authHeader)
 
-            const variations = await Variation.findAll()
+            const variations = await Variation.findAll({
+                include: { association: `variation` },
+            })
 
             return res.json(variations)
         } catch (error) {
@@ -52,10 +54,6 @@ module.exports = {
                 where: { variable_enabled: `true` },
                 include: [{ association: `variation`, where: { variable_enabled: `true` } }, { association: `image` }],
             })
-            //get store by variation
-            const store = await Store.findOne({ where: { id: variation.store_id, user_id } })
-
-            if (!store) return res.status(400).send({ error: `This variation does not belong to your store` })
 
             return res.json(variation)
         } catch (error) {
