@@ -17,15 +17,7 @@ module.exports = {
 
             const { user_id } = await UserByToken(authHeader)
 
-            const variations = await Store.findOne({
-                where: { user_id },
-                include: {
-                    association: `variations`,
-                    include: { association: `variation` },
-                    where: { variable_enabled: `true`, variation_id: { [Op.eq]: null } },
-                },
-                attributes: [`id`, `nameStore`, `name`, `lastName`, `email`, `url`],
-            })
+            const variations = await Variation.findAll()
 
             return res.json(variations)
         } catch (error) {
@@ -58,11 +50,7 @@ module.exports = {
 
             const variation = await Variation.findByPk(variation_id, {
                 where: { variable_enabled: `true` },
-                include: [
-                    { association: `variation`, where: { variable_enabled: `true` } },
-                    { association: `store`, attributes: [`id`, `nameStore`, `name`, `lastName`, `email`, `url`] },
-                    { association: `image` },
-                ],
+                include: [{ association: `variation`, where: { variable_enabled: `true` } }, { association: `image` }],
             })
             //get store by variation
             const store = await Store.findOne({ where: { id: variation.store_id, user_id } })
