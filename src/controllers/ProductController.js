@@ -12,69 +12,107 @@ const ProductImages = require('../models/ImageProduct')
 
 module.exports = {
     async index(req, res) {
-        const { order, orderby, paginate, page } = req.query
+        try {
+            const { order, orderby, paginate, page } = req.query
 
-        const filters = [
-            `title`,
-            `sku`,
-            `description`,
-            `stock`,
-            `weight`,
-            `price`,
-            `promotional_price`,
-            `brand`,
-            `model`,
-        ]
+            const filters = [
+                `title`,
+                `sku`,
+                `description`,
+                `stock`,
+                `weight`,
+                `price`,
+                `promotional_price`,
+                `brand`,
+                `model`,
+            ]
 
-        if (order && [`ASC`, `DESC`].indexOf(order) == -1)
-            return res.status(400).send({ error: `The order parameter accepts the 'ASC' or 'DESC' values` })
+            if (order && [`ASC`, `DESC`].indexOf(order) == -1)
+                return res.status(400).send({ error: `The order parameter accepts the 'ASC' or 'DESC' values` })
 
-        if (orderby && filters.indexOf(orderby) == -1)
-            return res.status(400).send({ error: `orderby parameter does not exist` })
+            if (orderby && filters.indexOf(orderby) == -1)
+                return res.status(400).send({ error: `orderby parameter does not exist` })
 
-        const products = await Product.findAll({
-            order: order ? (orderby ? [[orderby, order]] : [['createdAt', order]]) : null,
-            limit: paginate || null,
-            offset: paginate * (page - 1) || null,
-            include: [
-                { association: `images_product` },
-                { association: `stores` },
-                {
-                    association: `variations`,
-                    include: { association: `variation_info`, include: { association: `variations` } },
-                },
-                { association: `categories` },
-            ],
-        })
+            const products = await Product.findAll({
+                order: order ? (orderby ? [[orderby, order]] : [['createdAt', order]]) : null,
+                limit: paginate || null,
+                offset: paginate * (page - 1) || null,
+                include: [
+                    { association: `images_product` },
+                    { association: `stores` },
+                    {
+                        association: `variations`,
+                        include: { association: `variation_info`, include: { association: `variations` } },
+                    },
+                    { association: `categories` },
+                ],
+            })
 
-        //paginate infos
-        const count = await Product.count()
+            const newProducts = await products.map((product) => {
+                let nProduct = product.toJSON()
+                let { variations } = nProduct
 
-        if (paginate) {
-            const url = `${process.env.URL}/products?paginate=${paginate}${order ? '&order=' + order : ``}${
-                orderby ? '&orderby=' + orderby : ''
-            }&page=`
-            const intCount =
-                count / paginate > parseInt(count / paginate)
-                    ? parseInt(count / paginate) + 1
-                    : parseInt(count / paginate)
-            const pageInfo = {
-                total: intCount,
-                current_page: `${url}${parseInt(page)}`,
-                first_page: 1,
-                first_page_url: `${url}${1}`,
-                last_page: intCount,
-                last_page_url: `${url}${intCount}`,
-                next_page: parseInt(page) + 1 > intCount ? null : parseInt(page) + 1,
-                next_page_url: parseInt(page) + 1 > intCount ? null : `${url}${parseInt(page) + 1}`,
-                prev_page: page && page > 1 ? parseInt(page - 1) : null,
-                prev_page_url: page && page > 1 ? `${url}${parseInt(page - 1)}` : null,
+                const newVariations = variations.map((variat) => {
+                    let variation_info = variat.variation_info
+
+                    if (variation_info.variation_id != null) {
+                        variation_info = variation_info.variations
+
+                        delete variat.variation_info.variations
+
+                        variation_info.variations = variat.variation_info
+
+                        variat.variation_info = variation_info
+
+                        return variat
+                    }
+
+                    return variat
+                })
+
+                nProduct.variations = newVariations
+
+                return nProduct
+            })
+
+            //paginate infos
+            const count = await Product.count()
+
+            if (paginate) {
+                const url = `${process.env.URL}/products?paginate=${paginate}${order ? '&order=' + order : ``}${
+                    orderby ? '&orderby=' + orderby : ''
+                }&page=`
+                const intCount =
+                    count / paginate > parseInt(count / paginate)
+                        ? parseInt(count / paginate) + 1
+                        : parseInt(count / paginate)
+                const pageInfo = {
+                    total: intCount,
+                    current_page: `${url}${parseInt(page)}`,
+                    first_page: 1,
+                    first_page_url: `${url}${1}`,
+                    last_page: intCount,
+                    last_page_url: `${url}${intCount}`,
+                    next_page: parseInt(page) + 1 > intCount ? null : parseInt(page) + 1,
+                    next_page_url: parseInt(page) + 1 > intCount ? null : `${url}${parseInt(page) + 1}`,
+                    prev_page: page && page > 1 ? parseInt(page - 1) : null,
+                    prev_page_url: page && page > 1 ? `${url}${parseInt(page - 1)}` : null,
+                }
+
+                return res.json({ paginate: pageInfo, products: newProducts })
             }
 
-            return res.json({ paginate: pageInfo, products })
-        }
+            return res.json(newProducts)
+        } catch (error) {
+            //Validação de erros
+            if (error.name == `JsonWebTokenError`) return res.status(400).send({ error })
 
-        return res.json(products)
+            console.log(`Erro listar endereço de entrega: `, error)
+            if (error.name == `SequelizeValidationError` || error.name == `SequelizeUniqueConstraintError`)
+                return res.status(400).send({ error: error.message })
+
+            return res.status(500).send({ error: error })
+        }
     },
 
     async show(req, res) {
@@ -204,6 +242,22 @@ module.exports = {
                     },
                     { association: `categories` },
                 ],
+            })
+
+            await products.map((product) => {
+                const { variations } = product.toJSON()
+
+                const newVariations = variations.map((variat) => {
+                    const { variation_info } = variat.variation_info
+
+                    delete variat.variation_info
+
+                    variation_info.variations = variat
+
+                    return variation_info
+                })
+
+                return (product.variations = newVariations)
             })
 
             //paginate infos
